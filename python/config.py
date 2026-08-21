@@ -18,6 +18,10 @@ class EnvConfig:
     frame_stack: int = 1
     free_running: bool = True
     enable_map_memory: bool = False
+    # TODO D5: append the planner's goal vector and the decision engine's
+    # numeric features as fixed observation vectors. Additive keys — legacy
+    # checkpoints without them keep their state_dict (see C6).
+    enable_goal_conditioning: bool = False
     # full_run: keep the episode alive across room clears so the agent learns
     # whole runs (combat + navigation + loot in the same rollout). When false,
     # clearing a room ends the episode (mono-room test/benchmark mode).
@@ -138,6 +142,11 @@ class PhaseConfig:
     obstacle_count: int = 0
     obstacle_type: int = 4
     obstacle_min_spacing: int = 2
+    # Strategic objective + resource preservation hints consumed by the rule
+    # planner when env.enable_goal_conditioning is on (D5).
+    objective: str = "THE_BEAST"
+    preserve_angel: bool = False
+    preserve_bombs: bool = False
 
 
 @dataclass

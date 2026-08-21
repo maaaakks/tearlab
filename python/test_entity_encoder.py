@@ -58,6 +58,35 @@ class FeatureExtractorEntityTests(unittest.TestCase):
         keys = set(extractor.state_dict().keys())
         self.assertFalse(any(k.startswith("entity_encoder") for k in keys))
 
+    def test_extractor_fuses_goal_and_decision_when_present(self):
+        obs_space = spaces.Dict({
+            "grid": spaces.Box(0.0, 1.0, (10, 7, 13), dtype=np.float32),
+            "player": spaces.Box(-np.inf, np.inf, (22,), dtype=np.float32),
+            "goal": spaces.Box(-np.inf, np.inf, (12,), dtype=np.float32),
+            "decision": spaces.Box(-np.inf, np.inf, (8,), dtype=np.float32),
+        })
+        extractor = IsaacFeatureExtractor(obs_space, 256)
+        self.assertTrue(extractor.has_goal)
+        self.assertTrue(extractor.has_decision)
+        obs = {
+            "grid": torch.zeros(1, 10, 7, 13),
+            "player": torch.zeros(1, 22),
+            "goal": torch.zeros(1, 12),
+            "decision": torch.zeros(1, 8),
+        }
+        out = extractor(obs)
+        self.assertEqual(out.shape, (1, 256))
+
+    def test_extractor_without_goal_keeps_old_keys(self):
+        obs_space = spaces.Dict({
+            "grid": spaces.Box(0.0, 1.0, (10, 7, 13), dtype=np.float32),
+            "player": spaces.Box(-np.inf, np.inf, (22,), dtype=np.float32),
+        })
+        extractor = IsaacFeatureExtractor(obs_space, 256)
+        keys = set(extractor.state_dict().keys())
+        self.assertFalse(any(k.startswith("goal_fc") for k in keys))
+        self.assertFalse(any(k.startswith("decision_fc") for k in keys))
+
 
 if __name__ == "__main__":
     unittest.main()

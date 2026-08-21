@@ -10,6 +10,7 @@ env:
   free_running: true
   normalize_player_features: true
   enable_map_memory: true   # RunMemory room-graph map observation
+  enable_goal_conditioning: true  # planner goal vector + decision features (D5)
   full_run: true            # episode = full run, not a single room
   # Global safety timeout expressed in run time. At frame_skip=3 the game
   # emits ~10 states/sec, so 54000 states ~= 90 minutes of in-game time.
@@ -55,6 +56,7 @@ train:
 
 phase:
   # Natural layouts, enemies, drops and progression: do NOT inject enemies.
+  objective: THE_BEAST       # planner target when goal conditioning is on
   spawn_enemies: false
   spawn_obstacles: false
   disable_shooting: false

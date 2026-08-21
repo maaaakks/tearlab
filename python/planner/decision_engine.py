@@ -33,6 +33,9 @@ class DecisionFeatures:
     floor_stage: float = 0.0
     resource_pressure: float = 0.0
 
+    # Number of numeric features in to_vector(). Kept in sync manually.
+    VECTOR_DIM = 8
+
     def to_vector(self) -> list[float]:
         return [
             self.heart_price,

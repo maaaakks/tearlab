@@ -11,6 +11,9 @@ from gymnasium import spaces
 from config import Config
 from game_state import GameState
 from network_client import NetworkClient
+from planner.decision_engine import DecisionEngine
+from planner.goals import GOAL_VECTOR_DIM
+from planner.rules import PlannerContext, RulePlanner
 from reward import RewardShaper
 from run_memory import NUM_MAP_CHANNELS, MAP_HEIGHT, MAP_WIDTH, RunMemory
 
@@ -73,6 +76,22 @@ class IsaacEnv(gym.Env):
         self.enable_map_memory = bool(getattr(self.env_cfg, "enable_map_memory", False))
         self.run_memory = RunMemory()
 
+        # Goal conditioning (D5): the planner emits a goal vector, the decision
+        # engine emits numeric utility/constraint features; both are appended
+        # to the observation for the single generalist policy.
+        self.enable_goal_conditioning = bool(
+            getattr(self.env_cfg, "enable_goal_conditioning", False)
+        )
+        if self.enable_goal_conditioning:
+            self.planner = RulePlanner(
+                PlannerContext(
+                    objective=self.config.phase.objective,
+                    preserve_angel=self.config.phase.preserve_angel,
+                    preserve_bombs=self.config.phase.preserve_bombs,
+                )
+            )
+            self.decision_engine = DecisionEngine()
+
         # Observation space: Dict with grid (CNN input) and player (vector input)
         obs_spaces = {
             "grid": spaces.Box(
@@ -106,6 +125,21 @@ class IsaacEnv(gym.Env):
             shape=(MAX_ENTITIES, ENTITY_DIM),
             dtype=np.float32,
         )
+        if self.enable_goal_conditioning:
+            obs_spaces["goal"] = spaces.Box(
+                low=-np.inf,
+                high=np.inf,
+                shape=(GOAL_VECTOR_DIM,),
+                dtype=np.float32,
+            )
+            from planner.decision_engine import DecisionFeatures
+
+            obs_spaces["decision"] = spaces.Box(
+                low=-np.inf,
+                high=np.inf,
+                shape=(DecisionFeatures.VECTOR_DIM,),
+                dtype=np.float32,
+            )
         self.observation_space = spaces.Dict(obs_spaces)
 
         self._client = NetworkClient(
@@ -257,7 +291,40 @@ class IsaacEnv(gym.Env):
         }
         if self.enable_map_memory:
             obs["map"] = self.run_memory.update(state)
+        if self.enable_goal_conditioning:
+            obs["goal"] = np.asarray(
+                self.planner.goal_vector(state), dtype=np.float32
+            )
+            obs["decision"] = self._state_to_decision_features(state)
         return obs
+
+    def _state_to_decision_features(self, state: GameState) -> np.ndarray:
+        """D5: numeric utility/constraint features for the current decision.
+
+        Derived from the DecisionEngine (health ratio, stage) plus cheap
+        resource pressure from the player inventory. The single generalist
+        policy consumes these as part of its observation.
+        """
+        # Deal decision when this is a shop/devil/angel room; otherwise use a
+        # neutral context so the features remain meaningful in normal rooms.
+        deal_type = "shop_purchase"
+        if state.run.room_type == 15:
+            deal_type = "angel_room"
+        elif state.run.room_type == 14:
+            deal_type = "devil_deal"
+        _, _, features = self.decision_engine.evaluate(deal_type, state)
+
+        p = state.player
+        # Resource pressure in [0,1]: how close the player is to running out
+        # of the cheapest consumable they care about. 0 = plenty, 1 = empty.
+        consumables = []
+        consumables.append(p.num_bombs / max(1.0, 6.0))
+        consumables.append(p.num_keys / max(1.0, 6.0))
+        consumables.append(p.num_coins / max(1.0, 15.0))
+        features.resource_pressure = 1.0 - min(1.0, min(consumables))
+
+        vector = features.to_vector()
+        return np.asarray(vector, dtype=np.float32)
 
     def _state_to_entities(self, state: GameState) -> np.ndarray:
         """Serialize identity-bearing objects into the fixed padded table.

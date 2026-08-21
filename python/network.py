@@ -83,6 +83,22 @@ class IsaacFeatureExtractor(BaseFeaturesExtractor):
             self.entity_encoder = EntitySetEncoder(entity_shape[1])
             combined_size += 64
 
+        # Optional goal-conditioning branches (TODO D5): the planner's goal
+        # vector and the decision engine's numeric features are additive keys.
+        self.has_goal = "goal" in observation_space.spaces
+        if self.has_goal:
+            goal_dim = observation_space["goal"].shape[0]
+            self.goal_fc = nn.Sequential(nn.Linear(goal_dim, 32), nn.ReLU())
+            combined_size += 32
+
+        self.has_decision = "decision" in observation_space.spaces
+        if self.has_decision:
+            decision_dim = observation_space["decision"].shape[0]
+            self.decision_fc = nn.Sequential(
+                nn.Linear(decision_dim, 32), nn.ReLU()
+            )
+            combined_size += 32
+
         # Final projection to features_dim
         self.fc = nn.Sequential(
             nn.Linear(combined_size, features_dim),
@@ -105,6 +121,10 @@ class IsaacFeatureExtractor(BaseFeaturesExtractor):
         if self.has_entities and "entities" in observations:
             entity_out = self.entity_encoder(observations["entities"])
             parts.append(entity_out)
+        if self.has_goal and "goal" in observations:
+            parts.append(self.goal_fc(observations["goal"]))
+        if self.has_decision and "decision" in observations:
+            parts.append(self.decision_fc(observations["decision"]))
 
         combined = torch.cat(parts, dim=1)
         return self.fc(combined)

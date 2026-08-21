@@ -116,6 +116,10 @@ def _obs_to_tensors(obs, device):
         tensors["map"] = torch.as_tensor(obs["map"], dtype=torch.float32, device=device).unsqueeze(0)
     if "entities" in obs:
         tensors["entities"] = torch.as_tensor(obs["entities"], dtype=torch.float32, device=device).unsqueeze(0)
+    if "goal" in obs:
+        tensors["goal"] = torch.as_tensor(obs["goal"], dtype=torch.float32, device=device).unsqueeze(0)
+    if "decision" in obs:
+        tensors["decision"] = torch.as_tensor(obs["decision"], dtype=torch.float32, device=device).unsqueeze(0)
     return tensors
 
 
@@ -603,6 +607,16 @@ class LivePPOTrainer:
             entities = torch.as_tensor(
                 np.stack([tr["obs"]["entities"] for tr in batch]), dtype=torch.float32, device=self.device
             )
+        has_goal = "goal" in batch[0]["obs"]
+        if has_goal:
+            goals = torch.as_tensor(
+                np.stack([tr["obs"]["goal"] for tr in batch]), dtype=torch.float32, device=self.device
+            )
+        has_decision = "decision" in batch[0]["obs"]
+        if has_decision:
+            decisions = torch.as_tensor(
+                np.stack([tr["obs"]["decision"] for tr in batch]), dtype=torch.float32, device=self.device
+            )
 
         n = len(batch)
         idx = np.arange(n)
@@ -628,6 +642,10 @@ class LivePPOTrainer:
                     mb_obs["map"] = maps[mb]
                 if has_entities:
                     mb_obs["entities"] = entities[mb]
+                if has_goal:
+                    mb_obs["goal"] = goals[mb]
+                if has_decision:
+                    mb_obs["decision"] = decisions[mb]
                 values, logprobs, entropy = self.policy.evaluate_actions(
                     mb_obs, actions[mb], masks[mb] if masks is not None else None
                 )
@@ -686,6 +704,10 @@ class LivePPOTrainer:
                 sample_obs["map"] = maps[sample_idx]
             if has_entities:
                 sample_obs["entities"] = entities[sample_idx]
+            if has_goal:
+                sample_obs["goal"] = goals[sample_idx]
+            if has_decision:
+                sample_obs["decision"] = decisions[sample_idx]
             with torch.no_grad():
                 sample_values, _ = self.policy(sample_obs)
                 sample_features = self.policy.features(sample_obs)
