@@ -45,6 +45,13 @@ class RewardConfig:
     bomb_use_penalty: float = 0.0
     active_use_penalty: float = 0.0
     pillcard_use_penalty: float = 0.0
+    # Aim discipline: firing is free in Isaac, so unshaped policies spray.
+    # Penalize shots that are misaligned with the nearest enemy (linear in
+    # angular error beyond the tolerance cone) and shots fired with no
+    # enemy on screen. Zero disables.
+    aim_misalignment_penalty: float = 0.0   # max cost per fully-misaligned shot step
+    aim_tolerance_deg: float = 30.0         # error below this counts as aimed
+    aim_shoot_no_enemy_penalty: float = 0.0 # flat cost per shot step with no enemies
     death: float = -5.0
     timeout_penalty: float = -5.0
     # Small per-step cost: creates urgency without flipping strategy order.

@@ -58,6 +58,12 @@ class RewardShaper:
         if resource_cost != 0.0:
             self.reward_components["use_cost"] = resource_cost
 
+        # Aim discipline (precision over spraying)
+        aim_cost = self._compute_aim(state, action)
+        reward += aim_cost
+        if aim_cost != 0.0:
+            self.reward_components["aim"] = aim_cost
+
         # Reward staying alive while enemies are still present.
         if state.enemy_count > 0 and not state.player_dead:
             reward += self.config.survival_bonus
@@ -258,6 +264,50 @@ class RewardShaper:
             return self.config.wall_collision_penalty
 
         return 0.0
+
+    # Shot direction unit vectors (screen coords: +x right, +y down).
+    # Matches ActionInjector SHOOT_MAP: 1=up 2=down 3=left 4=right,
+    # 5=UL 6=UR 7=DL 8=DR.
+    _SHOT_VECTORS = {
+        1: (0.0, -1.0), 2: (0.0, 1.0), 3: (-1.0, 0.0), 4: (1.0, 0.0),
+        5: (-1.0, -1.0), 6: (1.0, -1.0), 7: (-1.0, 1.0), 8: (1.0, 1.0),
+    }
+
+    def _compute_aim(self, state: GameState, action: Sequence[int] | None) -> float:
+        if (
+            self.config.aim_misalignment_penalty == 0.0
+            and self.config.aim_shoot_no_enemy_penalty == 0.0
+        ):
+            return 0.0
+        if action is None or len(action) < 2:
+            return 0.0
+
+        shoot = int(action[1])
+        if shoot == 0:
+            return 0.0
+
+        if state.enemy_count == 0:
+            return self.config.aim_shoot_no_enemy_penalty
+
+        # Bearing to the nearest enemy (serializer deltas keep screen coords)
+        ex, ey = state.player.nearest_enemy_dx, state.player.nearest_enemy_dy
+        if abs(ex) < 1e-6 and abs(ey) < 1e-6:
+            return 0.0  # on top of us; any direction is fine
+
+        sx, sy = self._SHOT_VECTORS.get(shoot, (0.0, 0.0))
+        dot = sx * ex + sy * ey
+        norm_s = math.hypot(sx, sy)
+        norm_e = math.hypot(ex, ey)
+        cos_err = max(-1.0, min(1.0, dot / (norm_s * norm_e)))
+        error_deg = math.degrees(math.acos(cos_err))
+
+        tolerance = self.config.aim_tolerance_deg
+        if error_deg <= tolerance:
+            return 0.0
+
+        # Linear ramp from 0 at the tolerance edge to full penalty at 180 deg
+        frac = (error_deg - tolerance) / max(1e-6, 180.0 - tolerance)
+        return self.config.aim_misalignment_penalty * min(1.0, frac)
 
     def _compute_use_costs(self, action: Sequence[int] | None) -> float:
         if action is None or len(action) < 5:

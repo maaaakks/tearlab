@@ -7,7 +7,7 @@ env:
 
 reward:
   damage_dealt: 1.0
-  damage_progress_cap: 0.25
+  damage_progress_cap: 1.0
   enemy_killed: 0.0
   room_cleared: 2.0
   no_hit_bonus: 0.5
@@ -16,6 +16,9 @@ reward:
   timeout_penalty: -5.0
   time_penalty: -0.0005
   survival_bonus: 0.0
+  aim_misalignment_penalty: -0.01
+  aim_tolerance_deg: 30.0
+  aim_shoot_no_enemy_penalty: -0.002
 
 train:
   live_mode: true
