@@ -25,7 +25,7 @@ neural nets handle perception, control, and context-dependent valuation.
       pedestal items {id, price}, pickups {id, subtype}, gridEnt variants
       (tinted rock), inventory (coins/bombs/keys/hearts, active item,
       pocket items), deal history.
-- [ ] A2. Action expansion: MultiDiscrete([9, 9, bomb, active, card/pill])
+- [x] A2. Action expansion: MultiDiscrete([9, 9, bomb, active, card/pill])
       with validity masks (no bombs -> masked).
 - [ ] A3. RunMemory module: room graph + visited set updated per room
       transition; map summary encoding fed into controller obs.
