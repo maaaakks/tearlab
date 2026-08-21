@@ -3,7 +3,7 @@ env:
   # every 12-15 seconds while keeping several independent episodes per batch.
   n_workers: 1
   frame_skip: 3
-  speed_multiplier: 8
+  speed_multiplier: 12
   frame_stack: 1
   free_running: true
   normalize_player_features: true
@@ -46,12 +46,12 @@ train:
   aim_aux_final: 0.02
   aim_aux_decay_fraction: 0.8
   aim_aux_idle_weight: 0.25
-  save_interval_seconds: 600
+  save_interval_seconds: 300
 
 phase:
   enemy_type: 10        # Gaper
   enemy_variant: 0
-  enemy_count: 1
+  enemy_count: 2
   spawn_enemies: true
   random_spawn_positions: true
   spawn_radius_min: 80.0
