@@ -32,6 +32,7 @@ def state(
     terminal: bool = False,
     terminal_reason: str | None = None,
     events: list | None = None,
+    episode_tick: int = 0,
 ) -> GameState:
     return GameState(
         run=RunInfo(
@@ -49,6 +50,7 @@ def state(
         terminal=terminal,
         terminal_reason=terminal_reason,
         events=events or [],
+        episode_tick=episode_tick,
     )
 
 
@@ -211,9 +213,25 @@ class B4FirstVisitTests(unittest.TestCase):
         self.assertAlmostEqual(reward, 0.05, places=6)
 
 
+class B4ResourceUseTests(unittest.TestCase):
+    def test_bomb_use_cost_applies_when_configured(self):
+        """bomb_use_penalty charges every armed bomb step (F5 economy)."""
+        shaper = RewardShaper(RewardConfig(bomb_use_penalty=-0.05))
+        # First call seeds the episode (returns early); the cost applies on
+        # subsequent steps, matching the real per-step usage flow.
+        shaper.compute(state(room_index=1, enemies=[]), action=(0, 0, 0, 0, 0))
+        reward = shaper.compute(state(room_index=1, enemies=[]), action=(0, 0, 1, 0, 0))
+        self.assertAlmostEqual(shaper.reward_components["use_cost"], -0.05)
+        self.assertLess(reward, 0.0)
+
+    def test_no_bomb_cost_by_default(self):
+        shaper = RewardShaper(RewardConfig())
+        reward = shaper.compute(state(room_index=1, enemies=[]), action=(0, 0, 1, 0, 0))
+        self.assertEqual(shaper.reward_components.get("use_cost", 0.0), 0.0)
+
+
 class B4DeathDominanceTests(unittest.TestCase):
-    def test_death_stays_negative_after_max_gameplay_progress(self):
-        # Even a perfect room clear + floor + boss cannot make death profitable.
+    def test_death_stays_negative_after_max_gameplay_progress(self):        # Even a perfect room clear + floor + boss cannot make death profitable.
         shaper = RewardShaper(
             RewardConfig(
                 damage_dealt=1.0,
@@ -239,6 +257,106 @@ class B4DeathDominanceTests(unittest.TestCase):
         )
         # The death term plus damage-taken term must outweigh all positives.
         self.assertLess(reward, 0.0)
+
+
+class SuccessConditionedUrgencyTests(unittest.TestCase):
+    def make_shaper(self, **overrides) -> RewardShaper:
+        return RewardShaper(
+            RewardConfig(
+                damage_dealt=0.0,
+                enemy_killed=0.0,
+                room_cleared=3.0,
+                no_hit_bonus=0.0,
+                clear_speed_bonus=1.0,
+                clear_speed_horizon=150,
+                damage_taken=0.0,
+                death=-8.0,
+                death_early_penalty=-4.0,
+                timeout_penalty=-4.0,
+                timeout_enemy_hp_penalty=-2.0,
+                time_penalty=0.0,
+                room_first_visit=0.0,
+                boss_killed=0.0,
+                floor_cleared=0.0,
+                **overrides,
+            ),
+            max_episode_steps=150,
+        )
+
+    def test_early_death_is_worse_than_late_death(self):
+        enemy = make_enemy(1, 10.0, 10.0)
+
+        early = self.make_shaper()
+        early.compute(state(enemies=[enemy], episode_tick=1))
+        early_reward = early.compute(
+            state(
+                enemies=[enemy],
+                player_dead=True,
+                terminal=True,
+                terminal_reason="death",
+                episode_tick=15,
+            )
+        )
+
+        late = self.make_shaper()
+        late.compute(state(enemies=[enemy], episode_tick=1))
+        late_reward = late.compute(
+            state(
+                enemies=[enemy],
+                player_dead=True,
+                terminal=True,
+                terminal_reason="death",
+                episode_tick=135,
+            )
+        )
+
+        self.assertAlmostEqual(early.reward_components["death"], -11.6)
+        self.assertAlmostEqual(late.reward_components["death"], -8.4)
+        self.assertLess(early_reward, late_reward)
+
+    def test_speed_bonus_is_paid_only_after_clear(self):
+        enemy = make_enemy(1, 10.0, 10.0)
+        shaper = self.make_shaper()
+        shaper.compute(state(enemies=[enemy], episode_tick=1))
+        mid_reward = shaper.compute(state(enemies=[enemy], episode_tick=30))
+        self.assertNotIn("clear_speed_bonus", shaper.reward_components)
+        self.assertEqual(mid_reward, 0.0)
+
+        reward = shaper.compute(
+            state(enemies=[], room_clear=True, episode_tick=31)
+        )
+        self.assertAlmostEqual(
+            shaper.reward_components["clear_speed_bonus"], 0.8
+        )
+        self.assertAlmostEqual(reward, 3.8)
+
+    def test_timeout_penalty_tracks_enemy_hp_remaining(self):
+        enemy = make_enemy(1, 10.0, 10.0)
+        untouched = self.make_shaper()
+        untouched.compute(state(enemies=[enemy], episode_tick=1))
+        untouched_reward = untouched.compute(
+            state(
+                enemies=[enemy],
+                terminal=True,
+                terminal_reason="timeout",
+                episode_tick=150,
+            )
+        )
+
+        nearly_done = self.make_shaper()
+        nearly_done.compute(state(enemies=[enemy], episode_tick=1))
+        nearly_done_reward = nearly_done.compute(
+            state(
+                enemies=[make_enemy(1, 2.0, 10.0)],
+                terminal=True,
+                terminal_reason="timeout",
+                episode_tick=150,
+            )
+        )
+
+        self.assertAlmostEqual(untouched_reward, -6.0)
+        self.assertAlmostEqual(nearly_done_reward, -4.4)
+        self.assertLess(untouched_reward, nearly_done_reward)
 
 
 if __name__ == "__main__":

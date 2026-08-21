@@ -73,6 +73,37 @@ class RouteKnowledgeTests(unittest.TestCase):
         ))
 
 
+class ItemAvoidanceTests(unittest.TestCase):
+    def test_planner_skips_bad_item_when_knowledge_attached(self):
+        """D6: the planner must not COLLECT an item the KB marks avoid."""
+        kb = KnowledgeBase()
+        planner = RulePlanner(PlannerContext(objective="SURVIVE"), knowledge=kb)
+        state = GameState(
+            run=RunInfo(room_type=1),
+            enemy_count=0,
+            player=PlayerState(),
+            pedestal_items=[
+                PedestalItemState(item_id=386, position=(0.3, 0.3)),  # avoid
+                PedestalItemState(item_id=169, position=(0.6, 0.6)),  # good
+            ],
+        )
+        subgoal = planner.plan(state)
+        from planner.goals import GoalType
+        self.assertEqual(subgoal.goal_type, GoalType.COLLECT_TARGET)
+        self.assertEqual(subgoal.target_position, (0.6, 0.6))
+
+    def test_planner_without_knowledge_keeps_legacy_get_first_item(self):
+        planner = RulePlanner(PlannerContext(objective="SURVIVE"))
+        state = GameState(
+            run=RunInfo(room_type=1),
+            enemy_count=0,
+            player=PlayerState(),
+            pedestal_items=[PedestalItemState(item_id=386, position=(0.3, 0.3))],
+        )
+        subgoal = planner.plan(state)
+        self.assertEqual(subgoal.target_position, (0.3, 0.3))
+
+
 class MegaSatanPlannerTests(unittest.TestCase):
     def test_angel_statue_targeted_when_key_pieces_missing(self):
         planner = RulePlanner(PlannerContext(objective="MEGA_SATAN"))

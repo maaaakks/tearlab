@@ -29,6 +29,11 @@ reward:
   clear_speed_horizon: 300
   damage_taken: -0.5
   room_first_visit: 0.05      # one-shot exploration bonus, no loop farming
+  # Resource economy: each bomb use must pay for itself via the damage/clear
+  # it enables. Small but non-zero so random bombing nets negative.
+  bomb_use_penalty: -0.05
+  active_use_penalty: 0.0
+  pillcard_use_penalty: 0.0
   boss_killed: 0.5
   floor_cleared: 2.0
   run_won: 10.0

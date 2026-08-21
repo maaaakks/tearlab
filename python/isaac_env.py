@@ -86,12 +86,16 @@ class IsaacEnv(gym.Env):
             getattr(self.env_cfg, "enable_goal_conditioning", False)
         )
         if self.enable_goal_conditioning:
+            from knowledge_base import KnowledgeBase
+
+            knowledge = KnowledgeBase()
             self.planner = RulePlanner(
                 PlannerContext(
                     objective=self.config.phase.objective,
                     preserve_angel=self.config.phase.preserve_angel,
                     preserve_bombs=self.config.phase.preserve_bombs,
-                )
+                ),
+                knowledge=knowledge,
             )
             self.decision_engine = DecisionEngine()
 

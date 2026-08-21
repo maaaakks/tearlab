@@ -52,8 +52,11 @@ class RulePlanner:
       6. Explore unvisited rooms otherwise.
     """
 
-    def __init__(self, context: PlannerContext | None = None):
+    def __init__(self, context: PlannerContext | None = None, knowledge=None):
         self.context = context or PlannerContext()
+        # Optional knowledge base; when absent, item avoidance is inert
+        # (current behavior). Loaded once and shared across episodes.
+        self.knowledge = knowledge
 
     def plan(self, state: GameState) -> Subgoal:
         run = state.run
@@ -110,14 +113,22 @@ class RulePlanner:
                     target_entity_type=5,
                 )
 
-        # 4. Collectible in sight: treasure room or pedestal item.
+        # 4. Collectible in sight: treasure room or pedestal item. D6: skip
+        # items the knowledge base marks as bad for this build/run.
         if state.pedestal_items:
-            item = state.pedestal_items[0]
-            return Subgoal(
-                goal_type=GoalType.COLLECT_TARGET,
-                target_position=item.position,
-                target_entity_type=5,
+            item = next(
+                (
+                    p for p in state.pedestal_items
+                    if not self.should_avoid_pedestal_item(p.item_id)
+                ),
+                None,
             )
+            if item is not None:
+                return Subgoal(
+                    goal_type=GoalType.COLLECT_TARGET,
+                    target_position=item.position,
+                    target_entity_type=5,
+                )
 
         # 5. Shop economy when a shop door is reachable and coins exist.
         if run.room_type == ROOM_SHOP and state.player.num_coins > 0:
@@ -134,10 +145,12 @@ class RulePlanner:
     def should_avoid_pedestal_item(self, item_id: int) -> bool:
         """D6: deterministic "avoid this item" fact for known-bad items.
 
-        The knowledge base is the authority; this method exists so the planner
-        can gate a COLLECT subgoal without depending on loading JSON.
+        Delegates to the knowledge base; inert (always False) when no knowledge
+        base is attached, so legacy calls keep their behavior.
         """
-        return False
+        if self.knowledge is None:
+            return False
+        return self.knowledge.is_bad_to_take(item_id)
 
     def secret_room_candidates(self, state: GameState) -> list[tuple[int, int]]:
         """D6: rule-generated secret-room candidate walls from the room graph.
