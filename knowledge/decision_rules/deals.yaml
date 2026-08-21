@@ -1,0 +1,31 @@
+# Devil Deal decision rules.
+# The decision engine exposes numeric features; hard constraints gate the
+# choice, learned utility heads score context-dependent value.
+
+devil_deal:
+  # Hard constraints (never take regardless of utility)
+  hard_constraints:
+    - feature: route_compatible
+      op: "=="
+      value: true        # e.g. Mega Satan route may require preserving Angel access
+    - feature: health_containers_after
+      op: ">="
+      value: 1           # never accept a deal that leaves < 1 container
+
+  # Learned/utility features passed to the decision network
+  utility_features:
+    - heart_price
+    - current_health_ratio
+    - item_quality          # from knowledge/items.json
+    - item_tags             # damage / defensive / utility / transformation
+    - build_synergy_score   # overlap with owned items
+    - deal_history_penalty  # prior deals reduce Angel chance
+    - floor_stage           # later deals cost more relative value
+    - bombs_keys_coins      # resource pressure
+
+  # Route-specific policy overrides (planner level)
+  route_overrides:
+    MEGA_SATAN:
+      max_deals: 0          # preserve Angel access for Key Pieces
+    THE_BEAST:
+      max_deals: null       # allowed if survival_utility > opportunity_cost

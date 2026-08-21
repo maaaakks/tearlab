@@ -1,0 +1,100 @@
+# Route definition: THE_BEAST
+# Each milestone is a planner subgoal with explicit success conditions.
+# The planner walks this DAG; the learned controller executes each node.
+
+objective: THE_BEAST
+description: >
+  Defeat Dogma and The Beast via the Home route: Polaroid/Negative path
+  through Depths II (marked skull), Mom, then the Ascent.
+
+milestones:
+  - id: reach_depths_2
+    description: Descend to Depths II
+    success:
+      condition: stage_reached
+      params: { stage: 6 }   # GIDEON stage id for Depths II
+    reward: 50
+
+  - id: locate_marked_skull
+    description: Find the marked skull (Tinted Rock variant) on Depths II
+    success:
+      condition: object_seen
+      params: { entity_type: 1000, variant: 2 }
+    reward: 20
+
+  - id: bomb_skull
+    description: Preserve a bomb and destroy the marked skull
+    requires: [locate_marked_skull]
+    success:
+      condition: object_destroyed
+      params: { spawns: "Cave 2 (Strange Door access)" }
+    reward: 40
+    constraints:
+      min_bombs_before: 1
+
+  - id: defeat_mom
+    description: Defeat Mom on Depths II
+    success:
+      condition: boss_killed
+      params: { boss: MOM }
+    reward: 100
+
+  - id: take_polaroid_or_negative
+    description: Collect The Polaroid or The Negative from the drop
+    requires: [defeat_mom]
+    success:
+      condition: item_collected
+      params: { item_ids: [327, 328] }
+    reward: 80
+
+  - id: use_fool_leave_boss
+    description: Use The Fool card to leave the boss room without taking damage
+    requires: [take_polaroid_or_negative]
+    success:
+      condition: card_used
+      params: { card: THE_FOOL }
+    reward: 30
+
+  - id: open_strange_door
+    description: Open the Strange Door in Cave 2 with the Polaroid/Negative
+    success:
+      condition: door_opened
+      params: { door: STRANGE_DOOR }
+    reward: 40
+
+  - id: collect_dads_note
+    description: Reach and collect Dad's Note
+    success:
+      condition: item_collected
+      params: { item_ids: [549] }
+    reward: 60
+
+  - id: complete_ascent
+    description: Climb the Ascent back through all previous floors
+    requires: [collect_dads_note]
+    success:
+      condition: stage_reached
+      params: { ascent_complete: true }
+    reward: 150
+
+  - id: reach_home
+    description: Reach Home
+    success:
+      condition: stage_reached
+      params: { stage: HOME }
+    reward: 100
+
+  - id: defeat_dogma
+    description: Defeat Dogma
+    requires: [reach_home]
+    success:
+      condition: boss_killed
+      params: { boss: DOGMA }
+    reward: 200
+
+  - id: defeat_the_beast
+    description: Defeat The Beast
+    requires: [defeat_dogma]
+    success:
+      condition: game_won
+    reward: 500
