@@ -37,19 +37,56 @@ class IsaacPolicy(nn.Module):
     """Actor-critic policy for MultiDiscrete action spaces with Dict observations.
 
     One categorical head per MultiDiscrete dimension (e.g. [9, 9, 2, 2, 2] =
-    move, shoot, bomb, active item, card/pill).
+    move, shoot, bomb, active item, card/pill). Optional (config-gated, C4/C5):
+
+      - a GRU over the fused feature embedding for partially-observable runs;
+      - auxiliary representation heads predicting room type, local danger,
+        next destination and object reachability.
     """
 
-    def __init__(self, observation_space, action_nvec, features_dim: int = 256, hidden=(128, 64)):
+    ROOM_TYPE_VOCAB = 17   # one-hot length for the room-type classifier
+    DEST_VOCAB = 9         # door slot 0..7 + "none"
+
+    def __init__(
+        self,
+        observation_space,
+        action_nvec,
+        features_dim: int = 256,
+        hidden=(128, 64),
+        recurrent: bool = False,
+        recurrent_hidden_size: int = 128,
+        aux_coef: float = 0.0,
+    ):
         super().__init__()
         self.features = IsaacFeatureExtractor(observation_space, features_dim)
         self.action_nvec = list(int(n) for n in action_nvec)
-        self.pi = self._mlp(features_dim, hidden)
-        self.vf = self._mlp(features_dim, hidden)
+        self.recurrent = bool(recurrent)
+        self.recurrent_hidden_size = int(recurrent_hidden_size)
+        self.aux_enabled = bool(aux_coef and aux_coef > 0.0)
+
+        if self.recurrent:
+            self.gru = nn.GRU(
+                features_dim,
+                self.recurrent_hidden_size,
+                batch_first=True,
+            )
+            policy_in = self.recurrent_hidden_size
+        else:
+            policy_in = features_dim
+
+        self.pi = self._mlp(policy_in, hidden)
+        self.vf = self._mlp(policy_in, hidden)
         self.action_heads = nn.ModuleList(
             nn.Linear(hidden[-1], n) for n in self.action_nvec
         )
         self.value_head = nn.Linear(hidden[-1], 1)
+
+        if self.aux_enabled:
+            shared_dim = hidden[-1]
+            self.aux_room_type = nn.Linear(shared_dim, self.ROOM_TYPE_VOCAB)
+            self.aux_danger = nn.Linear(shared_dim, 1)
+            self.aux_next_dest = nn.Linear(shared_dim, self.DEST_VOCAB)
+            self.aux_reachable = nn.Linear(shared_dim, 1)
 
     @staticmethod
     def _mlp(in_dim, hidden):
@@ -60,12 +97,38 @@ class IsaacPolicy(nn.Module):
             last = h
         return nn.Sequential(*layers)
 
-    def forward(self, obs):
-        feat = self.features(obs)
-        shared_pi = self.pi(feat)
+    @staticmethod
+    def _new_hidden(batch_size: int, hidden_size: int, device) -> torch.Tensor:
+        return torch.zeros(1, batch_size, hidden_size, device=device)
+
+    def forward(self, obs, hidden=None):
+        feat = self.features(obs)  # (B, F)
+        if self.recurrent:
+            if hidden is None:
+                hidden = self._new_hidden(
+                    feat.shape[0], self.recurrent_hidden_size, feat.device
+                )
+            # GRU expects (B, seq, F); we process one step at a time.
+            feat_seq = feat.unsqueeze(1)
+            _, hidden_out = self.gru(feat_seq, hidden)
+            context = hidden_out.squeeze(0)  # (B, H)
+        else:
+            context = feat
+            hidden_out = None
+
+        shared_pi = self.pi(context)
         logits = [head(shared_pi) for head in self.action_heads]
-        value = self.value_head(self.vf(feat)).squeeze(-1)
-        return value, logits
+        value = self.value_head(self.vf(context)).squeeze(-1)
+
+        aux = None
+        if self.aux_enabled:
+            aux = {
+                "room_type": self.aux_room_type(shared_pi),
+                "danger": self.aux_danger(shared_pi).squeeze(-1),
+                "next_dest": self.aux_next_dest(shared_pi),
+                "reachable": self.aux_reachable(shared_pi).squeeze(-1),
+            }
+        return value, logits, hidden_out, aux
 
     @staticmethod
     def _dist(logits, masks=None):
@@ -85,13 +148,16 @@ class IsaacPolicy(nn.Module):
             offset += n
         return parts
 
-    def evaluate_actions(self, obs, actions, masks=None):
-        """actions: LongTensor (B, K). Returns values, joint logprobs, joint entropy.
+    def evaluate_actions(self, obs, actions, masks=None, hidden=None):
+        """actions: LongTensor (B, K).
 
-        masks: optional BoolTensor (B, sum(nvec)) matching the action space;
-        masked-out actions get -inf logits so their probability is exactly 0.
+        Returns values, logprobs, entropy, hidden_out, logits. Keeps the
+        recurrent contract: hidden is the state ACTIVE before this observation
+        (stored in each transition at collection time), hidden_out is what
+        follows; logits are returned so auxiliary objectives can supervise the
+        existing action heads.
         """
-        value, logits = self.forward(obs)
+        value, logits, hidden_out, _aux = self.forward(obs, hidden)
         logprob = None
         entropy = None
         mb_masks = (
@@ -104,7 +170,30 @@ class IsaacPolicy(nn.Module):
             ent = dist.entropy()
             logprob = term if logprob is None else logprob + term
             entropy = ent if entropy is None else entropy + ent
-        return value, logprob, entropy
+        return value, logprob, entropy, hidden_out, logits
+
+    def aux_losses(self, obs, aux_targets, hidden=None) -> dict[str, torch.Tensor]:
+        """C5 auxiliary losses evaluated on the current parameters."""
+        if not self.aux_enabled:
+            return {}
+        _value, _logits, hidden_out, aux = self.forward(obs, hidden)
+        room_type = aux_targets["room_type"]
+        losses = {
+            "room_type": torch.nn.functional.cross_entropy(
+                aux["room_type"], room_type
+            ),
+        }
+        # danger: bounded regression toward normalized enemy density.
+        losses["danger"] = torch.nn.functional.mse_loss(
+            aux["danger"], aux_targets["danger"]
+        )
+        losses["next_dest"] = torch.nn.functional.cross_entropy(
+            aux["next_dest"], aux_targets["next_dest"]
+        )
+        losses["reachable"] = torch.nn.functional.binary_cross_entropy_with_logits(
+            aux["reachable"], aux_targets["reachable"]
+        )
+        return losses
 
 
 def _obs_to_tensors(obs, device):
@@ -126,6 +215,36 @@ def _obs_to_tensors(obs, device):
 def _mask_to_tensors(mask: np.ndarray, device):
     """Flattened env mask -> BoolTensor (sum(nvec),)."""
     return torch.as_tensor(mask, dtype=torch.bool, device=device)
+
+
+def aim_targets_from_player_features(players: torch.Tensor) -> torch.Tensor:
+    """Map the nearest-enemy delta to idle or one of the 8 shoot directions.
+
+    Player features 18/19 contain normalized screen-space dx/dy. A zero vector
+    means no visible target and is explicitly labelled as shoot-idle, which
+    teaches the same policy head to stop spraying into empty rooms.
+    """
+    if players.ndim != 2 or players.shape[1] < 20:
+        raise ValueError("Aim supervision requires the 22-value player vector")
+
+    deltas = players[:, 18:20]
+    lengths = torch.linalg.vector_norm(deltas, dim=1)
+    unit = deltas / lengths.clamp_min(1e-8).unsqueeze(1)
+    diagonal = 1.0 / math.sqrt(2.0)
+    directions = players.new_tensor(
+        [
+            [0.0, -1.0],
+            [0.0, 1.0],
+            [-1.0, 0.0],
+            [1.0, 0.0],
+            [-diagonal, -diagonal],
+            [diagonal, -diagonal],
+            [-diagonal, diagonal],
+            [diagonal, diagonal],
+        ]
+    )
+    targets = torch.argmax(unit @ directions.T, dim=1) + 1
+    return torch.where(lengths > 1e-6, targets, torch.zeros_like(targets))
 
 
 class Collector(threading.Thread):
@@ -171,6 +290,34 @@ class Collector(threading.Thread):
         self.last_ep_idle_rate = 0.0
         self.last_ep_wall_rate = 0.0
         self.last_ep_bomb_uses = 0
+        # C4: per-episode recurrent hidden state. Reset at episode starts.
+        self.hidden = None
+
+    @staticmethod
+    def _aux_targets(info) -> dict | None:
+        """C5: derive auxiliary labels from the post-step game state.
+
+        Returns None when the state is unavailable; only running policies with
+        aux heads consume these.
+        """
+        state = info.get("state") if isinstance(info, dict) else None
+        if state is None:
+            return None
+        run = state.run
+        enemies = getattr(state, "enemies", None)
+        enemy_count = int(getattr(state, "enemy_count", 0) or 0)
+        danger = min(1.0, enemy_count / 8.0)
+        doors = getattr(state, "doors", None) or []
+        open_door_slots = [d.slot for d in doors if not d.locked]
+        next_dest = open_door_slots[0] if open_door_slots else 8
+        reachable = 1.0 if (open_door_slots or state.pedestal_items) else 0.0
+        room_type = min(int(getattr(run, "room_type", 0) or 0), 16)
+        return {
+            "room_type": room_type,
+            "danger": float(danger),
+            "next_dest": int(next_dest),
+            "reachable": float(reachable),
+        }
 
     def run(self):
         obs = None
@@ -215,8 +362,11 @@ class Collector(threading.Thread):
                 mask_parts = IsaacPolicy.split_masks(
                     mask_flat.unsqueeze(0), self.env.action_space.nvec.tolist()
                 )
+                hidden_in = self.hidden
                 with torch.no_grad():
-                    value, logits = self.policy(tensors)
+                    value, logits, hidden_out, _aux = self.policy(
+                        tensors, hidden=hidden_in
+                    )
                     dists = [IsaacPolicy._dist(l, m[0]) for l, m in zip(logits, mask_parts)]
                     samples = [d.sample() for d in dists]
                     logprob = sum(
@@ -229,7 +379,9 @@ class Collector(threading.Thread):
 
                 with torch.no_grad():
                     nv_tensors = _obs_to_tensors(next_obs, self.device)
-                    next_value, _ = self.policy(nv_tensors)
+                    next_value, _logits, _hidden, _aux = self.policy(
+                        nv_tensors, hidden=hidden_out
+                    )
 
                 transition = {
                     "obs": {k: v.copy() for k, v in obs.items()},
@@ -241,6 +393,15 @@ class Collector(threading.Thread):
                     "done": bool(done),
                     # Bootstrap for the case where this transition ends the batch
                     "next_value": 0.0 if done else float(next_value.item()),
+                    # C4: per-step recurrent state entered/exited for this step.
+                    "hidden_in": (
+                        None if hidden_in is None else hidden_in.detach().cpu().numpy()
+                    ),
+                    "hidden_out": (
+                        None if hidden_out is None else hidden_out.detach().cpu().numpy()
+                    ),
+                    # C5: auxiliary labels for the representation heads.
+                    "aux_targets": self._aux_targets(info),
                 }
 
                 self.ep_reward += reward
@@ -286,9 +447,11 @@ class Collector(threading.Thread):
                     self.ep_idle_steps = 0
                     self.ep_wall_steps = 0
                     self.ep_bomb_uses = 0
+                    self.hidden = None  # new episode -> zero recurrent state
                     obs, _ = self.env.reset()
                 else:
                     obs = next_obs
+                    self.hidden = hidden_out
 
                 with self.buffer_lock:
                     self.buffer.append(transition)
@@ -312,7 +475,11 @@ class LivePPOTrainer:
         tc = config.train
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.policy = IsaacPolicy(
-            env.observation_space, env.action_space.nvec.tolist()
+            env.observation_space,
+            env.action_space.nvec.tolist(),
+            recurrent=tc.recurrent,
+            recurrent_hidden_size=tc.recurrent_hidden_size,
+            aux_coef=tc.aux_coef,
         ).to(self.device)
         self.optimizer = optim.Adam(self.policy.parameters(), lr=tc.learning_rate)
         self.gamma = tc.gamma
@@ -323,11 +490,30 @@ class LivePPOTrainer:
             tc.ent_coef if tc.ent_coef_final is None else tc.ent_coef_final
         )
         self.entropy_decay_fraction = max(0.0, float(tc.entropy_decay_fraction))
+        self.aim_aux_coef = max(0.0, float(tc.aim_aux_coef))
+        self.aim_aux_final = max(
+            0.0,
+            self.aim_aux_coef
+            if tc.aim_aux_final is None
+            else float(tc.aim_aux_final),
+        )
+        self.aim_aux_decay_fraction = max(
+            0.0, float(tc.aim_aux_decay_fraction)
+        )
+        self.aim_aux_idle_weight = max(0.0, float(tc.aim_aux_idle_weight))
+        if self.aim_aux_coef > 0.0 and config.env.mask_distance_vectors:
+            raise ValueError(
+                "Aim auxiliary loss needs nearest-enemy dx/dy; set "
+                "env.mask_distance_vectors: false or train.aim_aux_coef: 0."
+            )
         self.vf_coef = tc.vf_coef
         self.max_grad_norm = tc.max_grad_norm
         self.n_steps = tc.n_steps
         self.batch_size = tc.batch_size
         self.n_epochs = tc.n_epochs
+        self.recurrent = bool(tc.recurrent)
+        self.recurrent_hidden_size = int(tc.recurrent_hidden_size)
+        self.aux_coef = float(tc.aux_coef)
         self.total_timesteps = tc.total_timesteps
         self.save_interval_seconds = max(1.0, float(tc.save_interval_seconds))
 
@@ -533,6 +719,20 @@ class LivePPOTrainer:
         progress = min(1.0, max(0.0, steps / decay_steps))
         return self.ent_coef + progress * (self.ent_coef_final - self.ent_coef)
 
+    def _current_aim_aux_coef(self, steps: int) -> float:
+        if (
+            self.aim_aux_decay_fraction <= 0
+            or self.aim_aux_coef == self.aim_aux_final
+        ):
+            return self.aim_aux_final
+        decay_steps = max(
+            1.0, self.total_timesteps * self.aim_aux_decay_fraction
+        )
+        progress = min(1.0, max(0.0, steps / decay_steps))
+        return self.aim_aux_coef + progress * (
+            self.aim_aux_final - self.aim_aux_coef
+        )
+
     def _wait_for_batch(self, n: int, deadline: float | None = None) -> list:
         with self.buffer_cv:
             while len(self.buffer) < n and not self.stop_event.is_set():
@@ -596,6 +796,7 @@ class LivePPOTrainer:
             masks = None
         advs = torch.as_tensor(advantages, dtype=torch.float32, device=self.device)
         rets = torch.as_tensor(returns, dtype=torch.float32, device=self.device)
+        aim_targets = aim_targets_from_player_features(players)
 
         has_map = "map" in batch[0]["obs"]
         if has_map:
@@ -619,6 +820,22 @@ class LivePPOTrainer:
             )
 
         n = len(batch)
+        # C4: per-transition recurrent state entered at each step. When
+        # recurrent, minibatches must respect temporal order (no shuffle).
+        hiddens = None
+        if self.recurrent and all(tr.get("hidden_in") is not None for tr in batch):
+            # Each stored hidden is (1, 1, H); a full batch is (1, n, H).
+            stacked = np.stack([tr["hidden_in"] for tr in batch])
+            stacked = stacked.reshape(-1, self.recurrent_hidden_size)
+            hiddens = torch.as_tensor(
+                stacked, dtype=torch.float32, device=self.device
+            ).unsqueeze(0)
+        aux_enabled = self.aux_coef > 0.0 and self.policy.aux_enabled
+        has_aux_targets = (
+            aux_enabled and all(tr.get("aux_targets") is not None for tr in batch)
+        )
+        aux_loss_factor = self.aux_coef if has_aux_targets else 0.0
+
         idx = np.arange(n)
         stats = {
             "pi_loss": 0.0,
@@ -628,11 +845,17 @@ class LivePPOTrainer:
             "clip_fraction": 0.0,
             "grad_norm": 0.0,
             "updates": 0,
+            "aux_loss": 0.0,
+            "aim_aux_loss": 0.0,
         }
         current_ent_coef = self._current_ent_coef(self.collector.steps)
+        current_aim_aux_coef = self._current_aim_aux_coef(
+            self.collector.steps
+        )
         early_stop = False
         for _ in range(self.n_epochs):
-            np.random.shuffle(idx)
+            if not self.recurrent:
+                np.random.shuffle(idx)
             for start in range(0, n, self.batch_size):
                 mb = idx[start:start + self.batch_size]
                 if len(mb) < 2:
@@ -646,8 +869,18 @@ class LivePPOTrainer:
                     mb_obs["goal"] = goals[mb]
                 if has_decision:
                     mb_obs["decision"] = decisions[mb]
-                values, logprobs, entropy = self.policy.evaluate_actions(
-                    mb_obs, actions[mb], masks[mb] if masks is not None else None
+                mb_hidden = hiddens[:, mb] if hiddens is not None else None
+                (
+                    values,
+                    logprobs,
+                    entropy,
+                    _hidden_out,
+                    action_logits,
+                ) = self.policy.evaluate_actions(
+                    mb_obs,
+                    actions[mb],
+                    masks[mb] if masks is not None else None,
+                    hidden=mb_hidden,
                 )
 
                 ratio = torch.exp(logprobs - old_logprobs[mb])
@@ -660,6 +893,67 @@ class LivePPOTrainer:
                 ent = entropy.mean()
 
                 loss = pi_loss + self.vf_coef * v_loss - current_ent_coef * ent
+
+                # Supervise the existing shoot head inside the same PPO update.
+                # Visible enemies receive an 8-way direction label; empty-room
+                # samples receive a lower-weight idle label so they curb spam
+                # without overwhelming combat examples in full runs.
+                mb_aim_targets = aim_targets[mb]
+                shoot_logits = action_logits[1]
+                if masks is not None:
+                    shoot_mask = IsaacPolicy.split_masks(
+                        masks[mb], self.policy.action_nvec
+                    )[1]
+                    target_allowed = shoot_mask.gather(
+                        1, mb_aim_targets.unsqueeze(1)
+                    ).squeeze(1)
+                    mb_aim_targets = torch.where(
+                        target_allowed,
+                        mb_aim_targets,
+                        torch.zeros_like(mb_aim_targets),
+                    )
+                    shoot_logits = torch.where(
+                        shoot_mask,
+                        shoot_logits,
+                        torch.full_like(shoot_logits, float("-inf")),
+                    )
+                aim_per_sample = torch.nn.functional.cross_entropy(
+                    shoot_logits, mb_aim_targets, reduction="none"
+                )
+                aim_weights = torch.where(
+                    mb_aim_targets == 0,
+                    torch.full_like(
+                        aim_per_sample, self.aim_aux_idle_weight
+                    ),
+                    torch.ones_like(aim_per_sample),
+                )
+                aim_aux_loss = (
+                    (aim_per_sample * aim_weights).sum()
+                    / aim_weights.sum().clamp_min(1e-8)
+                )
+                loss = loss + current_aim_aux_coef * aim_aux_loss
+
+                aux_loss_total = 0.0
+                if has_aux_targets:
+                    aux_targets = {
+                        key: torch.as_tensor(
+                            [tr["aux_targets"][key] for tr in
+                             [batch[i] for i in mb]],
+                            dtype=(
+                                torch.long if key in ("room_type", "next_dest")
+                                else torch.float32
+                            ),
+                            device=self.device,
+                        )
+                        for key in ("room_type", "danger", "next_dest", "reachable")
+                    }
+                    aux_losses = self.policy.aux_losses(
+                        mb_obs, aux_targets, hidden=mb_hidden
+                    )
+                    for aux_loss in aux_losses.values():
+                        aux_loss_total = aux_loss_total + aux_loss
+                    loss = loss + aux_loss_factor * aux_loss_total
+
                 self.optimizer.zero_grad()
                 loss.backward()
                 grad_norm = nn.utils.clip_grad_norm_(
@@ -684,6 +978,10 @@ class LivePPOTrainer:
                 stats["kl"] += approx_kl
                 stats["clip_fraction"] += clip_fraction
                 stats["grad_norm"] += float(grad_norm)
+                stats["aux_loss"] += (
+                    float(aux_loss_total.item()) if has_aux_targets else 0.0
+                )
+                stats["aim_aux_loss"] += float(aim_aux_loss.item())
                 stats["updates"] += 1
 
                 if tc.target_kl is not None and approx_kl > 1.5 * tc.target_kl:
@@ -709,8 +1007,38 @@ class LivePPOTrainer:
             if has_decision:
                 sample_obs["decision"] = decisions[sample_idx]
             with torch.no_grad():
-                sample_values, _ = self.policy(sample_obs)
+                sample_values, sample_logits, _hidden, _aux = self.policy(
+                    sample_obs
+                )
                 sample_features = self.policy.features(sample_obs)
+
+            sample_aim_targets = aim_targets[sample_idx]
+            sample_aim_predictions = sample_logits[1].argmax(dim=1)
+            visible_targets = sample_aim_targets != 0
+            idle_targets = ~visible_targets
+            aim_target_accuracy = (
+                (sample_aim_predictions == sample_aim_targets)
+                .float()
+                .mean()
+                .item()
+            )
+            aim_visible_accuracy = (
+                (sample_aim_predictions[visible_targets]
+                 == sample_aim_targets[visible_targets])
+                .float()
+                .mean()
+                .item()
+                if visible_targets.any()
+                else 0.0
+            )
+            aim_idle_accuracy = (
+                (sample_aim_predictions[idle_targets] == 0)
+                .float()
+                .mean()
+                .item()
+                if idle_targets.any()
+                else 0.0
+            )
 
             sample_returns = rets[sample_idx]
             return_variance = torch.var(sample_returns, unbiased=False)
@@ -745,6 +1073,7 @@ class LivePPOTrainer:
                 "approx_kl": stats["kl"] / u,
                 "clip_fraction": stats["clip_fraction"] / u,
                 "grad_norm": stats["grad_norm"] / u,
+                "aux_loss": stats["aux_loss"] / u,
                 "explained_variance": explained_variance,
                 "feature_abs_mean": sample_features.abs().mean().item(),
                 "dead_feature_fraction": dead_feature_fraction,
@@ -766,6 +1095,13 @@ class LivePPOTrainer:
                 ),
                 "ent_coef": current_ent_coef,
                 "early_stop": float(early_stop),
+                "aim_aux_loss": stats["aim_aux_loss"] / u,
+                "aim_aux_coef": current_aim_aux_coef,
+                "aim_target_accuracy": aim_target_accuracy,
+                "aim_visible_accuracy": aim_visible_accuracy,
+                "aim_idle_accuracy": aim_idle_accuracy,
+                "aim_visible_fraction": visible_targets.float().mean().item(),
+                "aux_loss": stats["aux_loss"] / u,
             }
         return None
 
@@ -831,6 +1167,15 @@ class LivePPOTrainer:
                     shoot_action_entropy=round(metrics["shoot_action_entropy"], 4),
                     move_idle_rate=round(metrics["move_idle_rate"], 4),
                     shoot_idle_rate=round(metrics["shoot_idle_rate"], 4),
+                    aim_aux_loss=round(metrics["aim_aux_loss"], 4),
+                    aim_aux_coef=round(metrics["aim_aux_coef"], 4),
+                    aim_target_accuracy=round(
+                        metrics["aim_target_accuracy"], 4
+                    ),
+                    aim_visible_accuracy=round(
+                        metrics["aim_visible_accuracy"], 4
+                    ),
+                    aim_idle_accuracy=round(metrics["aim_idle_accuracy"], 4),
                     current_ent_coef=round(metrics["ent_coef"], 5),
                     target_kl=tc.target_kl or 0.0,
                     update_seconds=round(dt, 2),
@@ -874,13 +1219,16 @@ class LivePPOTrainer:
                 log.info(
                     "UPDATE @ %d steps | %.2fs/update | ~%.0f steps/s | "
                     "pi=%.4f v=%.3f H=%.3f KL=%.4f clip=%.3f EV=%.3f "
-                    "feat_dead=%.1f%% actH=%.2f/%.2f | ep_rew=%.1f ep_len=%d (%s)",
+                    "feat_dead=%.1f%% actH=%.2f/%.2f aim=%.3f acc=%.1f%% | "
+                    "ep_rew=%.1f ep_len=%d (%s)",
                     current, dt, sps,
                     metrics["pi_loss"], metrics["v_loss"], metrics["entropy"],
                     metrics["approx_kl"], metrics["clip_fraction"],
                     metrics["explained_variance"],
                     metrics["dead_feature_fraction"] * 100.0,
                     metrics["move_action_entropy"], metrics["shoot_action_entropy"],
+                    metrics["aim_aux_loss"],
+                    metrics["aim_visible_accuracy"] * 100.0,
                     self.collector.last_ep_reward, self.collector.last_ep_length,
                     self.collector.last_ep_reason,
                 )
@@ -923,6 +1271,9 @@ class LivePPOTrainer:
             "model": {
                 "features_dim": 256,
                 "hidden": [128, 64],
+                "recurrent": self.recurrent,
+                "recurrent_hidden_size": self.config.train.recurrent_hidden_size,
+                "aux_coef": self.aux_coef,
             },
             "torch_rng_state": torch.get_rng_state(),
             "numpy_rng_state": np.random.get_state(),

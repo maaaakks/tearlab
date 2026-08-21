@@ -77,7 +77,11 @@ def evaluate(checkpoint_ref: str, config_path: str | None, episodes: int) -> dic
             f"stored={stored_preprocessing}, current={current_preprocessing}."
         )
     policy = IsaacPolicy(
-        env.observation_space, env.action_space.nvec.tolist()
+        env.observation_space,
+        env.action_space.nvec.tolist(),
+        recurrent=bool(config.train.recurrent),
+        recurrent_hidden_size=int(config.train.recurrent_hidden_size),
+        aux_coef=float(config.train.aux_coef),
     ).to(device)
     policy.load_state_dict(checkpoint["state_dict"])
     policy.eval()
@@ -97,9 +101,12 @@ def evaluate(checkpoint_ref: str, config_path: str | None, episodes: int) -> dic
             steps = 0
             info = {}
             done = False
+            hidden = None  # reset recurrent state each episode
             while not done:
                 with torch.no_grad():
-                    _, logits = policy(_obs_to_tensors(obs, device))
+                    _, logits, hidden, _aux = policy(
+                        _obs_to_tensors(obs, device), hidden=hidden
+                    )
                 action = [
                     int(torch.argmax(head_logits, dim=1).item())
                     for head_logits in logits

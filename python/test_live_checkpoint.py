@@ -183,7 +183,7 @@ class LiveCheckpointTests(unittest.TestCase):
                     for key, value in observation.items()
                 }
                 with torch.no_grad():
-                    value, logits = trainer.policy(tensors)
+                    value, logits, _hidden, _aux = trainer.policy(tensors)
 
                 batch = []
                 for index in range(8):
@@ -219,6 +219,73 @@ class LiveCheckpointTests(unittest.TestCase):
         ):
             self.assertIn(key, metrics)
             self.assertTrue(np.isfinite(metrics[key]), key)
+
+    def test_recurrent_update_carries_per_step_hidden_state(self):
+        """C4: a recurrent batch must flow with per-transition hidden states
+        and no shuffling, plus C5 auxiliary losses when enabled."""
+        config = Config()
+        config.train.n_epochs = 1
+        config.train.batch_size = 4
+        config.train.target_kl = None
+        config.train.recurrent = True
+        config.train.recurrent_hidden_size = 16
+        config.train.aux_coef = 0.2
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with patch(
+                "live_checkpoint.get_checkpoint_dir",
+                return_value=Path(temp_dir),
+            ):
+                trainer = LivePPOTrainer(config, DummyEnv())
+                assert trainer.policy.recurrent
+
+                observation = {
+                    "grid": np.zeros((10, 7, 13), dtype=np.float32),
+                    "player": np.zeros(22, dtype=np.float32),
+                }
+                tensors = {
+                    key: torch.as_tensor(value).unsqueeze(0)
+                    for key, value in observation.items()
+                }
+                with torch.no_grad():
+                    value, logits, hidden_out, _aux = trainer.policy(tensors)
+                    hidden_in = torch.zeros_like(hidden_out)
+                hidden_in_np = hidden_in.detach().cpu().numpy()
+                hidden_out_np = hidden_out.detach().cpu().numpy()
+
+                batch = []
+                for index in range(8):
+                    action = (index % 9, (index * 2) % 9, index % 2, 0, index % 2)
+                    logprob = torch.zeros(())
+                    for k, head_logits in enumerate(logits):
+                        dist = torch.distributions.Categorical(logits=head_logits)
+                        logprob = logprob + dist.log_prob(
+                            torch.tensor([action[k]])
+                        ).squeeze()
+                    batch.append(
+                        {
+                            "obs": {key: val.copy() for key, val in observation.items()},
+                            "action": action,
+                            "logprob": float(logprob.item()),
+                            "value": float(value.item()),
+                            "reward": 1.0,
+                            "done": index == 7,
+                            "next_value": 0.0,
+                            "hidden_in": hidden_in_np.copy(),
+                            "hidden_out": hidden_out_np.copy(),
+                            "aux_targets": {
+                                "room_type": index % 5,
+                                "danger": float(index) / 8.0,
+                                "next_dest": index % 8,
+                                "reachable": float(index % 2),
+                            },
+                        }
+                    )
+
+                metrics = trainer._update(batch)
+
+        self.assertIn("aux_loss", metrics)
+        self.assertTrue(np.isfinite(metrics["aux_loss"]))
 
 
 if __name__ == "__main__":

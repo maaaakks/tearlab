@@ -27,30 +27,36 @@ def find_isaac():
 
 
 # --- Main ---
-windows = find_isaac()
-if not windows:
-    print("No Isaac window found!")
-    exit(1)
+def main():
+    windows = find_isaac()
+    if not windows:
+        print("No Isaac window found!")
+        return 1
 
-hwnd, title = windows[0]
-print(f"Found: {title} (HWND={hwnd})")
+    hwnd, title = windows[0]
+    print(f"Found: {title} (HWND={hwnd})")
 
-# The start sequence: Enter Enter Right Enter Enter Enter
-sequence = [
-    ("Enter (skip intro)",    VK_RETURN, 1.5),
-    ("Enter (sikp title page)",   VK_RETURN, 1.5),
-    ("Right (move to middle save file)", VK_RIGHT,  1.5),
-    ("Enter (select save file)",       VK_RETURN, 1.5),
-    ("Enter (continue/new run)",  VK_RETURN, 0.5),
-    ("Enter (confirm character if new run)",        VK_RETURN, 0.3),
-]
+    # The start sequence: Enter Enter Right Enter Enter Enter
+    sequence = [
+        ("Enter (skip intro)",    VK_RETURN, 1.5),
+        ("Enter (sikp title page)",   VK_RETURN, 1.5),
+        ("Right (move to middle save file)", VK_RIGHT,  1.5),
+        ("Enter (select save file)",       VK_RETURN, 1.5),
+        ("Enter (continue/new run)",  VK_RETURN, 0.5),
+        ("Enter (confirm character if new run)",        VK_RETURN, 0.3),
+    ]
 
-print("\nSending start sequence in 3 seconds...")
-time.sleep(3.0)
+    print("\nSending start sequence in 3 seconds...")
+    time.sleep(3.0)
 
-for label, vk, delay in sequence:
-    print(f"  -> {label}")
-    send_key(hwnd, vk)
-    time.sleep(delay)
+    for label, vk, delay in sequence:
+        print(f"  -> {label}")
+        send_key(hwnd, vk)
+        time.sleep(delay)
 
-print("\nDone!")
+    print("\nDone!")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

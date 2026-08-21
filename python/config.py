@@ -45,6 +45,11 @@ class RewardConfig:
     enemy_killed: float = 0.0
     room_cleared: float = 2.0
     no_hit_bonus: float = 0.5
+    # Speed is rewarded only after a successful room clear. The bonus decays
+    # linearly to zero over clear_speed_horizon room steps, so surviving longer
+    # is never punished and a fast death can never benefit from urgency.
+    clear_speed_bonus: float = 0.0
+    clear_speed_horizon: int = 0
     # Penalty per half-heart lost.
     damage_taken: float = -0.5
     # Generic pickup reward is OFF by default: pickup value depends on price,
@@ -66,7 +71,13 @@ class RewardConfig:
     aim_tolerance_deg: float = 30.0         # error below this counts as aimed
     aim_shoot_no_enemy_penalty: float = 0.0 # flat cost per shot step with no enemies
     death: float = -5.0
+    # Extra negative terminal cost that decays from its full value at the
+    # beginning of an episode to zero at the episode horizon. Keep negative.
+    death_early_penalty: float = 0.0
     timeout_penalty: float = -5.0
+    # Additional timeout cost multiplied by the fraction of enemy HP left in
+    # the current room. Keep negative; zero preserves legacy behavior.
+    timeout_enemy_hp_penalty: float = 0.0
     # Small per-step cost: creates urgency without flipping strategy order.
     # Max drag over 3000 steps = -1.5, well below any positive outcome.
     time_penalty: float = -0.0005
@@ -107,6 +118,14 @@ class TrainConfig:
     ent_coef: float = 0.01
     ent_coef_final: float | None = None
     entropy_decay_fraction: float = 1.0
+    # Single-policy auxiliary objective for the shooting action head. It uses
+    # the nearest-enemy vector already present in each observation: direction
+    # labels when an enemy is visible, idle otherwise. The coefficient follows
+    # the same linear schedule pattern as entropy.
+    aim_aux_coef: float = 0.0
+    aim_aux_final: float | None = None
+    aim_aux_decay_fraction: float = 1.0
+    aim_aux_idle_weight: float = 0.25
     vf_coef: float = 0.5
     max_grad_norm: float = 0.5
     total_timesteps: int = 1_000_000
@@ -114,6 +133,14 @@ class TrainConfig:
     save_interval: int = 50_000
     save_interval_seconds: float = 600.0
     eval_episodes: int = 20
+    # C4: recurrent memory (GRU) over partially-observable runs. When enabled,
+    # each transition stores its per-step hidden state so async collection and
+    # PPO updates stay consistent across batch boundaries.
+    recurrent: bool = False
+    recurrent_hidden_size: int = 128
+    # C5: auxiliary representation-learning heads (room type, danger, next
+    # destination, reachability). 0 disables them (legacy behavior).
+    aux_coef: float = 0.0
 
 
 @dataclass
