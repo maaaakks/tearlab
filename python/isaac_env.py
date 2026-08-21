@@ -16,6 +16,14 @@ from run_memory import NUM_MAP_CHANNELS, MAP_HEIGHT, MAP_WIDTH, RunMemory
 
 log = logging.getLogger("IsaacEnv")
 
+# Entity-set observation (TODO C2): a fixed-size, zero-padded table of
+# identity-bearing objects. Each row packs [kind, slot/type, variant/subtype,
+# value/price, normalized x, normalized y, hp/max_hp, ...] so a single
+# permutation-invariant encoder can consume enemies, pickups, prices, doors
+# and interactive rocks without knowing the object count in advance.
+MAX_ENTITIES = 32
+ENTITY_DIM = 16
+
 
 class IsaacEnv(gym.Env):
     """Gymnasium environment wrapper for The Binding of Isaac via TCP.
@@ -91,6 +99,13 @@ class IsaacEnv(gym.Env):
                 shape=(NUM_MAP_CHANNELS, MAP_HEIGHT, MAP_WIDTH),
                 dtype=np.float32,
             )
+        # Identity-bearing object table (TODO C2) — fixed padded shape.
+        obs_spaces["entities"] = spaces.Box(
+            low=-1.0,
+            high=1.0,
+            shape=(MAX_ENTITIES, ENTITY_DIM),
+            dtype=np.float32,
+        )
         self.observation_space = spaces.Dict(obs_spaces)
 
         self._client = NetworkClient(
@@ -235,10 +250,127 @@ class IsaacEnv(gym.Env):
                 2.0,
             ).astype(np.float32)
 
-        obs: dict = {"grid": self._push_grid(grid), "player": player}
+        obs: dict = {
+            "grid": self._push_grid(grid),
+            "player": player,
+            "entities": self._state_to_entities(state),
+        }
         if self.enable_map_memory:
             obs["map"] = self.run_memory.update(state)
         return obs
+
+    def _state_to_entities(self, state: GameState) -> np.ndarray:
+        """Serialize identity-bearing objects into the fixed padded table.
+
+        Row layout (ENTITY_DIM = 16):
+          0 kind          1=enemy, 2=pickup, 3=pedestal item, 4=door, 5=rock
+          1 type/slot     enemy type | door slot | rock variant
+          2 variant/type2 pickup variant | pedestal item quality hint
+          3 subtype       pickup subtype | pedestal item id | rock variant
+          4 value         enemy hp | pickup price | item price
+          5 value_norm    enemy hp fraction (hp/max_hp) | 0
+          6 pos_x         normalized 0..1
+          7 pos_y         normalized 0..1
+          8 locked/cost   door locked | 0 otherwise
+          9 open/active   1 if door open / enemy active | 0
+         10 hp            0 for non-enemies
+         11 max_hp        0 for non-enemies
+         12 seed_hash     stable identity hash (0 when unavailable)
+         13..15 reserved  0
+        """
+        table = np.zeros((MAX_ENTITIES, ENTITY_DIM), dtype=np.float32)
+        rows: list[list[float]] = []
+
+        for enemy in state.enemies:
+            hp = float(enemy.hp)
+            max_hp = float(enemy.max_hp) if enemy.max_hp > 0.0 else hp
+            px, py = enemy.position or (0.0, 0.0)
+            rows.append([
+                1.0,
+                float(enemy.type),
+                float(enemy.variant),
+                0.0,
+                hp,
+                hp / max_hp if max_hp > 0 else 0.0,
+                float(px),
+                float(py),
+                0.0,
+                1.0,
+                hp,
+                max_hp,
+                float(enemy.init_seed & 0xFFFFFF),
+                0.0, 0.0, 0.0,
+            ])
+
+        for pickup in state.pickups:
+            px = pickup.pos_x if pickup.position is None else pickup.position[0]
+            py = pickup.pos_y if pickup.position is None else pickup.position[1]
+            rows.append([
+                2.0,
+                float(pickup.variant),
+                float(pickup.subtype),
+                float(pickup.price),
+                1.0,
+                0.0,
+                float(px),
+                float(py),
+                0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0,
+            ])
+
+        for item in state.pedestal_items:
+            px = item.pos_x if item.position is None else item.position[0]
+            py = item.pos_y if item.position is None else item.position[1]
+            rows.append([
+                3.0,
+                float(item.item_id),
+                float(item.price),
+                0.0,
+                1.0,
+                0.0,
+                float(px),
+                float(py),
+                0.0, 0.0, 0.0, 0.0,
+                float(item.item_id & 0xFFFFFF),
+                0.0, 0.0, 0.0,
+            ])
+
+        for door in state.doors:
+            px, py = door.position or (door.slot * 0.1, 0.0)
+            rows.append([
+                4.0,
+                float(door.slot),
+                float(door.target_room_index),
+                0.0,
+                1.0 if door.locked else 0.0,
+                0.0,
+                float(px),
+                float(py),
+                1.0 if door.locked else 0.0,
+                1.0 if door.open else 0.0,
+                0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0,
+            ])
+
+        for rock in state.special_rocks:
+            px, py = rock.position or (0.0, 0.0)
+            rows.append([
+                5.0,
+                float(rock.variant),
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                float(px),
+                float(py),
+                0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0,
+            ])
+
+        for i, row in enumerate(rows[:MAX_ENTITIES]):
+            for j, value in enumerate(row):
+                table[i, j] = min(1.0, max(-1.0, value))
+        return table
 
     def _wait_for_new_episode(self, timeout=120.0):
         """Wait for first non-terminal observation of a new episode_id."""

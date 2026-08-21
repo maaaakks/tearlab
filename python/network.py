@@ -4,17 +4,24 @@ import numpy as np
 from gymnasium import spaces
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 
+from entity_encoder import EntitySetEncoder
+
 
 class IsaacFeatureExtractor(BaseFeaturesExtractor):
     """
-    Custom feature extractor for Isaac observations.
+    Custom feature extractor for Isaac observations (TODO C3).
 
-    Processes the grid through a CNN and the player state through an MLP,
-    then concatenates the outputs.
+    Fuses four streams into a single policy embedding:
+      - grid  : CNN over the local room grid
+      - player: MLP over the normalized player vector
+      - map   : CNN over the RunMemory room-graph summary (optional)
+      - entities: permutation-invariant entity-set encoder over enemies,
+                  pickups, prices, doors and interactive rocks (optional,
+                  created only when the observation space carries an
+                  ``entities`` key so older checkpoints keep their keys).
     """
 
     def __init__(self, observation_space: spaces.Dict, features_dim: int = 256):
-        # We need to compute the actual features dim, but parent needs it in __init__
         super().__init__(observation_space, features_dim)
 
         grid_shape = observation_space["grid"].shape  # (C, H, W)
@@ -68,6 +75,14 @@ class IsaacFeatureExtractor(BaseFeaturesExtractor):
             self.map_fc = nn.Sequential(nn.Linear(map_out_size, 32), nn.ReLU())
             combined_size += 32
 
+        # Optional entity-set branch (TODO C3): merge identity-bearing objects
+        # into the same embedding.
+        self.has_entities = "entities" in observation_space.spaces
+        if self.has_entities:
+            entity_shape = observation_space["entities"].shape  # (MAX, D)
+            self.entity_encoder = EntitySetEncoder(entity_shape[1])
+            combined_size += 64
+
         # Final projection to features_dim
         self.fc = nn.Sequential(
             nn.Linear(combined_size, features_dim),
@@ -87,6 +102,9 @@ class IsaacFeatureExtractor(BaseFeaturesExtractor):
         if self.has_map and "map" in observations:
             map_out = self.map_fc(self.map_cnn(observations["map"]))
             parts.append(map_out)
+        if self.has_entities and "entities" in observations:
+            entity_out = self.entity_encoder(observations["entities"])
+            parts.append(entity_out)
 
         combined = torch.cat(parts, dim=1)
         return self.fc(combined)

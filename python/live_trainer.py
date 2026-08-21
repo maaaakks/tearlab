@@ -30,6 +30,8 @@ from network import IsaacFeatureExtractor
 
 log = logging.getLogger("live_trainer")
 
+ROLLING_EPISODE_WINDOW = 20
+
 
 class IsaacPolicy(nn.Module):
     """Actor-critic policy for MultiDiscrete action spaces with Dict observations.
@@ -112,6 +114,8 @@ def _obs_to_tensors(obs, device):
     }
     if "map" in obs:
         tensors["map"] = torch.as_tensor(obs["map"], dtype=torch.float32, device=device).unsqueeze(0)
+    if "entities" in obs:
+        tensors["entities"] = torch.as_tensor(obs["entities"], dtype=torch.float32, device=device).unsqueeze(0)
     return tensors
 
 
@@ -151,9 +155,9 @@ class Collector(threading.Thread):
         self.last_ep_reward = 0.0
         self.last_ep_length = 0
         self.last_ep_reason = "unknown"
-        self.recent_rewards = deque(maxlen=100)
-        self.recent_lengths = deque(maxlen=100)
-        self.recent_wins = deque(maxlen=100)
+        self.recent_rewards = deque(maxlen=ROLLING_EPISODE_WINDOW)
+        self.recent_lengths = deque(maxlen=ROLLING_EPISODE_WINDOW)
+        self.recent_wins = deque(maxlen=ROLLING_EPISODE_WINDOW)
 
     def run(self):
         obs = None
@@ -168,6 +172,7 @@ class Collector(threading.Thread):
                     last_episode_reward=round(self.last_ep_reward, 2),
                     last_episode_length=self.last_ep_length,
                     last_episode_reason=self.last_ep_reason,
+                    rolling_window=ROLLING_EPISODE_WINDOW,
                     rolling_reward=(
                         round(sum(self.recent_rewards) / len(self.recent_rewards), 2)
                         if self.recent_rewards else 0.0
@@ -328,11 +333,27 @@ class LivePPOTrainer:
         expected_shapes = self._observation_shapes(self.env.observation_space)
         stored_shapes = checkpoint.get("observation_shapes")
         if stored_shapes is not None and stored_shapes != expected_shapes:
-            raise ValueError(
-                "Checkpoint observation shape mismatch: "
-                f"stored={stored_shapes}, current={expected_shapes}. "
-                "Use the same config/frame_stack as the saved run."
-            )
+            # Additive observation extensions keep old checkpoints loadable:
+            # the new keys simply get fresh weights (TODO C6).
+            additive = {}
+            for key, shape in expected_shapes.items():
+                if key not in stored_shapes:
+                    additive[key] = shape
+            if additive and all(
+                key not in stored_shapes for key in additive
+            ):
+                log.warning(
+                    "Checkpoint has no %s observation(s); loading pre-%s "
+                    "network with strict=False (fresh weights for new branches).",
+                    ", ".join(sorted(additive)),
+                    ", ".join(sorted(additive)),
+                )
+            else:
+                raise ValueError(
+                    "Checkpoint observation shape mismatch: "
+                    f"stored={stored_shapes}, current={expected_shapes}. "
+                    "Use the same config/frame_stack as the saved run."
+                )
         stored_action_nvec = checkpoint.get("action_nvec")
         current_action_nvec = self.env.action_space.nvec.tolist()
         if (
@@ -368,7 +389,7 @@ class LivePPOTrainer:
                 "a new normalized run."
             )
 
-        self.policy.load_state_dict(checkpoint["state_dict"])
+        self.policy.load_state_dict(checkpoint["state_dict"], strict=False)
         optimizer_state = checkpoint.get("optimizer_state_dict")
         if optimizer_state:
             self.optimizer.load_state_dict(optimizer_state)
@@ -474,6 +495,11 @@ class LivePPOTrainer:
             maps = torch.as_tensor(
                 np.stack([tr["obs"]["map"] for tr in batch]), dtype=torch.float32, device=self.device
             )
+        has_entities = "entities" in batch[0]["obs"]
+        if has_entities:
+            entities = torch.as_tensor(
+                np.stack([tr["obs"]["entities"] for tr in batch]), dtype=torch.float32, device=self.device
+            )
 
         n = len(batch)
         idx = np.arange(n)
@@ -497,6 +523,8 @@ class LivePPOTrainer:
                 mb_obs = {"grid": grids[mb], "player": players[mb]}
                 if has_map:
                     mb_obs["map"] = maps[mb]
+                if has_entities:
+                    mb_obs["entities"] = entities[mb]
                 values, logprobs, entropy = self.policy.evaluate_actions(
                     mb_obs, actions[mb], masks[mb] if masks is not None else None
                 )
@@ -553,6 +581,8 @@ class LivePPOTrainer:
             }
             if has_map:
                 sample_obs["map"] = maps[sample_idx]
+            if has_entities:
+                sample_obs["entities"] = entities[sample_idx]
             with torch.no_grad():
                 sample_values, _ = self.policy(sample_obs)
                 sample_features = self.policy.features(sample_obs)
@@ -692,6 +722,7 @@ class LivePPOTrainer:
                         "last_episode_reward": self.collector.last_ep_reward,
                         "last_episode_length": self.collector.last_ep_length,
                         "last_episode_reason": self.collector.last_ep_reason,
+                        "rolling_window": ROLLING_EPISODE_WINDOW,
                         "rolling_episodes": rolling_count,
                         "rolling_reward": (
                             sum(self.collector.recent_rewards) / rolling_count
