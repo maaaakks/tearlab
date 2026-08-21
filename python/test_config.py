@@ -54,10 +54,10 @@ class SpeedMultiplierConfigTests(unittest.TestCase):
 
     def test_speed_multiplier_is_wired_and_clamped(self):
         config = Config()
-        config.env.speed_multiplier = 8
-        self.assertEqual(config.to_game_settings()["speed_multiplier"], 8)
+        config.env.speed_multiplier = 64
+        self.assertEqual(config.to_game_settings()["speed_multiplier"], 64)
         config.env.speed_multiplier = 99
-        self.assertEqual(config.to_game_settings()["speed_multiplier"], 8)
+        self.assertEqual(config.to_game_settings()["speed_multiplier"], 64)
         config.env.speed_multiplier = 0
         self.assertEqual(config.to_game_settings()["speed_multiplier"], 1)
 

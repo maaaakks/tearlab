@@ -11,8 +11,9 @@ math.randomseed(os.time() + tonumber(Config.INSTANCE_ID) * 1000)
 -- How many game ticks between sending state / receiving actions
 Config.FRAME_SKIP = 3
 
--- Speedhack: extra game updates per render frame (1-8). 1 = normal speed.
--- Set via the configure command (speed_multiplier).
+-- Speedhack: extra game updates per render frame (1-64). 1 = normal speed.
+-- Note: past ~x8 training throughput is usually limited by the Python side,
+-- not the game. Set via the configure command (speed_multiplier).
 Config.SPEED_MULTIPLIER = 1
 
 -- Free-running mode: never block the game waiting for Python.

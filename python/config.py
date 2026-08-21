@@ -15,7 +15,7 @@ class EnvConfig:
     normalize_player_features: bool = True
     mask_distance_vectors: bool = False
     frame_skip: int = 3
-    # Speedhack multiplier (1-8): extra game ticks per rendered frame inside
+    # Speedhack multiplier (1-64): extra game ticks per rendered frame inside
     # the Lua mod. Speeds up wall-clock training without an external tool.
     speed_multiplier: int = 1
     frame_stack: int = 1
@@ -234,7 +234,7 @@ class Config:
             "obstacle_type": self.phase.obstacle_type,
             "obstacle_min_spacing": self.phase.obstacle_min_spacing,
             "frame_skip": self.env.frame_skip,
-            "speed_multiplier": max(1, min(8, int(self.env.speed_multiplier))),
+            "speed_multiplier": max(1, min(64, int(self.env.speed_multiplier))),
             "max_episode_ticks": self.env.max_episode_steps,
             "full_run": self.env.full_run,
         }
