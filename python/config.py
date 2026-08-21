@@ -41,7 +41,9 @@ class RewardConfig:
     wall_collision_penalty: float = 0.0
     death: float = -5.0
     timeout_penalty: float = -5.0
-    time_penalty: float = 0.0
+    # Small per-step cost: creates urgency without flipping strategy order.
+    # Max drag over 3000 steps = -1.5, well below any positive outcome.
+    time_penalty: float = -0.0005
     survival_bonus: float = 0.0
     floor_cleared: float = 100.0
     pickup_approach_scale: float = 0.0
