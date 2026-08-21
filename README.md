@@ -83,6 +83,41 @@ Remplacez le chemin d'exemple par celui du fichier `.pt` voulu dans
 `checkpoints\live\<run_id>\`. La reprise restaure le modèle, l'optimiseur, les
 compteurs d'entraînement et l'état aléatoire sauvegardé.
 
+#### 💎 Premier run généraliste (full-game, multi-salles) — priorité actuelle
+
+Le jalon B (TODO) est prêt côté Python (tests verts). Pour lancer la toute
+première **vraie run naturelle** — où l'agent nettoie des salles, traverse des
+portes, change d'étage, ramasse du loot et utilise des bombes **dans le même
+épisode** :
+
+```powershell
+.\scripts\launch_full_run.ps1
+```
+
+Équivalent sans script :
+
+```powershell
+.\.venv\Scripts\python.exe python\train.py --config configs\full_game.yaml
+```
+
+Ce que fait `configs\full_game.yaml` :
+- `full_run: true` → une salle nettoyée **ne met plus fin à l'épisode** ; seule
+  la mort, la victoire, un abandon ou le timeout global clôt le run ;
+- layouts/enemies/ennemis **naturels** (rien d'injecté) ;
+- mémoire de carte (`map`) + encodeur d'objets (`entities`) dans l'observation ;
+- timeout global de sécurité (~45–90 min de jeu) au lieu d'une durée de salle ;
+- `gamma: 0.995` pour les conséquences multi-salles ;
+- run W&B nommé `phaseB-full-run-natural` (tags `phaseB`, `full-run`, `natural`,
+  `map-memory`).
+
+Rappels pour que la run tourne réellement de bout en bout :
+1. Isaac ouvert, mod **IsaacRL** activé (`--luadebug` + options.ini édité **jeu
+   fermé**).
+2. Lancer la commande ci-dessus **une fois Isaac prêt**.
+3. Vérifier dans la console que les runs durent des centaines de steps et que
+   l'`episode_id` reste stable à travers les clears de salle.
+4. `Ctrl+C` pendant l'entraînement sauvegarde un checkpoint `interrupted`.
+
 ### 5. Parallel Launcher / TUI
 
 For multi-instance runs, launch the worker manager first:

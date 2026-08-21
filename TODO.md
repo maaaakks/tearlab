@@ -133,7 +133,8 @@ pas découvrir le jeu.
 ### B5. Validation minimale en jeu
 
 - [~] Lancer une run naturelle depuis Basement I.
-      → Python-side simulé; run jeu réel à faire manuellement.
+      → Python-side validé (tests verts) + `scripts/launch_full_run.ps1` /
+        `configs/full_game.yaml` prêts ; run jeu réel à faire manuellement.
 - [~] Nettoyer la première salle sans changement d'`episode_id`.
       → Python-side simulé; run jeu réel à faire manuellement.
 - [~] Traverser une porte et vérifier que RunMemory contient les deux salles.
@@ -146,6 +147,12 @@ pas découvrir le jeu.
       → Python-side simulé; run jeu réel à faire manuellement.
 - [~] Enregistrer et reprendre un checkpoint pendant une run multi-salles.
       → Python-side simulé; run jeu réel à faire manuellement.
+
+Lancement du premier run documenté dans `README.md` (section "Premier run
+généraliste") : une commande (`.\\scripts\\launch_full_run.ps1`) démarre
+`full_game.yaml`. Sans jeu connecté, le trainer retente la connexion sur le
+port 9999 en boucle (les logs de retry sont bruyants mais ce n'est pas un
+échec définitif).
 
 **Jalon B** : le même agent peut jouer plusieurs salles naturelles, combattre,
 explorer et interagir sans que le trainer redémarre après chaque clear.
