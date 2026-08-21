@@ -451,6 +451,15 @@ class IsaacEnv(gym.Env):
 
         return np.concatenate((move_mask, shoot_mask, interaction_mask))
 
+    def end_episode(self, reason: str = "abandoned"):
+        """Explicitly end the current episode (victory / abandon).
+
+        Sends the Lua `end_episode` command; the mod marks the next state
+        terminal with `reason` and restarts the run. Used by tooling to close
+        a full-run episode on a final objective or a manual abort.
+        """
+        self._client.send({"command": "end_episode", "reason": reason})
+
     def pause_game(self):
         """Pause the game (used between rollout collection and PPO update)."""
         self._client.send({"command": "pause"})

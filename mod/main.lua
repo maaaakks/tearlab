@@ -19,6 +19,9 @@ local pickupsCollected = 0
 local lastAction = {move = 0, shoot = 0}
 local paused = false
 local debugInfo = nil  -- compact training HUD payload from Python
+-- Explicit end-of-episode request from Python (victory / abandon). Consumed by
+-- the terminal detection and cleared on the next run start.
+local requestedTerminalReason = nil
 local hudFont = Font()
 hudFont:Load("font/terminus.fnt")
 
@@ -179,6 +182,7 @@ function mod:onGameStart(isContinue)
     episodeStartCoins = player and player:GetNumCoins() or 0
     pickupsCollected = 0
     lastAction = {move = 0, shoot = 0}
+    requestedTerminalReason = nil
     hudContextText = nil
     hudContextExpiresAt = 0
     ActionInjector.reset()
@@ -220,6 +224,15 @@ local function handleMessage(message)
         ActionInjector.reset()
         lastAction = {move = 0, shoot = 0}
         GameControl.resetEpisode()
+    elseif message.command == "end_episode" then
+        -- Explicit terminal from Python: "run_won" (victory/final objective)
+        -- or "abandoned". Ends the current episode without waiting for death
+        -- or timeout. In full_run mode this is how a run is closed cleanly.
+        requestedTerminalReason = message.reason or "abandoned"
+        Isaac.ConsoleOutput(
+            "IsaacRL[" .. Config.INSTANCE_ID .. "]: Received end_episode ("
+                .. requestedTerminalReason .. ")\n"
+        )
     elseif message.action then
         lastAction = message.action
         -- Arm one-shot interactions (bomb/active/pillcard) for this new
@@ -299,14 +312,18 @@ function mod:onUpdate()
     if player:IsDead() then
         terminal = true
         terminalReason = "death"
-    elseif Config.TERMINAL_PICKUP_COUNT > 0 and pickupsCollected >= Config.TERMINAL_PICKUP_COUNT then
+    elseif requestedTerminalReason then
+        terminal = true
+        terminalReason = requestedTerminalReason
+    elseif not Config.FULL_RUN and Config.TERMINAL_PICKUP_COUNT > 0
+        and pickupsCollected >= Config.TERMINAL_PICKUP_COUNT then
         terminal = true
         terminalReason = "pickup_target_reached"
-    elseif Config.TERMINAL_ON_PICKUP and pickupsCollected > 0 then
+    elseif not Config.FULL_RUN and Config.TERMINAL_ON_PICKUP and pickupsCollected > 0 then
         -- Legacy single-pickup terminal (equivalent to TERMINAL_PICKUP_COUNT = 1)
         terminal = true
         terminalReason = "pickup_collected"
-    elseif hadEnemies and state.enemy_count == 0 then
+    elseif not Config.FULL_RUN and hadEnemies and state.enemy_count == 0 then
         terminal = true
         terminalReason = "room_cleared"
     elseif Config.MAX_EPISODE_TICKS > 0 and episodeTick >= Config.MAX_EPISODE_TICKS then

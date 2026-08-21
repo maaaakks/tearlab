@@ -310,7 +310,7 @@ class IsaacMetricsCallback(BaseCallback):
             if self.wall_collision_penalty != 0.0:
                 wall_collision_steps = wall_collision_penalty_total / self.wall_collision_penalty
 
-            won = float(reason == "room_cleared")
+            won = float(reason in ("room_cleared", "run_won"))
             pickup = float(pickup_count > 0)
             self._append_rolling(
                 ep_reward,

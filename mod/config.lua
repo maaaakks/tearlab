@@ -16,6 +16,11 @@ Config.FRAME_SKIP = 3
 -- actions are polled non-blockingly and the last received action is latched.
 Config.FREE_RUNNING = true
 
+-- Full-run mode: a cleared room emits room_cleared but does NOT end the
+-- episode. Episodes only end on death, victory, explicit abandon, or the
+-- global timeout. Set via the configure command (env.full_run).
+Config.FULL_RUN = false
+
 -- Room grid dimensions (standard room)
 Config.GRID_WIDTH = 13
 Config.GRID_HEIGHT = 7

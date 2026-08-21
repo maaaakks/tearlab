@@ -139,7 +139,9 @@ def evaluate(checkpoint_ref: str, config_path: str | None, episodes: int) -> dic
         "mean_reward": float(np.mean(rewards)),
         "std_reward": float(np.std(rewards)),
         "mean_episode_length": float(np.mean(lengths)),
-        "win_rate": reasons.count("room_cleared") / episodes,
+        "win_rate": sum(
+            1 for r in reasons if r in ("room_cleared", "run_won")
+        ) / episodes,
         "death_rate": reasons.count("death") / episodes,
         "timeout_rate": reasons.count("timeout") / episodes,
         "mean_kills": float(np.mean(kills)),

@@ -18,6 +18,10 @@ class EnvConfig:
     frame_stack: int = 1
     free_running: bool = True
     enable_map_memory: bool = False
+    # full_run: keep the episode alive across room clears so the agent learns
+    # whole runs (combat + navigation + loot in the same rollout). When false,
+    # clearing a room ends the episode (mono-room test/benchmark mode).
+    full_run: bool = False
     max_episode_steps: int = 3000
     action_timeout: float = 5.0
     n_workers: int = 1
@@ -165,6 +169,7 @@ class Config:
             "obstacle_min_spacing": self.phase.obstacle_min_spacing,
             "frame_skip": self.env.frame_skip,
             "max_episode_ticks": self.env.max_episode_steps,
+            "full_run": self.env.full_run,
         }
 
 

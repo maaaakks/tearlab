@@ -311,6 +311,9 @@ function GameControl.configure(settings)
     if settings.max_episode_ticks then
         Config.MAX_EPISODE_TICKS = settings.max_episode_ticks
     end
+    if settings.full_run ~= nil then
+        Config.FULL_RUN = settings.full_run
+    end
 end
 
 return GameControl

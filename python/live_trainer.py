@@ -225,7 +225,9 @@ class Collector(threading.Thread):
                     self.last_ep_reason = info.get("state").terminal_reason if info.get("state") else "unknown"
                     self.recent_rewards.append(float(self.last_ep_reward))
                     self.recent_lengths.append(int(self.last_ep_length))
-                    self.recent_wins.append(float(self.last_ep_reason == "room_cleared"))
+                    self.recent_wins.append(
+                        float(self.last_ep_reason in ("room_cleared", "run_won"))
+                    )
                     log.info(
                         "EP %d (%s) | steps=%d reward=%.1f | total collected=%d",
                         self.episodes, self.last_ep_reason, self.ep_steps,
