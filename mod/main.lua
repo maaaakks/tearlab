@@ -246,7 +246,8 @@ function mod:onGameStart(isContinue)
     hudContextExpiresAt = 0
     ActionInjector.reset()
 
-    Isaac.ConsoleOutput("IsaacRL[" .. Config.INSTANCE_ID .. "]: Episode " .. episodeId .. " started (port " .. Config.TCP_PORT .. ")\n")
+    -- Per-episode logging lives on the Python side (one line per episode in
+    -- live_trainer); the Lua side stays silent to keep the console clean.
 end
 
 -- Handle new room
@@ -479,7 +480,6 @@ function mod:onUpdate()
     -- If terminal: restart immediately regardless of whether Python saw the
     -- final frame (Python resyncs via episode_id).
     if terminal then
-        Isaac.ConsoleOutput("IsaacRL[" .. Config.INSTANCE_ID .. "]: Episode " .. episodeId .. " ended (" .. terminalReason .. ")\n")
         ActionInjector.reset()
         lastAction = {move = 0, shoot = 0}
         GameControl.resetEpisode()
