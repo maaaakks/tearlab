@@ -2,6 +2,16 @@ local Config = require("config")
 
 local StateSerializer = {}
 
+-- Call fn, falling back to default if the API is missing or errors.
+-- Keeps the serializer compatible across game versions.
+local function safe(fn, default)
+    local ok, result = pcall(fn)
+    if ok then
+        return result
+    end
+    return default
+end
+
 -- Grid entity type constants
 local GRID_WALL = 15
 local GRID_ROCK = 2
@@ -102,6 +112,7 @@ function StateSerializer.serialize(game)
     -- Encode grid entities (walls, obstacles, pits)
     local gridWidth = room:GetGridWidth()
     local gridSize = room:GetGridSize()
+    local specialRocks = {}  -- tinted rocks / marked skulls (identity matters)
     for idx = 0, gridSize - 1 do
         local gx = (idx % gridWidth) + 1
         local gy = math.floor(idx / gridWidth) + 1
@@ -117,6 +128,20 @@ function StateSerializer.serialize(game)
                     grid[StateSerializer.CHANNEL_OBSTACLES][gy][gx] = 1
                 elseif isObstacle(gType) then
                     grid[StateSerializer.CHANNEL_OBSTACLES][gy][gx] = 1
+                    -- Rock variants: 1 = marked skull, 2 = tinted rock.
+                    -- Exposed as identity-bearing objects for the planner.
+                    if gType == GRID_ROCK or gType == GRID_ROCK_ALT then
+                        local variant = safe(function() return gridEntity.Variant end, 0)
+                        if variant == 1 or variant == 2 then
+                            local wpos = room:GetGridPosition(idx)
+                            table.insert(specialRocks, {
+                                kind = variant == 1 and "marked_skull" or "tinted_rock",
+                                variant = variant,
+                                position = {wpos.X, wpos.Y},
+                                destroyed = false,
+                            })
+                        end
+                    end
                 end
             end
         end
@@ -128,6 +153,8 @@ function StateSerializer.serialize(game)
 
     -- Enemies, projectiles, pickups
     local enemies = {}
+    local pickups = {}       -- structured records (identity + price)
+    local pedestalItems = {} -- Type 5 Variant 100 collectibles
     local nearestPickupDist = nil
     local nearestPickupDx = 0.0
     local nearestPickupDy = 0.0
@@ -187,8 +214,28 @@ function StateSerializer.serialize(game)
                 nearestProjectileDy = dy
             end
 
-        elseif ent.Type == 5 and ent.Variant ~= 100 then
-            -- Pickup (not pedestal items)
+        elseif ent.Type == 5 and ent.Variant == 100 then
+            -- Pedestal item: identity + price (0 = free, negative = heart cost)
+            local pxn, pyn = normalizePos(ent.Position)
+            table.insert(pedestalItems, {
+                item_id = ent.SubType,
+                price = safe(function() return ent.Price end, 0),
+                position = {ent.Position.X, ent.Position.Y},
+                pos_x = pxn,
+                pos_y = pyn,
+            })
+
+        elseif ent.Type == 5 then
+            -- Pickup (coin/bomb/key/pill/card/...): structured record
+            local pxn, pyn = normalizePos(ent.Position)
+            table.insert(pickups, {
+                variant = ent.Variant,
+                subtype = ent.SubType,
+                price = safe(function() return ent.Price end, 0),
+                position = {ent.Position.X, ent.Position.Y},
+                pos_x = pxn,
+                pos_y = pyn,
+            })
             grid[StateSerializer.CHANNEL_PICKUPS][ey][ex] = 1
             if nearestPickupDist == nil or distSq < nearestPickupDist then
                 nearestPickupDist = distSq
@@ -203,7 +250,8 @@ function StateSerializer.serialize(game)
     local nearestEnemyDxNorm, nearestEnemyDyNorm = normalizeDelta(nearestEnemyDx, nearestEnemyDy)
     local nearestProjectileDxNorm, nearestProjectileDyNorm = normalizeDelta(nearestProjectileDx, nearestProjectileDy)
 
-    -- Doors
+    -- Doors (with destination info for the room-graph memory)
+    local doors = {}
     for slot = 0, 7 do
         local door = room:GetDoor(slot)
         if door then
@@ -217,6 +265,14 @@ function StateSerializer.serialize(game)
                     doorVal = 1.0
                 end
                 grid[StateSerializer.CHANNEL_DOORS][dy][dx] = doorVal
+
+                table.insert(doors, {
+                    slot = slot,
+                    locked = door:IsLocked(),
+                    open = safe(function() return door:IsOpen() end, not door:IsLocked()),
+                    target_room_index = safe(function() return door.TargetRoomIndex end, -1),
+                    position = {door.Position.X, door.Position.Y},
+                })
             end
         end
     end
@@ -226,6 +282,8 @@ function StateSerializer.serialize(game)
         hp_red = player:GetHearts(),
         hp_soul = player:GetSoulHearts(),
         hp_black = player:GetBlackHearts(),
+        hp_bone = safe(function() return player:GetBoneHearts() end, 0),
+        hp_golden = safe(function() return player:GetGoldenHearts() end, 0),
         speed = player.MoveSpeed,
         damage = player.Damage,
         range = player.TearRange,
@@ -236,7 +294,11 @@ function StateSerializer.serialize(game)
         num_keys = player:GetNumKeys(),
         num_coins = player:GetNumCoins(),
         has_active_item = player:GetActiveItem() ~= 0,
+        active_item_id = safe(function() return player:GetActiveItem() end, 0),
         active_charge = player:GetActiveCharge(),
+        card_slot = safe(function() return player:GetCard(0) end, 0),
+        pill_slot = safe(function() return player:GetPill(0) end, 0),
+        trinket_id = safe(function() return player:GetTrinket(0) end, 0),
         pos_x = playerPosX,
         pos_y = playerPosY,
         nearest_pickup_dx = nearestPickupDxNorm,
@@ -248,10 +310,36 @@ function StateSerializer.serialize(game)
         position = {player.Position.X, player.Position.Y}
     }
 
+    -- Run-level info: floor identity, room identity, deal history.
+    -- All additive; the planner and run memory consume these.
+    local roomDesc = safe(function() return level:GetCurrentRoomDesc() end, nil)
+    local run = {
+        stage = level:GetStage(),
+        stage_type = level:GetStageType(),
+        curse = safe(function() return level:GetCurses() end, 0),
+        room_type = room:GetType(),
+        room_shape = room:GetShape(),
+        room_list_index = roomDesc and roomDesc.ListIndex or -1,
+        room_grid_index = safe(function() return level:GetCurrentRoomIndex() end, -1),
+        room_clear = room:IsClear(),
+        devil_deal_taken = safe(
+            function() return game:GetStateFlag(GameStateFlag.STATE_DEVIL_TAKEN) end, false),
+        angel_room_taken = safe(
+            function()
+                return game:GetStateFlag(GameStateFlag.STATE_ANGEL_TAKEN)
+                    or level:GetStateFlag(LevelStateFlag.STATE_ANGEL_TAKEN)
+            end, false),
+    }
+
     local state = {
         grid = grid,
         player = playerState,
         enemies = enemies,
+        pickups = pickups,
+        pedestal_items = pedestalItems,
+        special_rocks = specialRocks,
+        doors = doors,
+        run = run,
         room_cleared = room:IsClear(),
         player_dead = player:IsDead(),
         tick = game:GetFrameCount(),
