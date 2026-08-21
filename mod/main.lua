@@ -18,7 +18,150 @@ local episodeStartCoins = 0
 local pickupsCollected = 0
 local lastAction = {move = 0, shoot = 0}
 local paused = false
-local debugInfo = nil  -- reward overlay from Python
+local debugInfo = nil  -- compact training HUD payload from Python
+local hudFont = Font()
+hudFont:Load("font/terminus.fnt")
+
+-- Keep the always-on HUD tucked under the minimap. Detailed metrics remain in
+-- metrics.jsonl; the fourth line is reserved for short-lived useful events.
+local HUD_SCALE = 0.50
+local HUD_X = 335
+local HUD_Y = 67
+local HUD_LINE_HEIGHT = 9
+local HUD_SHADOW_OFFSET = 0.75
+local HUD_EVENT_FRAMES = 60
+local HUD_UPDATE_FRAMES = 90
+
+local HUD_COLOR = {
+    shadow = KColor(0.0, 0.0, 0.0, 0.95),
+    white = KColor(0.98, 0.98, 1.0, 1.0),
+    muted = KColor(0.74, 0.80, 0.88, 1.0),
+    cyan = KColor(0.30, 0.90, 1.0, 1.0),
+    green = KColor(0.40, 1.0, 0.58, 1.0),
+    yellow = KColor(1.0, 0.82, 0.28, 1.0),
+    red = KColor(1.0, 0.42, 0.42, 1.0),
+}
+
+local hudContextText = nil
+local hudContextColor = HUD_COLOR.muted
+local hudContextExpiresAt = 0
+local lastHudUpdateCount = 0
+
+local function compactNumber(value)
+    local number = tonumber(value) or 0
+    if math.abs(number) >= 1000000 then
+        return string.format("%.1fm", number / 1000000)
+    elseif math.abs(number) >= 1000 then
+        return string.format("%.1fk", number / 1000)
+    end
+    return tostring(math.floor(number + 0.5))
+end
+
+local function drawHudText(text, x, y, color)
+    hudFont:DrawStringScaled(
+        tostring(text), x + HUD_SHADOW_OFFSET, y + HUD_SHADOW_OFFSET,
+        HUD_SCALE, HUD_SCALE, HUD_COLOR.shadow, 0, false
+    )
+    hudFont:DrawStringScaled(
+        tostring(text), x, y, HUD_SCALE, HUD_SCALE,
+        color or HUD_COLOR.white, 0, false
+    )
+end
+
+local function updateHudContext(info)
+    if not info then
+        return
+    end
+
+    local frame = Game():GetFrameCount()
+    local updateCount = tonumber(info.update_count) or 0
+    local hasNewUpdate = updateCount > lastHudUpdateCount
+    if updateCount > lastHudUpdateCount then
+        lastHudUpdateCount = updateCount
+    end
+
+    local stepReward = tonumber(info.step_reward) or 0
+    local eventLabel = nil
+    local eventValue = 0
+    local eventColor = HUD_COLOR.green
+
+    if math.abs(tonumber(info.kills) or 0) > 0.001 then
+        eventLabel = "KILL"
+        eventValue = tonumber(info.kills) or 0
+    elseif math.abs(tonumber(info.damage_taken) or 0) > 0.001 then
+        eventLabel = "HURT"
+        eventValue = tonumber(info.damage_taken) or 0
+        eventColor = HUD_COLOR.red
+    elseif math.abs(tonumber(info.damage_dealt) or 0) > 0.001 then
+        eventLabel = "DMG"
+        eventValue = tonumber(info.damage_dealt) or 0
+    elseif math.abs(tonumber(info.pickup_collected) or 0) > 0.001 then
+        eventLabel = "PICK"
+        eventValue = tonumber(info.pickup_collected) or 0
+    elseif math.abs(tonumber(info.wall_collision) or 0) > 0.001 then
+        eventLabel = "WALL"
+        eventValue = tonumber(info.wall_collision) or 0
+        eventColor = HUD_COLOR.red
+    end
+
+    if eventLabel then
+        hudContextText = string.format(
+            "%s %+.1f  R%+.3f", eventLabel, eventValue, stepReward
+        )
+        hudContextColor = eventColor
+        hudContextExpiresAt = frame + HUD_EVENT_FRAMES
+    elseif hasNewUpdate then
+        hudContextText = string.format(
+            "KL %.3f H %.2f EV %+.2f",
+            tonumber(info.approx_kl) or 0,
+            tonumber(info.entropy) or 0,
+            tonumber(info.explained_variance) or 0
+        )
+        hudContextColor = HUD_COLOR.cyan
+        hudContextExpiresAt = frame + HUD_UPDATE_FRAMES
+    end
+end
+
+local function drawTrainingHud(info)
+    if not info or not hudFont:IsLoaded() then
+        return
+    end
+
+    local x = HUD_X
+    local y = HUD_Y
+    local steps = tonumber(info.global_steps) or 0
+    drawHudText(
+        string.format(
+            "STEP %s   EP %d",
+            compactNumber(steps),
+            tonumber(info.episode) or 0
+        ),
+        x, y, HUD_COLOR.white
+    )
+    y = y + HUD_LINE_HEIGHT
+
+    drawHudText(
+        string.format(
+            "R %+.1f   AVG %+.1f",
+            tonumber(info.episode_reward) or 0,
+            tonumber(info.rolling_reward) or 0
+        ),
+        x, y, HUD_COLOR.white
+    )
+    y = y + HUD_LINE_HEIGHT
+
+    drawHudText(
+        "SAVE " .. compactNumber(info.last_checkpoint or 0),
+        x, y, HUD_COLOR.muted
+    )
+    y = y + HUD_LINE_HEIGHT
+
+    if hudContextText and Game():GetFrameCount() <= hudContextExpiresAt then
+        drawHudText(hudContextText, x, y, hudContextColor)
+    else
+        hudContextText = nil
+    end
+end
 
 -- Initialize on game start
 function mod:onGameStart(isContinue)
@@ -36,6 +179,8 @@ function mod:onGameStart(isContinue)
     episodeStartCoins = player and player:GetNumCoins() or 0
     pickupsCollected = 0
     lastAction = {move = 0, shoot = 0}
+    hudContextText = nil
+    hudContextExpiresAt = 0
     ActionInjector.reset()
 
     Isaac.ConsoleOutput("IsaacRL[" .. Config.INSTANCE_ID .. "]: Episode " .. episodeId .. " started (port " .. Config.TCP_PORT .. ")\n")
@@ -79,6 +224,7 @@ local function handleMessage(message)
         lastAction = message.action
         if message.debug then
             debugInfo = message.debug
+            updateHudContext(debugInfo)
         end
     end
 end
@@ -231,38 +377,7 @@ function mod:onRender()
         return
     end
 
-    -- Draw debug reward overlay
-    if debugInfo then
-        local font = Font()
-        font:Load("font/terminus.fnt")
-        if font:IsLoaded() then
-            local x = 40
-            local y = 30
-            local lineH = 12
-            local white = KColor(1, 1, 1, 0.9)
-            local green = KColor(0.2, 1, 0.2, 0.9)
-            local red = KColor(1, 0.3, 0.3, 0.9)
-
-            font:DrawString("-- Reward Debug --", x, y, white, 0, false)
-            y = y + lineH + 2
-
-            local function drawReward(label, value, y)
-                local color = white
-                if value > 0.001 then color = green
-                elseif value < -0.001 then color = red end
-                font:DrawString(string.format("%-18s %+.3f", label, value), x, y, color, 0, false)
-                return y + lineH
-            end
-
-            y = drawReward("step_reward", debugInfo.step_reward or 0, y)
-            y = drawReward("pickup_approach", debugInfo.pickup_approach or 0, y)
-            y = drawReward("pickup_collected", debugInfo.pickup_collected or 0, y)
-            y = drawReward("wall_collision", debugInfo.wall_collision or 0, y)
-            y = drawReward("time", debugInfo.time or 0, y)
-            y = y + 4
-            font:DrawString(string.format("ep_reward: %.1f", debugInfo.reward or 0), x, y, white, 0, false)
-        end
-    end
+    drawTrainingHud(debugInfo)
 
     if not server.connected then
         server:acceptClient()

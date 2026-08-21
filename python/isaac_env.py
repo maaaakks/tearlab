@@ -1,5 +1,6 @@
 import logging
 import socket
+import threading
 import time
 from collections import deque
 
@@ -25,6 +26,19 @@ class IsaacEnv(gym.Env):
     """
 
     metadata = {"render_modes": []}
+    PLAYER_FEATURE_SCALES = np.array(
+        [
+            24.0, 24.0, 24.0,  # red/soul/black HP in half-hearts
+            3.0, 20.0, 1000.0, 30.0, 5.0, 20.0,  # combat stats
+            99.0, 99.0, 99.0,  # bombs, keys, coins
+            1.0, 12.0,  # active item flag and charge
+            1.0, 1.0,  # normalized player position
+            1.0, 1.0,  # nearest pickup delta
+            1.0, 1.0,  # nearest enemy delta
+            1.0, 1.0,  # nearest projectile delta
+        ],
+        dtype=np.float32,
+    )
 
     def __init__(self, config: Config | None = None):
         super().__init__()
@@ -84,6 +98,13 @@ class IsaacEnv(gym.Env):
         self._ep_reward_components: dict[str, float] = {}
         self._last_terminal_reason = None
 
+        # Small thread-safe snapshot forwarded to the in-game training HUD.
+        # The live trainer updates it from its optimizer thread while the
+        # collector keeps stepping the environment.
+        self._training_metrics: dict[str, float | int | str] = {}
+        self._training_metrics_lock = threading.Lock()
+        self._hud_game_ticks_per_sec = 0.0
+
         # Auto-configure: send game settings on first reset()
         self._game_settings = self.config.to_game_settings()
         self._configured = False
@@ -101,6 +122,33 @@ class IsaacEnv(gym.Env):
 
     def _receive_state(self) -> GameState:
         return GameState.from_dict(self._client.receive())
+
+    def update_training_metrics(self, **metrics) -> None:
+        """Merge a compact metric snapshot for the Lua HUD."""
+        with self._training_metrics_lock:
+            self._training_metrics.update(metrics)
+
+    def _build_debug_info(self) -> dict:
+        """Build the JSON-safe payload rendered by the Lua HUD."""
+        rc = self.reward_shaper.reward_components
+        debug_info = {
+            "episode": self._episode_num,
+            "episode_reward": round(self._ep_reward, 2),
+            "episode_step": self.step_count,
+            "step_reward": round(sum(rc.values()), 3),
+            "damage_dealt": round(rc.get("damage_dealt", 0), 2),
+            "kills": round(rc.get("kills", 0), 2),
+            "damage_taken": round(rc.get("damage_taken", 0), 2),
+            "pickup_approach": round(rc.get("pickup_approach", 0), 3),
+            "wall_collision": round(rc.get("wall_collision", 0), 3),
+            "pickup_collected": round(rc.get("pickup_collected", 0), 1),
+            "time_reward": round(rc.get("time", 0), 3),
+            "game_tps": round(self._hud_game_ticks_per_sec, 1),
+            "frames_dropped": self._ep_frames_dropped,
+        }
+        with self._training_metrics_lock:
+            debug_info.update(self._training_metrics)
+        return debug_info
 
     def _push_grid(self, grid: np.ndarray) -> np.ndarray:
         """Append a grid to the frame stack and return the stacked observation."""
@@ -157,6 +205,17 @@ class IsaacEnv(gym.Env):
                 f"Player feature shape mismatch: got {player.shape[0]}, "
                 f"expected {self.env_cfg.player_features}"
             )
+        if self.env_cfg.normalize_player_features:
+            if player.shape != self.PLAYER_FEATURE_SCALES.shape:
+                raise ValueError(
+                    "Player normalization scale mismatch: "
+                    f"features={player.shape}, scales={self.PLAYER_FEATURE_SCALES.shape}"
+                )
+            player = np.clip(
+                player / self.PLAYER_FEATURE_SCALES,
+                -2.0,
+                2.0,
+            ).astype(np.float32)
 
         return {"grid": self._push_grid(grid), "player": player}
 
@@ -251,17 +310,8 @@ class IsaacEnv(gym.Env):
             "action": {"move": move_action, "shoot": shoot_action},
         }
 
-        # Attach reward breakdown for in-game debug overlay
-        if self.reward_shaper.reward_components:
-            rc = self.reward_shaper.reward_components
-            action_msg["debug"] = {
-                "reward": round(self._ep_reward, 2),
-                "step_reward": round(sum(rc.values()), 3),
-                "pickup_approach": round(rc.get("pickup_approach", 0), 3),
-                "wall_collision": round(rc.get("wall_collision", 0), 3),
-                "pickup_collected": round(rc.get("pickup_collected", 0), 1),
-                "time": round(rc.get("time", 0), 3),
-            }
+        # Attach both gameplay rewards and trainer metrics for the in-game HUD.
+        action_msg["debug"] = self._build_debug_info()
 
         self._client.send(action_msg)
 
@@ -312,6 +362,7 @@ class IsaacEnv(gym.Env):
             duration = self._ep_receive_times[-1] - self._ep_receive_times[0]
             if duration > 0:
                 game_ticks_per_sec = (len(self._ep_receive_times) - 1) / duration
+        self._hud_game_ticks_per_sec = game_ticks_per_sec
 
         obs = self._state_to_obs(state)
         # Fraction of steps where state was already buffered (latency < 1ms)

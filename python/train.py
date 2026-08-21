@@ -460,7 +460,12 @@ def train(config_path: str | None = None, resume: str | None = None, config=None
         from live_trainer import LivePPOTrainer
 
         isaac_env = IsaacEnv(config)
-        trainer = LivePPOTrainer(config, isaac_env)
+        trainer = LivePPOTrainer(
+            config,
+            isaac_env,
+            resume=resume,
+            config_path=config_path,
+        )
 
         interrupted = False
 
@@ -475,8 +480,22 @@ def train(config_path: str | None = None, resume: str | None = None, config=None
         try:
             trainer.learn()
         except KeyboardInterrupt:
-            log.info("Interrupted; stopping collector...")
+            log.info("Interrupted; stopping collector and saving checkpoint...")
             trainer.stop_event.set()
+            with trainer.buffer_cv:
+                trainer.buffer_cv.notify_all()
+            trainer.collector.join(timeout=10.0)
+            checkpoint_path = trainer.save("interrupted")
+            log.info("Interrupted checkpoint saved to %s", checkpoint_path)
+        except Exception:
+            trainer.stop_event.set()
+            with trainer.buffer_cv:
+                trainer.buffer_cv.notify_all()
+            checkpoint_path = trainer.save("crashed")
+            log.exception("Live training crashed; checkpoint saved to %s", checkpoint_path)
+            raise
+        finally:
+            isaac_env.close()
         return
 
     n_workers = config.env.n_workers

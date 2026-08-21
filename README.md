@@ -35,22 +35,55 @@ pip install -r python\requirements.txt
 ### 3. Prepare Isaac
 
 - Add `--luadebug` to Steam launch options
+- Close Isaac once and enable background training:
+
+```powershell
+.\scripts\configure_background_training.ps1
+```
+
 - Launch the game, enable **IsaacRL** from the Mods menu
 - Verify the debug console shows `IsaacRL: Mod loaded`
 
-### 4. Train
+### 4. Commandes d'entraînement — copier/coller
+
+Lancez ces commandes depuis la racine du projet, avec Isaac ouvert et le mod
+**IsaacRL** activé :
 
 ```powershell
-.\scripts\launch_training.ps1 -Config configs\phase1a.yaml
+cd C:\Users\maxbr\Desktop\IsaacRL\binding-of-ai
 ```
 
-Or directly:
+#### Repartir de zéro (nouveau modèle)
 
 ```powershell
-.venv\Scripts\python python\train.py --config configs\phase1a.yaml
+.\.venv\Scripts\python.exe python\train.py --config configs\phase1a.yaml
 ```
 
-### 4a. Parallel Launcher / TUI
+Cette commande crée une nouvelle session d'entraînement. Elle ne remplace pas
+les checkpoints des sessions précédentes.
+
+#### Reprendre le dernier checkpoint
+
+```powershell
+.\.venv\Scripts\python.exe python\train.py --config configs\phase1a.yaml --resume latest
+```
+
+Cette commande nécessite qu'au moins un checkpoint ait déjà été enregistré.
+Si `checkpoints\live` est vide, utilisez d'abord **Repartir de zéro**. Un
+checkpoint périodique sera ensuite créé toutes les 10 minutes ; arrêter
+proprement l'entraînement avec `Ctrl+C` crée également un checkpoint.
+
+#### Reprendre un checkpoint précis
+
+```powershell
+.\.venv\Scripts\python.exe python\train.py --config configs\phase1a.yaml --resume "checkpoints\live\<run_id>\periodic_000012345.pt"
+```
+
+Remplacez le chemin d'exemple par celui du fichier `.pt` voulu dans
+`checkpoints\live\<run_id>\`. La reprise restaure le modèle, l'optimiseur, les
+compteurs d'entraînement et l'état aléatoire sauvegardé.
+
+### 5. Parallel Launcher / TUI
 
 For multi-instance runs, launch the worker manager first:
 
@@ -67,21 +100,13 @@ For the headless worker flow, use:
 .venv\Scripts\python python\launcher.py launch --workers 8 --batch-size 4
 ```
 
-### 5. Monitor
+### 6. Monitor
 
 ```powershell
 tensorboard --logdir logs
 ```
 
 Or enable [Weights & Biases](#weights--biases) in your config for richer experiment tracking.
-
-### 6. Resume
-
-```powershell
-.\scripts\launch_training.ps1 -Config configs\phase1b.yaml -Resume latest
-```
-
-Resume modes: `latest`, `latest-compatible`, or a specific checkpoint path.
 
 ## Observation & Action Space
 
@@ -162,10 +187,48 @@ See [configs/phase1a.yaml](configs/phase1a.yaml) for a complete example.
 
 ## Checkpoints
 
-- Saved to `checkpoints/` every `save_interval` steps with timestamped filenames
-- Ctrl+C saves an `interrupted_model` checkpoint before exiting
-- Crashes save a `crashed_model` checkpoint
-- Resume with `--resume latest`, `--resume latest-compatible`, or a specific path
+Live checkpoints have one stable repository-local location:
+
+```text
+checkpoints/live/<YYYYMMDD_HHMMSS_run-name>/
+├── periodic_000012345.pt
+├── interrupted_000014000.pt
+├── latest.json
+├── metrics.jsonl
+└── evaluations/
+```
+
+- A complete checkpoint is saved every `train.save_interval_seconds` (600
+  seconds / 10 minutes in `phase1a.yaml`).
+- `Ctrl+C`, crashes, and normal completion each save a final checkpoint.
+- `checkpoints/live/latest.json` points to the most recently saved checkpoint.
+- Resume with `--resume latest`, a run folder, or a specific `.pt` path.
+- Existing run folders are never reused by a new from-scratch run, so equal
+  step numbers cannot overwrite an older experiment.
+- Every PPO update is appended to `metrics.jsonl`, keeping losses, KL, clip
+  fraction, explained variance, feature health, exploration, throughput, and
+  rolling gameplay outcomes available after the terminal closes.
+
+### Deterministic evaluation
+
+Stop the trainer, leave Isaac running with the mod enabled, then run:
+
+```powershell
+.\.venv\Scripts\python.exe python\evaluate_live.py latest --episodes 20
+```
+
+The evaluator disables sampling and reports mean/std reward, win/death/timeout
+rates, episode length, kills, damage taken, and action diversity. Its JSON report
+is saved beside the checkpoint under `evaluations/`.
+
+During training, the live HUD and console also expose PPO health metrics:
+KL divergence, clip fraction, explained variance, entropy, gradient norm,
+rolling win rate, action entropy/idle rates, and dead-feature fraction. Phase 1a
+uses entropy decay (`0.02` to `0.005`) to explore broadly early and stabilize
+later, plus `target_kl: 0.03` to stop overly destructive policy updates.
+The 22-value player vector is scaled to comparable numeric ranges before the
+MLP, preventing large raw values such as tear range or consumable counts from
+drowning out normalized positions and nearest-entity deltas.
 
 ## Weights & Biases
 

@@ -2,6 +2,7 @@ env:
   frame_skip: 3
   frame_stack: 1
   free_running: true
+  normalize_player_features: true
   max_episode_steps: 3000
 
 reward:
@@ -19,6 +20,11 @@ train:
   learning_rate: 0.0003
   n_steps: 2048
   batch_size: 64
+  target_kl: 0.03
+  ent_coef: 0.02
+  ent_coef_final: 0.005
+  entropy_decay_fraction: 0.8
+  save_interval_seconds: 600
 
 phase:
   enemy_type: 10        # Gaper

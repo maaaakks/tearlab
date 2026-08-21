@@ -12,6 +12,7 @@ class EnvConfig:
     grid_height: int = 7
     grid_channels: int = 10
     player_features: int = 22
+    normalize_player_features: bool = True
     mask_distance_vectors: bool = False
     frame_skip: int = 3
     frame_stack: int = 1
@@ -58,11 +59,14 @@ class TrainConfig:
     clip_range: float = 0.2
     target_kl: float | None = None
     ent_coef: float = 0.01
+    ent_coef_final: float | None = None
+    entropy_decay_fraction: float = 1.0
     vf_coef: float = 0.5
     max_grad_norm: float = 0.5
     total_timesteps: int = 1_000_000
     log_interval: int = 10
     save_interval: int = 50_000
+    save_interval_seconds: float = 600.0
     eval_episodes: int = 20
 
 
@@ -140,15 +144,9 @@ class Config:
         }
 
 
-def load_config(path: str | None = None) -> Config:
-    """Load config from YAML file, falling back to defaults."""
+def config_from_dict(data: dict | None = None) -> Config:
+    """Build a config from already-loaded data, falling back to defaults."""
     config = Config()
-    if path is None:
-        return config
-
-    with open(path) as f:
-        data = yaml.safe_load(f)
-
     if not data:
         return config
 
@@ -166,3 +164,13 @@ def load_config(path: str | None = None) -> Config:
                     setattr(section, key, value)
 
     return config
+
+
+def load_config(path: str | None = None) -> Config:
+    """Load config from YAML file, falling back to defaults."""
+    if path is None:
+        return Config()
+
+    with open(path) as f:
+        data = yaml.safe_load(f)
+    return config_from_dict(data)
