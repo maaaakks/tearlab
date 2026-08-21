@@ -46,9 +46,14 @@ class IsaacEnv(gym.Env):
         self.env_cfg = self.config.env
         self.reward_shaper = RewardShaper(self.config.reward)
 
-        # Action space: MultiDiscrete([9, 9]) = 9 movement * 9 shooting
-        # (8 directions + none for each head, incl. diagonal tears)
-        self.action_space = spaces.MultiDiscrete([9, 9])
+        # Action space: MultiDiscrete([9, 9, 2, 2, 2])
+        #   dim 0: movement (8 directions + none)
+        #   dim 1: shooting (8 directions + none, incl. diagonal tears)
+        #   dim 2: place bomb (0=no, 1=place)
+        #   dim 3: use active item (0=no, 1=use)
+        #   dim 4: use card/pill (0=no, 1=use)
+        # Interaction dims are masked off unless phase.enable_interactions.
+        self.action_space = spaces.MultiDiscrete([9, 9, 2, 2, 2])
 
         # Frame stacking: stack the last N grids along the channel axis so the
         # network can infer velocities from consecutive frames.
@@ -303,11 +308,20 @@ class IsaacEnv(gym.Env):
 
         move_action = int(action[0])
         shoot_action = int(action[1])
+        bomb_action = int(action[2]) if len(action) > 2 else 0
+        active_action = int(action[3]) if len(action) > 3 else 0
+        pillcard_action = int(action[4]) if len(action) > 4 else 0
 
         # Send action (fire-and-forget, Lua latches it)
         action_msg = {
             "command": "action",
-            "action": {"move": move_action, "shoot": shoot_action},
+            "action": {
+                "move": move_action,
+                "shoot": shoot_action,
+                "bomb": bomb_action,
+                "active": active_action,
+                "pillcard": pillcard_action,
+            },
         }
 
         # Attach both gameplay rewards and trainer metrics for the in-game HUD.
@@ -390,7 +404,12 @@ class IsaacEnv(gym.Env):
         return obs, reward, terminated, truncated, info
 
     def action_masks(self) -> np.ndarray:
-        """Return flattened action mask for MultiDiscrete([9, 9])."""
+        """Return flattened action mask for MultiDiscrete([9, 9, 2, 2, 2]).
+
+        Interaction actions are masked by actual resource availability from
+        the last received state, and entirely disabled unless
+        phase.enable_interactions is set.
+        """
         move_mask = np.ones(9, dtype=bool)
 
         if self.config.phase.mask_shoot:
@@ -400,7 +419,18 @@ class IsaacEnv(gym.Env):
         else:
             shoot_mask = np.ones(9, dtype=bool)
 
-        return np.concatenate((move_mask, shoot_mask))
+        if not self.config.phase.enable_interactions or self.last_state is None:
+            interaction_mask = np.array([True, False] * 3, dtype=bool)
+        else:
+            p = self.last_state.player
+            bomb_mask = np.array([True, p.num_bombs > 0], dtype=bool)
+            active_mask = np.array([True, p.has_active_item], dtype=bool)
+            pillcard_mask = np.array(
+                [True, p.card_slot != 0 or p.pill_slot != 0], dtype=bool
+            )
+            interaction_mask = np.concatenate((bomb_mask, active_mask, pillcard_mask))
+
+        return np.concatenate((move_mask, shoot_mask, interaction_mask))
 
     def pause_game(self):
         """Pause the game (used between rollout collection and PPO update)."""

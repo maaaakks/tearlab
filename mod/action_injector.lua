@@ -4,11 +4,25 @@ local ActionInjector = {}
 -- 5=up-left, 6=up-right, 7=down-left, 8=down-right
 -- Shooting directions: 0=none, 1=up, 2=down, 3=left, 4=right,
 -- 5=up-left, 6=up-right, 7=down-left, 8=down-right
+-- Interaction flags: 0=no, 1=trigger once per action decision
+--   bomb     -> ACTION_BOMB    (E)
+--   active   -> ACTION_ITEM    (Space)
+--   pillcard -> ACTION_PILLCARD (Q)
 
 local currentAction = {
     move = 0,
-    shoot = 0
+    shoot = 0,
+    bomb = 0,
+    active = 0,
+    pillcard = 0
 }
+
+-- One-shot interaction state: pressed for ONE_SHOT_TICKS game ticks after
+-- the action arrives, then cleared. Prevents a latched action from placing
+-- a bomb every frame while Python is busy.
+local ONE_SHOT_TICKS = 2
+local oneShotTicksLeft = 0
+local oneShotButtons = {}
 
 local MOVE_MAP = {
     [0] = {},                           -- stand still
@@ -36,6 +50,7 @@ local SHOOT_MAP = {
 
 -- Map ButtonAction enum values to our string keys
 local BUTTON_TO_KEY = {}
+local INTERACTION_KEYS = {}  -- set of string keys treated as one-shot
 
 function ActionInjector.init()
     BUTTON_TO_KEY[ButtonAction.ACTION_LEFT] = "ACTION_LEFT"
@@ -46,6 +61,18 @@ function ActionInjector.init()
     BUTTON_TO_KEY[ButtonAction.ACTION_SHOOTRIGHT] = "ACTION_SHOOTRIGHT"
     BUTTON_TO_KEY[ButtonAction.ACTION_SHOOTUP] = "ACTION_SHOOTUP"
     BUTTON_TO_KEY[ButtonAction.ACTION_SHOOTDOWN] = "ACTION_SHOOTDOWN"
+    if ButtonAction.ACTION_BOMB ~= nil then
+        BUTTON_TO_KEY[ButtonAction.ACTION_BOMB] = "ACTION_BOMB"
+        INTERACTION_KEYS["ACTION_BOMB"] = true
+    end
+    if ButtonAction.ACTION_ITEM ~= nil then
+        BUTTON_TO_KEY[ButtonAction.ACTION_ITEM] = "ACTION_ITEM"
+        INTERACTION_KEYS["ACTION_ITEM"] = true
+    end
+    if ButtonAction.ACTION_PILLCARD ~= nil then
+        BUTTON_TO_KEY[ButtonAction.ACTION_PILLCARD] = "ACTION_PILLCARD"
+        INTERACTION_KEYS["ACTION_PILLCARD"] = true
+    end
 end
 
 -- DEBUG: set to true to disable shooting (for death testing)
@@ -71,6 +98,40 @@ function ActionInjector.setAction(action)
     end
 end
 
+-- Called ONCE per new action decision from Python (not on latched re-applies).
+-- Interactions are edge-triggered: armed for one ONE_SHOT_TICKS window.
+function ActionInjector.armInteractions(action)
+    if not action then
+        return
+    end
+    local armed = false
+    if action.bomb == 1 then
+        oneShotButtons["ACTION_BOMB"] = true
+        armed = true
+    end
+    if action.active == 1 then
+        oneShotButtons["ACTION_ITEM"] = true
+        armed = true
+    end
+    if action.pillcard == 1 then
+        oneShotButtons["ACTION_PILLCARD"] = true
+        armed = true
+    end
+    if armed then
+        oneShotTicksLeft = ONE_SHOT_TICKS
+    end
+end
+
+-- Called once per game update; expires the one-shot window.
+function ActionInjector.tick()
+    if oneShotTicksLeft > 0 then
+        oneShotTicksLeft = oneShotTicksLeft - 1
+        if oneShotTicksLeft == 0 then
+            oneShotButtons = {}
+        end
+    end
+end
+
 function ActionInjector.getAction()
     return currentAction
 end
@@ -78,6 +139,11 @@ end
 function ActionInjector.reset()
     currentAction.move = 0
     currentAction.shoot = 0
+    currentAction.bomb = 0
+    currentAction.active = 0
+    currentAction.pillcard = 0
+    oneShotTicksLeft = 0
+    oneShotButtons = {}
 end
 
 function ActionInjector.onInputAction(_, entity, inputHook, buttonAction)
@@ -86,10 +152,14 @@ function ActionInjector.onInputAction(_, entity, inputHook, buttonAction)
         return nil
     end
 
-    local moveButtons = MOVE_MAP[currentAction.move] or {}
-    local shootButtons = SHOOT_MAP[currentAction.shoot] or {}
-
-    local isPressed = moveButtons[key] or shootButtons[key] or false
+    local isPressed
+    if INTERACTION_KEYS[key] then
+        isPressed = oneShotTicksLeft > 0 and oneShotButtons[key] == true
+    else
+        local moveButtons = MOVE_MAP[currentAction.move] or {}
+        local shootButtons = SHOOT_MAP[currentAction.shoot] or {}
+        isPressed = moveButtons[key] or shootButtons[key] or false
+    end
 
     if inputHook == InputHook.GET_ACTION_VALUE then
         if isPressed then

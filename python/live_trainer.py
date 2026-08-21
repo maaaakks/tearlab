@@ -32,15 +32,21 @@ log = logging.getLogger("live_trainer")
 
 
 class IsaacPolicy(nn.Module):
-    """Actor-critic policy for MultiDiscrete([9, 9]) with Dict observations."""
+    """Actor-critic policy for MultiDiscrete action spaces with Dict observations.
 
-    def __init__(self, observation_space, features_dim: int = 256, hidden=(128, 64)):
+    One categorical head per MultiDiscrete dimension (e.g. [9, 9, 2, 2, 2] =
+    move, shoot, bomb, active item, card/pill).
+    """
+
+    def __init__(self, observation_space, action_nvec, features_dim: int = 256, hidden=(128, 64)):
         super().__init__()
         self.features = IsaacFeatureExtractor(observation_space, features_dim)
+        self.action_nvec = list(int(n) for n in action_nvec)
         self.pi = self._mlp(features_dim, hidden)
         self.vf = self._mlp(features_dim, hidden)
-        self.move_head = nn.Linear(hidden[-1], 9)
-        self.shoot_head = nn.Linear(hidden[-1], 9)
+        self.action_heads = nn.ModuleList(
+            nn.Linear(hidden[-1], n) for n in self.action_nvec
+        )
         self.value_head = nn.Linear(hidden[-1], 1)
 
     @staticmethod
@@ -54,24 +60,26 @@ class IsaacPolicy(nn.Module):
 
     def forward(self, obs):
         feat = self.features(obs)
-        move_logits = self.move_head(self.pi(feat))
-        shoot_logits = self.shoot_head(self.pi(feat))
+        shared_pi = self.pi(feat)
+        logits = [head(shared_pi) for head in self.action_heads]
         value = self.value_head(self.vf(feat)).squeeze(-1)
-        return value, move_logits, shoot_logits
+        return value, logits
 
     @staticmethod
     def _dist(logits):
         return torch.distributions.Categorical(logits=logits)
 
     def evaluate_actions(self, obs, actions):
-        """actions: LongTensor (B, 2). Returns values, joint logprobs, joint entropy."""
-        value, move_logits, shoot_logits = self.forward(obs)
-        move_dist = self._dist(move_logits)
-        shoot_dist = self._dist(shoot_logits)
-        logprob = (
-            move_dist.log_prob(actions[:, 0]) + shoot_dist.log_prob(actions[:, 1])
-        )
-        entropy = move_dist.entropy() + shoot_dist.entropy()
+        """actions: LongTensor (B, K). Returns values, joint logprobs, joint entropy."""
+        value, logits = self.forward(obs)
+        logprob = None
+        entropy = None
+        for k, head_logits in enumerate(logits):
+            dist = self._dist(head_logits)
+            term = dist.log_prob(actions[:, k])
+            ent = dist.entropy()
+            logprob = term if logprob is None else logprob + term
+            entropy = ent if entropy is None else entropy + ent
         return value, logprob, entropy
 
 
@@ -145,20 +153,20 @@ class Collector(threading.Thread):
                 )
                 tensors = _obs_to_tensors(obs, self.device)
                 with torch.no_grad():
-                    value, move_logits, shoot_logits = self.policy(tensors)
-                    move_dist = IsaacPolicy._dist(move_logits)
-                    shoot_dist = IsaacPolicy._dist(shoot_logits)
-                    move = move_dist.sample()
-                    shoot = shoot_dist.sample()
-                    logprob = move_dist.log_prob(move) + shoot_dist.log_prob(shoot)
+                    value, logits = self.policy(tensors)
+                    dists = [IsaacPolicy._dist(l) for l in logits]
+                    samples = [d.sample() for d in dists]
+                    logprob = sum(
+                        d.log_prob(s).squeeze() for d, s in zip(dists, samples)
+                    )
 
-                action = (int(move.item()), int(shoot.item()))
+                action = tuple(int(s.item()) for s in samples)
                 next_obs, reward, terminated, truncated, info = self.env.step(action)
                 done = terminated or truncated
 
                 with torch.no_grad():
                     nv_tensors = _obs_to_tensors(next_obs, self.device)
-                    next_value, _, _ = self.policy(nv_tensors)
+                    next_value, _ = self.policy(nv_tensors)
 
                 transition = {
                     "obs": {k: v.copy() for k, v in obs.items()},
@@ -215,7 +223,9 @@ class LivePPOTrainer:
         self.env = env
         tc = config.train
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.policy = IsaacPolicy(env.observation_space).to(self.device)
+        self.policy = IsaacPolicy(
+            env.observation_space, env.action_space.nvec.tolist()
+        ).to(self.device)
         self.optimizer = optim.Adam(self.policy.parameters(), lr=tc.learning_rate)
         self.gamma = tc.gamma
         self.gae_lambda = tc.gae_lambda
@@ -489,7 +499,7 @@ class LivePPOTrainer:
                 "player": players[sample_idx],
             }
             with torch.no_grad():
-                sample_values, _, _ = self.policy(sample_obs)
+                sample_values, _ = self.policy(sample_obs)
                 sample_features = self.policy.features(sample_obs)
 
             sample_returns = rets[sample_idx]
@@ -532,6 +542,18 @@ class LivePPOTrainer:
                 "shoot_action_entropy": normalized_action_entropy(action_array[:, 1]),
                 "move_idle_rate": float(np.mean(action_array[:, 0] == 0)),
                 "shoot_idle_rate": float(np.mean(action_array[:, 1] == 0)),
+                "bomb_use_rate": (
+                    float(np.mean(action_array[:, 2] == 1))
+                    if action_array.shape[1] > 2 else 0.0
+                ),
+                "active_use_rate": (
+                    float(np.mean(action_array[:, 3] == 1))
+                    if action_array.shape[1] > 3 else 0.0
+                ),
+                "pillcard_use_rate": (
+                    float(np.mean(action_array[:, 4] == 1))
+                    if action_array.shape[1] > 4 else 0.0
+                ),
                 "ent_coef": current_ent_coef,
                 "early_stop": float(early_stop),
             }

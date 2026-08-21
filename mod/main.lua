@@ -222,6 +222,9 @@ local function handleMessage(message)
         GameControl.resetEpisode()
     elseif message.action then
         lastAction = message.action
+        -- Arm one-shot interactions (bomb/active/pillcard) for this new
+        -- decision only; latched re-applies must not re-trigger them.
+        ActionInjector.armInteractions(lastAction)
         if message.debug then
             debugInfo = message.debug
             updateHudContext(debugInfo)
@@ -367,7 +370,8 @@ function mod:onUpdate()
         end
     end
 
-    -- Apply latched action
+    -- Expire one-shot interaction window, then apply latched action
+    ActionInjector.tick()
     ActionInjector.setAction(lastAction)
 end
 

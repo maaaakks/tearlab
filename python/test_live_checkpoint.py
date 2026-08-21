@@ -22,7 +22,7 @@ class DummyEnv:
                 ),
             }
         )
-        self.action_space = spaces.MultiDiscrete([9, 9])
+        self.action_space = spaces.MultiDiscrete([9, 9, 2, 2, 2])
         self.metrics = {}
 
     def update_training_metrics(self, **metrics):
@@ -121,17 +121,17 @@ class LiveCheckpointTests(unittest.TestCase):
                     for key, value in observation.items()
                 }
                 with torch.no_grad():
-                    value, move_logits, shoot_logits = trainer.policy(tensors)
+                    value, logits = trainer.policy(tensors)
 
                 batch = []
                 for index in range(8):
-                    action = (index % 9, (index * 2) % 9)
-                    move_dist = torch.distributions.Categorical(logits=move_logits)
-                    shoot_dist = torch.distributions.Categorical(logits=shoot_logits)
-                    logprob = (
-                        move_dist.log_prob(torch.tensor([action[0]]))
-                        + shoot_dist.log_prob(torch.tensor([action[1]]))
-                    )
+                    action = (index % 9, (index * 2) % 9, index % 2, 0, index % 2)
+                    logprob = torch.zeros(())
+                    for k, head_logits in enumerate(logits):
+                        dist = torch.distributions.Categorical(logits=head_logits)
+                        logprob = logprob + dist.log_prob(
+                            torch.tensor([action[k]])
+                        ).squeeze()
                     batch.append(
                         {
                             "obs": {key: val.copy() for key, val in observation.items()},

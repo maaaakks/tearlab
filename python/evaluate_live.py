@@ -76,7 +76,9 @@ def evaluate(checkpoint_ref: str, config_path: str | None, episodes: int) -> dic
             "Checkpoint preprocessing mismatch: "
             f"stored={stored_preprocessing}, current={current_preprocessing}."
         )
-    policy = IsaacPolicy(env.observation_space).to(device)
+    policy = IsaacPolicy(
+        env.observation_space, env.action_space.nvec.tolist()
+    ).to(device)
     policy.load_state_dict(checkpoint["state_dict"])
     policy.eval()
 
@@ -97,19 +99,21 @@ def evaluate(checkpoint_ref: str, config_path: str | None, episodes: int) -> dic
             done = False
             while not done:
                 with torch.no_grad():
-                    _, move_logits, shoot_logits = policy(
-                        _obs_to_tensors(obs, device)
-                    )
-                move = int(torch.argmax(move_logits, dim=1).item())
-                shoot = int(torch.argmax(shoot_logits, dim=1).item())
+                    _, logits = policy(_obs_to_tensors(obs, device))
+                action = [
+                    int(torch.argmax(head_logits, dim=1).item())
+                    for head_logits in logits
+                ]
                 if config.phase.mask_shoot:
-                    shoot = 0
+                    action[1] = 0
+                if not config.phase.enable_interactions:
+                    action = action[:2] + [0, 0, 0]
 
-                obs, reward, terminated, truncated, info = env.step((move, shoot))
+                obs, reward, terminated, truncated, info = env.step(action)
                 total_reward += float(reward)
                 steps += 1
-                move_actions.append(move)
-                shoot_actions.append(shoot)
+                move_actions.append(action[0])
+                shoot_actions.append(action[1])
                 done = terminated or truncated
 
             state = info.get("state")

@@ -91,6 +91,7 @@ class PhaseConfig:
     spawn_radius_max: float = 160.0
     disable_shooting: bool = False
     mask_shoot: bool = False
+    enable_interactions: bool = False
     spawn_obstacles: bool = False
     obstacle_count: int = 0
     obstacle_type: int = 4
