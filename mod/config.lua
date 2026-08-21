@@ -9,7 +9,12 @@ Config.TCP_TIMEOUT = 0.5  -- send timeout; short enough to not block game loop, 
 math.randomseed(os.time() + tonumber(Config.INSTANCE_ID) * 1000)
 
 -- How many game ticks between sending state / receiving actions
-Config.FRAME_SKIP = 1
+Config.FRAME_SKIP = 3
+
+-- Free-running mode: never block the game waiting for Python.
+-- States are sent non-blocking (dropped if Python is busy training),
+-- actions are polled non-blockingly and the last received action is latched.
+Config.FREE_RUNNING = true
 
 -- Room grid dimensions (standard room)
 Config.GRID_WIDTH = 13

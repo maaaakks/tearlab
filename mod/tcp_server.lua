@@ -116,6 +116,31 @@ function TcpServer:sendState(stateTable)
     return true
 end
 
+--- Non-blocking state send for free-running mode.
+-- Never blocks the game: if the socket buffer is full (Python busy training),
+-- the frame is silently dropped. Only a closed connection triggers disconnect.
+function TcpServer:sendStateNonBlocking(stateTable)
+    if self.use_file_ipc then
+        return self:sendState(stateTable)
+    end
+    if not self.client then
+        return false
+    end
+    local data = json.encode(stateTable)
+    self.client:settimeout(0)
+    local ok, err = self.client:send(data .. "\n")
+    self.client:settimeout(self.timeout)
+    if ok then
+        return true
+    end
+    if err == "closed" then
+        Isaac.ConsoleOutput("IsaacRL: Send error (" .. tostring(err) .. "), disconnecting\n")
+        self:handleDisconnect()
+    end
+    -- "timeout" / "wantwrite": Python is backpressured; drop this frame
+    return false
+end
+
 function TcpServer:receiveAction()
     if self.use_file_ipc then
         return self:receiveActionFile()

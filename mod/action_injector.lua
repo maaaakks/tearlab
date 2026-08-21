@@ -2,7 +2,8 @@ local ActionInjector = {}
 
 -- Movement directions: 0=none, 1=up, 2=down, 3=left, 4=right,
 -- 5=up-left, 6=up-right, 7=down-left, 8=down-right
--- Shooting directions: 0=none, 1=up, 2=down, 3=left, 4=right
+-- Shooting directions: 0=none, 1=up, 2=down, 3=left, 4=right,
+-- 5=up-left, 6=up-right, 7=down-left, 8=down-right
 
 local currentAction = {
     move = 0,
@@ -27,6 +28,10 @@ local SHOOT_MAP = {
     [2] = {ACTION_SHOOTDOWN = true},
     [3] = {ACTION_SHOOTLEFT = true},
     [4] = {ACTION_SHOOTRIGHT = true},
+    [5] = {ACTION_SHOOTUP = true, ACTION_SHOOTLEFT = true},
+    [6] = {ACTION_SHOOTUP = true, ACTION_SHOOTRIGHT = true},
+    [7] = {ACTION_SHOOTDOWN = true, ACTION_SHOOTLEFT = true},
+    [8] = {ACTION_SHOOTDOWN = true, ACTION_SHOOTRIGHT = true},
 }
 
 -- Map ButtonAction enum values to our string keys

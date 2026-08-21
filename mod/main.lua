@@ -172,13 +172,18 @@ function mod:onUpdate()
     state.terminal = terminal
     state.terminal_reason = terminalReason
 
-    -- Send state to Python
-    local sent = server:sendState(state)
-    if not sent then
-        return
+    -- Send state to Python. In free-running mode the send is non-blocking:
+    -- if Python is busy running a PPO update the frame is dropped and the
+    -- game keeps playing at full speed with the last latched action.
+    local sent
+    if Config.FREE_RUNNING then
+        sent = server:sendStateNonBlocking(state)
+    else
+        sent = server:sendState(state)
     end
 
-    -- If terminal: restart immediately (Python will call reset, no action needed)
+    -- If terminal: restart immediately regardless of whether Python saw the
+    -- final frame (Python resyncs via episode_id).
     if terminal then
         Isaac.ConsoleOutput("IsaacRL[" .. Config.INSTANCE_ID .. "]: Episode " .. episodeId .. " ended (" .. terminalReason .. ")\n")
         ActionInjector.reset()
@@ -188,14 +193,31 @@ function mod:onUpdate()
         return
     end
 
-    -- Block until Python sends the next action (lock-step protocol).
-    -- This prevents the game from running ahead of the agent, which would
-    -- cause frame drops and corrupt the training signal.
-    local message = server:waitForAction()
-    if message then
-        handleMessage(message)
-        if GameControl.isResetting() then
-            return
+    if not sent then
+        ActionInjector.setAction(lastAction)
+        return
+    end
+
+    if Config.FREE_RUNNING then
+        -- Poll for a new action without ever blocking the game loop.
+        while true do
+            local message = server:pollAction()
+            if not message then break end
+            handleMessage(message)
+            if GameControl.isResetting() then
+                return
+            end
+        end
+    else
+        -- Lock-step protocol: block until Python sends the next action.
+        -- This prevents the game from running ahead of the agent, which would
+        -- cause frame drops and corrupt the training signal.
+        local message = server:waitForAction()
+        if message then
+            handleMessage(message)
+            if GameControl.isResetting() then
+                return
+            end
         end
     end
 

@@ -25,7 +25,15 @@ StateSerializer.CHANNEL_ENEMIES = 5
 StateSerializer.CHANNEL_PROJECTILES = 6
 StateSerializer.CHANNEL_PICKUPS = 7
 StateSerializer.CHANNEL_DOORS = 8
-StateSerializer.NUM_CHANNELS = 8
+-- Projectile velocity direction, encoded as 0.5 + 0.5 * (v / PROJ_VEL_NORM)
+-- so 0.5 = stationary/no velocity, 0.0 = full speed one way, 1.0 = the other.
+StateSerializer.CHANNEL_PROJ_VX = 9
+StateSerializer.CHANNEL_PROJ_VY = 10
+StateSerializer.NUM_CHANNELS = 10
+
+-- Projectile speeds in Isaac are roughly 0-16 px/tick; normalize by ~8 so
+-- typical projectiles map to a good chunk of the 0-1 range.
+local PROJ_VEL_NORM = 8.0
 
 local function createGrid()
     local grid = {}
@@ -150,11 +158,13 @@ function StateSerializer.serialize(game)
                 normalized
             )
             table.insert(enemies, {
+                init_seed = ent.InitSeed,
                 type = ent.Type,
                 variant = ent.Variant,
                 hp = hp,
                 max_hp = maxHp,
-                position = {ent.Position.X, ent.Position.Y}
+                position = {ent.Position.X, ent.Position.Y},
+                velocity = {ent.Velocity.X, ent.Velocity.Y}
             })
             if nearestEnemyDist == nil or distSq < nearestEnemyDist then
                 nearestEnemyDist = distSq
@@ -163,8 +173,14 @@ function StateSerializer.serialize(game)
             end
 
         elseif ent.Type == 9 then
-            -- Enemy projectile
+            -- Enemy projectile: position + velocity direction channels
             grid[StateSerializer.CHANNEL_PROJECTILES][ey][ex] = 1
+            local vx = math.max(-1.0, math.min(1.0, ent.Velocity.X / PROJ_VEL_NORM))
+            local vy = math.max(-1.0, math.min(1.0, ent.Velocity.Y / PROJ_VEL_NORM))
+            local cellVx = 0.5 + 0.5 * vx
+            local cellVy = 0.5 + 0.5 * vy
+            grid[StateSerializer.CHANNEL_PROJ_VX][ey][ex] = cellVx
+            grid[StateSerializer.CHANNEL_PROJ_VY][ey][ex] = cellVy
             if nearestProjectileDist == nil or distSq < nearestProjectileDist then
                 nearestProjectileDist = distSq
                 nearestProjectileDx = dx
