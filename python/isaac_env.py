@@ -164,6 +164,8 @@ class IsaacEnv(gym.Env):
         self._total_steps = 0
         self._start_time = None
         self._throughput_interval = 1000
+        self._throughput_last_steps = 0
+        self._throughput_last_time = None
 
         # Episode tracking
         self._ep_reward = 0.0
@@ -464,25 +466,8 @@ class IsaacEnv(gym.Env):
         super().reset(seed=seed)
         self._client.connect()
 
-        # Log previous episode summary
-        if self._episode_num > 0:
-            reason = self._last_terminal_reason or "unknown"
-            avg_latency = (
-                sum(self._ep_step_latencies) / len(self._ep_step_latencies) * 1000
-                if self._ep_step_latencies else 0.0
-            )
-            ticks_per_sec = 0.0
-            if len(self._ep_receive_times) >= 2:
-                duration = self._ep_receive_times[-1] - self._ep_receive_times[0]
-                if duration > 0:
-                    ticks_per_sec = (len(self._ep_receive_times) - 1) / duration
-            log.info(
-                "EP %d ended (%s) | steps=%d reward=%.1f kills=%d dmg_taken=%d "
-                "frames_dropped=%d avg_latency=%.1fms ticks/s=%.1f",
-                self._episode_num, reason, self.step_count,
-                self._ep_reward, self._ep_kills, self._ep_damage_taken,
-                self._ep_frames_dropped, avg_latency, ticks_per_sec,
-            )
+        # Episode summaries are logged once per episode by live_trainer; the
+        # env side stays silent to keep one line per episode.
 
         self._episode_num += 1
         self.step_count = 0
@@ -526,9 +511,16 @@ class IsaacEnv(gym.Env):
         self._total_steps += 1
         if self._start_time is None:
             self._start_time = time.monotonic()
+            self._throughput_last_time = self._start_time
         elif self._total_steps % self._throughput_interval == 0:
-            elapsed = time.monotonic() - self._start_time
-            sps = self._total_steps / elapsed
+            # Windowed rate: recent throughput, not a lifetime average that
+            # startup stalls drag down forever.
+            now = time.monotonic()
+            elapsed = now - self._throughput_last_time
+            steps_delta = self._total_steps - self._throughput_last_steps
+            sps = steps_delta / elapsed if elapsed > 0 else 0.0
+            self._throughput_last_time = now
+            self._throughput_last_steps = self._total_steps
             log.info("%d steps, %.1f steps/sec", self._total_steps, sps)
 
         move_action = int(action[0])
