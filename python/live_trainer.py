@@ -263,6 +263,7 @@ class Collector(threading.Thread):
         initial_steps=0,
         controlled_fraction_fn=None,
         controlled_scenarios=None,
+        policy_lock=None,
     ):
         super().__init__(daemon=True, name="isaac-collector")
         self.env = env
@@ -276,6 +277,7 @@ class Collector(threading.Thread):
         self.controlled_fraction_fn = controlled_fraction_fn
         self.controlled_scenarios = list(controlled_scenarios or [])
         self.steps = int(initial_steps)
+        self.policy_lock = policy_lock or threading.RLock()
         self.episodes = 0
         self.ep_reward = 0.0
         self.ep_steps = 0
@@ -390,7 +392,9 @@ class Collector(threading.Thread):
                     mask_flat.unsqueeze(0), self.env.action_space.nvec.tolist()
                 )
                 hidden_in = self.hidden
-                with torch.no_grad():
+                # A collector must never read weights while PPO mutates them.
+                # This also makes a CUDA policy safe to share across workers.
+                with self.policy_lock, torch.no_grad():
                     value, logits, hidden_out, _aux = self.policy(
                         tensors, hidden=hidden_in
                     )
@@ -404,14 +408,11 @@ class Collector(threading.Thread):
                 next_obs, reward, terminated, truncated, info = self.env.step(action)
                 done = terminated or truncated
 
-                with torch.no_grad():
-                    nv_tensors = _obs_to_tensors(next_obs, self.device)
-                    next_value, _logits, _hidden, _aux = self.policy(
-                        nv_tensors, hidden=hidden_out
-                    )
-
                 transition = {
                     "obs": {k: v.copy() for k, v in obs.items()},
+                    # Boundary bootstrap value is computed once per batch in
+                    # _bootstrap_boundary instead of once per step here.
+                    "next_obs": {k: v.copy() for k, v in next_obs.items()},
                     "action": action,
                     "mask": np.asarray(mask_flat.cpu(), dtype=bool).copy(),
                     "logprob": float(logprob.item()),
@@ -419,7 +420,7 @@ class Collector(threading.Thread):
                     "reward": float(reward),
                     "done": bool(done),
                     # Bootstrap for the case where this transition ends the batch
-                    "next_value": 0.0 if done else float(next_value.item()),
+                    "next_value": 0.0 if done else None,
                     # C4: per-step recurrent state entered/exited for this step.
                     "hidden_in": (
                         None if hidden_in is None else hidden_in.detach().cpu().numpy()
@@ -574,6 +575,7 @@ class LivePPOTrainer:
         self.buffer_lock = threading.Lock()
         self.buffer_cv = threading.Condition(self.buffer_lock)
         self.stop_event = threading.Event()
+        self.policy_lock = threading.RLock()
         self.collector = Collector(
             env, self.policy, self.device,
             self.buffer, self.buffer_lock, self.buffer_cv, self.stop_event,
@@ -581,6 +583,7 @@ class LivePPOTrainer:
             initial_steps,
             controlled_fraction_fn=self._current_controlled_fraction,
             controlled_scenarios=self.controlled_scenarios,
+            policy_lock=self.policy_lock,
         )
         self.env.update_training_metrics(
             trainer="LIVE PPO",
@@ -747,7 +750,11 @@ class LivePPOTrainer:
             np.random.set_state(numpy_rng_state)
         cuda_rng_states = checkpoint.get("cuda_rng_state_all")
         if cuda_rng_states is not None and torch.cuda.is_available():
-            torch.cuda.set_rng_state_all(cuda_rng_states)
+            # torch.load(map_location="cuda") moves these byte tensors too,
+            # while set_rng_state_all specifically expects CPU ByteTensors.
+            torch.cuda.set_rng_state_all(
+                [state.detach().cpu() for state in cuda_rng_states]
+            )
 
         log.info(
             "Resumed live checkpoint %s at step %d (update %d)",
@@ -854,8 +861,40 @@ class LivePPOTrainer:
         self._return_stats_seen += 1
         return (returns - self._return_mean) / (np.sqrt(self._return_var) + 1e-8)
 
+    def _bootstrap_boundary(self, batch: list):
+        """Compute the batch-boundary bootstrap value lazily (one forward per
+        batch instead of one per step). The collector stores next_obs; GAE only
+        needs next_value when the last transition is not done."""
+        if not batch:
+            return
+        last = batch[-1]
+        if last["done"] or last.get("next_value") is not None:
+            return
+        if "next_obs" not in last:
+            return
+        with torch.no_grad():
+            tensors = _obs_to_tensors(last["next_obs"], self.device)
+            hidden = None
+            if self.recurrent and last.get("hidden_out") is not None:
+                hidden = torch.as_tensor(
+                    last["hidden_out"], dtype=torch.float32, device=self.device
+                )
+            value, _logits, _hidden, _aux = self.policy(tensors, hidden=hidden)
+        last["next_value"] = float(value.item())
+
     def _update(self, batch: list):
+        # A full PPO update is atomic with respect to policy inference. This
+        # trades a few milliseconds of collection time for valid log-probs and
+        # avoids simultaneous CUDA reads/writes from worker threads.
+        policy_lock = getattr(self, "policy_lock", None)
+        if policy_lock is None:
+            return self._update_locked(batch)
+        with policy_lock:
+            return self._update_locked(batch)
+
+    def _update_locked(self, batch: list):
         tc = self.config.train
+        self._bootstrap_boundary(batch)
         advantages, returns = self._compute_gae(batch)
         adv_mean, adv_std = advantages.mean(), advantages.std() + 1e-8
         advantages = (advantages - adv_mean) / adv_std
@@ -1329,10 +1368,18 @@ class LivePPOTrainer:
                 self.env.update_training_metrics(last_checkpoint=current)
                 next_checkpoint_at = now + self.save_interval_seconds
 
-        self.stop_event.set()
+        self.stop_collectors()
         final_path = self.save("final")
         log.info("Training complete. Final model: %s", final_path)
         return final_path
+
+    def stop_collectors(self, timeout: float = 10.0) -> None:
+        """Request collector shutdown and wait briefly for it."""
+        self.stop_event.set()
+        with self.buffer_cv:
+            self.buffer_cv.notify_all()
+        if self.collector.is_alive():
+            self.collector.join(timeout=timeout)
 
     def save(self, label: str) -> Path:
         steps = int(self.collector.steps)

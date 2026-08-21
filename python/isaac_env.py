@@ -550,7 +550,10 @@ class IsaacEnv(gym.Env):
         }
 
         # Attach both gameplay rewards and trainer metrics for the in-game HUD.
-        action_msg["debug"] = self._build_debug_info()
+        # Throttled: JSON-encoding this payload and decoding it inside the
+        # game's Lua loop every decision costs measurable time at high speed.
+        if self.step_count % 10 == 0:
+            action_msg["debug"] = self._build_debug_info()
 
         self._client.send(action_msg)
 
