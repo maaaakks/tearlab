@@ -135,3 +135,28 @@ This file captures durable lessons from training runs so we can reuse what we le
 - **Lesson:** "Additive" observation extensions (new encoder branches) silently change the *shape* of fuse layers, not just the key set. Treat "(strict=False) fresh weights for new branches" narrowly — it only covers brand-new params, so size-mismatch adaptation must be explicit and tested. Also, if you transfer weights on a sliced concat you cannot transfer the optimizer's moments (the param set is different), so reset them.
 - Confidence: high — regression test reproduces the exact save-then-add-entities-resume path and passes.
 - Follow-up: this only grows columns for append-style concat; a reordering of streams would need param-name remapping instead.
+
+## 2026-08-21 - Success-conditioned urgency and unified aim supervision
+
+- **Evidence:** The first live `phase1a` run reached roughly 67k steps with improved movement entropy but no durable clear rate. The 20-episode reward average fell to about -7.61 while shoot entropy remained about 0.97. The per-step time cost was only -0.0005 (at most -0.075 over 150 steps), so it was not the main regression. Death and timeout both paid -5, damage progress could recover +1, and the cumulative aim penalty made longer unsuccessful episodes more negative.
+- **Takeaway:** Urgency must be conditional on success. Remove the continuous time and aim penalties, pay a decaying speed bonus only on room clear, make early death worse than late death, and scale timeout cost by enemy HP left. This preserves the ordering `fast clear > slow clear > progress at timeout > survival > late death > early death`.
+- **Implementation:** The same PPO policy receives a small auxiliary cross-entropy loss on its existing shoot head. Nearest-enemy direction supplies one of eight direction labels; no visible enemy supplies a lower-weight idle label. There is no separate aiming model, training phase, or transfer checkpoint.
+- Confidence: medium — the incentive bug is confirmed from reward arithmetic and live metrics; the replacement still needs a clean run from zero to validate clear rate and aim accuracy.
+- Follow-up: compare the new run at 50k/100k real steps using clear rate, aim-visible accuracy, shoot entropy and reward, not reward alone.
+
+## 2026-08-21 - CUDA and single-instance speedhack
+
+- **Evidence:** Single-worker live `phase1a` sampled about 8.7 transitions/s, so a 1,024-step rollout delayed a policy refresh by roughly two minutes. The current 1v1 episodes average about 70 transitions.
+- **Configuration:** `phase1a.yaml` uses one Isaac and `n_steps: 512`. With a 4x game speed this targets a policy refresh every 12-15 seconds without reducing the PPO batch to a single short episode.
+- **Hardware:** The local venv now uses `torch 2.13.0+cu130`; CUDA was verified on the RTX 4070. GPU acceleration improves PPO minibatch updates, while game simulation/IPC remain the principal throughput limit.
+- **Speed policy:** Start at 4x and measure game tick rate, `steps_per_second`, KL and clip fraction. The earlier 10x experiment caused stale action windows and did not yield a proportional end-to-end throughput.
+- Confidence: medium — CUDA is verified and unit tests pass; the first x4 run still needs live throughput validation.
+
+## 2026-08-21 - In-mod speedhack: render artifacts above ~2x are cosmetic only
+
+- **Evidence:** The in-mod speedhack (nested `Game():Update()` calls per rendered frame, replacing the Cheat Engine speedhack) produces visual glitches at multipliers above ~2x. The agent's behavior and metrics stay normal — episodes, rewards and actions are unaffected.
+- **Root cause:** Rendering sees only every Nth simulation state once multiple logic ticks run between frames. Render-coupled effects (damage flashes, transition fades, screen shake, sprite animation timing) assume a 1:1 frame-to-tick relationship and desync past ~2x. This is inherent to in-process fast-forward; the CE speedhack exhibited the same class of artifact.
+- **Why training is unaffected:** Observations are serialized from game memory (`state_serializer.lua`: positions, grid, HP), not from pixels. A glitched frame on screen corresponds to consistent underlying game state.
+- **Policy:** Run x4 for unattended training and ignore artifacts. Drop to x2 or x1 when spectating or recording footage.
+- Also fixed: the speedhack loop previously kept calling `Game():Update()` after an episode reset fired mid-nested-tick; it now breaks when `isResetting()` or the player is gone.
+- Confidence: high on cosmetic-only impact (agent behavior confirmed normal); medium on the exact ~2x threshold.
