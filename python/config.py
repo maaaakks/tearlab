@@ -31,8 +31,10 @@ class EnvConfig:
 
 @dataclass
 class RewardConfig:
-    # Damage progress: scaled per HP point, capped cumulatively per episode
-    # so total damage reward can never exceed damage_progress_cap.
+    # Damage progress: reward for clearing 100% of a room's enemy HP, scaled
+    # by the fraction of room progress represented by each point of damage.
+    # damage_progress_cap bounds the total damage reward per ROOM, so reward
+    # is comparable across rooms regardless of enemy count or total HP.
     damage_dealt: float = 1.0
     damage_progress_cap: float = 0.25
     # Deprecated (redundant with damage progress): 0 disables it.
@@ -41,7 +43,10 @@ class RewardConfig:
     no_hit_bonus: float = 0.5
     # Penalty per half-heart lost.
     damage_taken: float = -0.5
-    pickup_collected: float = 2.0
+    # Generic pickup reward is OFF by default: pickup value depends on price,
+    # need, build and route (see D4/D5 decision engine). Legacy nav phases
+    # opt back in explicitly.
+    pickup_collected: float = 0.0
     wall_collision_penalty: float = 0.0
     # Per-use resource costs: each use must "pay for itself" through the
     # damage/clear/pickup rewards it enables, otherwise it nets negative.
@@ -62,7 +67,17 @@ class RewardConfig:
     # Max drag over 3000 steps = -1.5, well below any positive outcome.
     time_penalty: float = -0.0005
     survival_bonus: float = 0.0
-    floor_cleared: float = 100.0
+    # Run-level milestones (all bounded one-shot rewards).
+    boss_killed: float = 0.5
+    floor_cleared: float = 2.0
+    run_won: float = 10.0
+    # One-shot exploration bonus for the first visit of a room this run.
+    room_first_visit: float = 0.05
+    # Deal protection signal (Angel/Devil preservation), floor-scoped:
+    # penalty per half-heart of RED heart damage, plus a one-shot bonus when
+    # a floor is cleared with red hearts intact.
+    deal_protected_penalty: float = 0.0
+    deal_protected_floor_bonus: float = 0.0
     pickup_approach_scale: float = 0.0
     nav_progress_scale: float = 0.0
     nav_reach_bonus: float = 0.0

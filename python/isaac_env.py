@@ -412,6 +412,7 @@ class IsaacEnv(gym.Env):
             "ep_reward_components": self._ep_reward_components.copy(),
             "ep_kills": self._ep_kills,
             "ep_damage_taken": self._ep_damage_taken,
+            "run_metrics": self.reward_shaper.run_metrics(),
             "step_latency": step_latency,
             "avg_step_latency": avg_latency,
             "instant_ratio": instant_ratio,

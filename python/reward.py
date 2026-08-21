@@ -4,9 +4,18 @@ from collections.abc import Sequence
 from config import RewardConfig
 from game_state import GameState, PlayerState
 
+ROOM_TYPE_BOSS = 5
+
 
 class RewardShaper:
-    """Computes reward from state diffs between consecutive ticks."""
+    """Computes reward from state diffs between consecutive ticks.
+
+    Room-scoped counters (damage budget, no-hit, enemy HP pool) reset whenever
+    the player enters a new room. Run-scoped counters (visited rooms, boss
+    kills, floors) survive for the whole episode. Lifecycle events emitted by
+    the Lua mod (`state.events`) are consumed when present, with a diff-based
+    fallback for old states that predate the event stream.
+    """
 
     WALL_COLLISION_DISTANCE_THRESHOLD = 1.0
     WALL_COLLISION_AXIS_THRESHOLD = 0.5
@@ -29,24 +38,79 @@ class RewardShaper:
         self.reward_components = {}
         self._nav_target: tuple[float, float] | None = None
         self._nav_reached = False
-        self._damage_progress_total = 0.0
+
+        # Room-scoped counters (reset on room change)
+        self._room_damage_total = 0.0
+        self._room_total_hp = 0.0
+        self._room_enemy_seeds: set[int] = set()
         self._took_damage_this_room = False
+        self._room_key: tuple | None = None
+
+        # Run-scoped counters (reset only in reset())
+        self._visited_rooms: set[tuple] = set()
+        self._boss_kills = 0
+        self._floors_seen = 0
+
+        # Floor-scoped counters (reset on floor change)
+        self._floor_key: tuple | None = None
+        self._red_heart_damage_this_floor = 0.0
+        self._pending_first_visit = 0.0
 
     def reset(self):
         self.prev_state = None
         self.reward_components = {}
         self._nav_target = None
         self._nav_reached = False
-        self._damage_progress_total = 0.0
+        self._room_damage_total = 0.0
+        self._room_total_hp = 0.0
+        self._room_enemy_seeds = set()
         self._took_damage_this_room = False
+        self._room_key = None
+        self._visited_rooms = set()
+        self._boss_kills = 0
+        self._floors_seen = 0
+        self._floor_key = None
+        self._red_heart_damage_this_floor = 0.0
+        self._pending_first_visit = 0.0
+
+    # -- state keys -----------------------------------------------------
+
+    @staticmethod
+    def _room_key_of(state: GameState) -> tuple:
+        li = state.run.room_list_index
+        if li is None or li < 0:
+            li = state.run.room_grid_index
+        return (state.run.stage, state.run.stage_type, li)
+
+    @staticmethod
+    def _floor_key_of(state: GameState) -> tuple:
+        return (state.run.stage, state.run.stage_type)
+
+    def _event_names(self, state: GameState) -> set[str]:
+        return {e.get("name", "") for e in getattr(state, "events", []) or []}
+
+    # -- main entry point ----------------------------------------------
 
     def compute(self, state: GameState, action: Sequence[int] | None = None) -> float:
-        reward = 0.0
         self.reward_components = {}
 
         if self.prev_state is None:
             self.prev_state = state
-            return 0.0
+            self._room_key = self._room_key_of(state)
+            self._floor_key = self._floor_key_of(state)
+            # Seed the room HP pool from the first sighting of this room's
+            # enemies so damage fractions are correct from the very first
+            # transition (the enemy HP present now is part of the pool even
+            # though we only observe it once).
+            self._ensure_enemies_seen(state)
+            first_visit = self._room_key not in self._visited_rooms
+            self._visited_rooms.add(self._room_key)
+            self._floors_seen = 1
+            if first_visit:
+                self._pending_first_visit = self.config.room_first_visit
+            return self._process_events(state)
+
+        reward = 0.0
 
         # Time penalty
         reward += self.config.time_penalty
@@ -69,23 +133,39 @@ class RewardShaper:
             reward += self.config.survival_bonus
             self.reward_components["survival_bonus"] = self.config.survival_bonus
 
-        # Damage dealt (enemy HP decreased), capped cumulatively per episode
-        damage_reward = self._compute_damage_dealt(state)
-        reward += damage_reward
-        self.reward_components["damage_dealt"] = damage_reward
+        room_changed = self._room_key_of(state) != self._room_key
+        floor_changed = self._floor_key_of(state) != self._floor_key
 
-        # Enemy killed (optional; redundant with damage progress, default off)
-        kill_reward = self._compute_kills(state)
-        reward += kill_reward
-        if kill_reward != 0.0:
-            self.reward_components["kills"] = kill_reward
+        # One-shot lifecycle rewards first: they close out the OLD room/floor,
+        # so they must see the old room's no-hit and red-heart counters.
+        reward += self._process_events(state)
 
-        # Damage taken (per half-heart lost)
+        # Damage progress only within the same room; a room transition must not
+        # count the old room's enemies as "killed".
+        if not room_changed:
+            damage_reward = self._compute_damage_dealt(state)
+            reward += damage_reward
+            self.reward_components["damage_dealt"] = damage_reward
+
+            # Enemy killed (optional; redundant with damage progress)
+            kill_reward = self._compute_kills(state)
+            reward += kill_reward
+            if kill_reward != 0.0:
+                self.reward_components["kills"] = kill_reward
+
+        # Room / floor transition bookkeeping (resets room-level counters and
+        # arms the first-visit bonus for the new room).
+        self._update_room_and_floor_tracking(state)
+        reward += self._consume_pending_first_visit()
+
+        # Damage taken (per half-heart lost) + red-heart deal protection signal.
+        # After the tracking update this attributes to the new room on a
+        # room-change step.
         damage_taken_reward = self._compute_damage_taken(state)
         reward += damage_taken_reward
         self.reward_components["damage_taken"] = damage_taken_reward
 
-        # Pickup collected (currently measured via coin count increase)
+        # Pickup collected (opt-in legacy: value-aware rewards live in D4/D5)
         pickup_reward = self._compute_pickups(state)
         reward += pickup_reward
         self.reward_components["pickup_collected"] = pickup_reward
@@ -106,23 +186,7 @@ class RewardShaper:
             self.reward_components["nav_progress"] = nav_progress_reward
             self.reward_components["nav_reach_bonus"] = nav_reach_bonus
 
-        # Room cleared (+ no-hit bonus if the room was cleared damage-free)
-        if state.room_cleared and not self.prev_state.room_cleared:
-            reward += self.config.room_cleared
-            self.reward_components["room_cleared"] = self.config.room_cleared
-            if (
-                self.config.no_hit_bonus != 0.0
-                and not self._took_damage_this_room
-            ):
-                reward += self.config.no_hit_bonus
-                self.reward_components["no_hit_bonus"] = self.config.no_hit_bonus
-            # New room starts fresh for the no-hit tracker
-            self._took_damage_this_room = False
-        elif state.enemy_count > 0 and self.prev_state.enemy_count == 0:
-            # Combat (re)started in a new room without a clear transition
-            self._took_damage_this_room = False
-
-        # Death
+        # Death is always last so a simultaneous clear cannot mask it.
         if state.player_dead:
             reward += self.config.death
             self.reward_components["death"] = self.config.death
@@ -136,45 +200,187 @@ class RewardShaper:
         self.prev_state = state
         return reward
 
+    # -- room / floor lifecycle -----------------------------------------
+
+    def _update_room_and_floor_tracking(self, state: GameState):
+        room_key = self._room_key_of(state)
+        floor_key = self._floor_key_of(state)
+
+        if room_key != self._room_key:
+            # Entering a new room: reset room-level counters and pay the
+            # one-shot first-visit bonus.
+            self._room_damage_total = 0.0
+            self._room_total_hp = 0.0
+            self._room_enemy_seeds = set()
+            self._took_damage_this_room = False
+            self._room_key = room_key
+
+            first_visit = room_key not in self._visited_rooms
+            self._visited_rooms.add(room_key)
+            if first_visit:
+                self._pending_first_visit = self.config.room_first_visit
+
+        if floor_key != self._floor_key:
+            self._floor_key = floor_key
+            self._floors_seen += 1
+            self._red_heart_damage_this_floor = 0.0
+
+    def _consume_pending_first_visit(self) -> float:
+        bonus = getattr(self, "_pending_first_visit", 0.0)
+        if bonus != 0.0:
+            self.reward_components["room_first_visit"] = bonus
+            self._pending_first_visit = 0.0
+            return bonus
+        return 0.0
+
+    def _process_events(self, state: GameState) -> float:
+        """Consume Lua lifecycle events; falls back to state diffs."""
+        reward = 0.0
+        names = self._event_names(state)
+
+        # First-visit bonus is tracked via room keys (see
+        # _update_room_and_floor_tracking), not via room_entered events, so it
+        # works with and without the event stream.
+        reward += self._consume_pending_first_visit()
+
+        clear_event = "room_cleared" in names
+        boss_event = "boss_killed" in names
+        floor_event = "floor_cleared" in names
+        run_event = "run_won" in names
+
+        # Room clear (+ no-hit) only if Isaac is alive; death wins ties.
+        cleared = clear_event or (
+            state.room_cleared and not self.prev_state.room_cleared
+        )
+        if cleared and not state.player_dead:
+            reward += self.config.room_cleared
+            self.reward_components["room_cleared"] = self.config.room_cleared
+            if (
+                self.config.no_hit_bonus != 0.0
+                and not self._took_damage_this_room
+            ):
+                reward += self.config.no_hit_bonus
+                self.reward_components["no_hit_bonus"] = self.config.no_hit_bonus
+            self._took_damage_this_room = False
+
+        # Boss kill (bounded, one-shot).
+        boss_killed = boss_event or (
+            cleared and state.run.room_type == ROOM_TYPE_BOSS
+        )
+        if boss_killed:
+            reward += self.config.boss_killed
+            self.reward_components["boss_killed"] = self.config.boss_killed
+            self._boss_kills += 1
+
+        # Floor cleared (+ deal protection bonus for a red-heart-clean floor).
+        floor_cleared = floor_event or self._detect_floor_change_from_prev(state)
+        if floor_cleared:
+            reward += self.config.floor_cleared
+            self.reward_components["floor_cleared"] = self.config.floor_cleared
+            if (
+                self.config.deal_protected_floor_bonus != 0.0
+                and self._red_heart_damage_this_floor == 0.0
+            ):
+                reward += self.config.deal_protected_floor_bonus
+                self.reward_components["deal_protected"] = (
+                    self.reward_components.get("deal_protected", 0.0)
+                    + self.config.deal_protected_floor_bonus
+                )
+            self._red_heart_damage_this_floor = 0.0
+
+        # Run won.
+        if run_event or state.terminal_reason == "run_won":
+            reward += self.config.run_won
+            self.reward_components["run_won"] = self.config.run_won
+
+        return reward
+
+    def _detect_floor_change_from_prev(self, state: GameState) -> bool:
+        if self.prev_state is None:
+            return False
+        return self._floor_key_of(state) != self._floor_key_of(self.prev_state)
+
+    # -- damage ---------------------------------------------------------
+
     def _compute_damage_dealt(self, state: GameState) -> float:
-        if self._damage_progress_total >= self.config.damage_progress_cap:
+        if self.config.damage_dealt == 0.0:
+            return 0.0
+        if self._room_damage_total >= self.config.damage_progress_cap:
+            return 0.0
+        # Never attribute cross-room disappearances to damage.
+        if self._room_key_of(state) != self._room_key:
             return 0.0
 
-        prev_enemies = {
-            e.init_seed: e.hp for e in self.prev_state.enemies if e.init_seed != 0
-        }
-        legacy_enemies = [
-            e for e in self.prev_state.enemies if e.init_seed == 0
-        ]
-        raw_damage = 0.0
-        for enemy in state.enemies:
-            damage = None
-            if enemy.init_seed != 0 and enemy.init_seed in prev_enemies:
-                # Exact identity match via the game's InitSeed
-                prev_hp = prev_enemies[enemy.init_seed]
-                if enemy.hp < prev_hp:
-                    damage = prev_hp - enemy.hp
-            elif enemy.init_seed == 0 and legacy_enemies:
-                # Fallback for mods/states without InitSeed: best-effort match
-                # by type+variant with highest previous HP.
-                best_match_hp = None
-                for penemy in legacy_enemies:
-                    if penemy.type == enemy.type and penemy.variant == enemy.variant:
-                        if best_match_hp is None or penemy.hp > best_match_hp:
-                            best_match_hp = penemy.hp
-                if best_match_hp is not None and enemy.hp < best_match_hp:
-                    damage = best_match_hp - enemy.hp
-            if damage is not None:
-                raw_damage += damage
-
+        self._ensure_enemies_seen(state)
+        self._ensure_enemies_seen(self.prev_state)
+        raw_damage = self._damage_since_prev(state)
         if raw_damage <= 0.0:
             return 0.0
 
-        scaled = raw_damage * self.config.damage_dealt
-        remaining = self.config.damage_progress_cap - self._damage_progress_total
+        if self._room_total_hp > 0.0:
+            # Fraction of the room's total HP pool represented by this damage.
+            progress = raw_damage / self._room_total_hp
+        else:
+            # Unknown HP pool (empty/legacy state): fall back to raw scaling.
+            progress = raw_damage
+
+        # The full room's damage is worth damage_dealt * damage_progress_cap;
+        # this step earns its fraction of that. Capping per room makes reward
+        # comparable across rooms regardless of enemy count or total HP.
+        scaled = (
+            self.config.damage_dealt
+            * self.config.damage_progress_cap
+            * progress
+        )
+        remaining = self.config.damage_progress_cap - self._room_damage_total
         granted = min(scaled, remaining)
-        self._damage_progress_total += granted
+        self._room_damage_total += granted
         return granted
+
+    def _ensure_enemies_seen(self, state: GameState):
+        for enemy in state.enemies:
+            if enemy.init_seed != 0 and enemy.init_seed not in self._room_enemy_seeds:
+                self._room_enemy_seeds.add(enemy.init_seed)
+                hp = enemy.max_hp if enemy.max_hp > 0.0 else enemy.hp
+                self._room_total_hp += hp
+
+    def _damage_since_prev(self, state: GameState) -> float:
+        prev_by_seed = {
+            e.init_seed: e for e in self.prev_state.enemies if e.init_seed != 0
+        }
+        curr_by_seed = {
+            e.init_seed: e for e in state.enemies if e.init_seed != 0
+        }
+        raw_damage = 0.0
+
+        for seed, penemy in prev_by_seed.items():
+            cenemy = curr_by_seed.get(seed)
+            if cenemy is not None:
+                if cenemy.hp < penemy.hp:
+                    raw_damage += penemy.hp - cenemy.hp
+            else:
+                # Disappeared from the room: the killing blow removed its
+                # remaining HP, so count it instead of dropping the final hit.
+                raw_damage += max(0.0, penemy.hp)
+
+        # Legacy fallback for states without InitSeed: match alive enemies by
+        # type+variant against the highest previous HP of that type.
+        legacy_prev = [e for e in self.prev_state.enemies if e.init_seed == 0]
+        legacy_curr = [e for e in state.enemies if e.init_seed == 0]
+        if legacy_prev and legacy_curr:
+            for cenemy in legacy_curr:
+                best_match_hp = None
+                for penemy in legacy_prev:
+                    if (
+                        penemy.type == cenemy.type
+                        and penemy.variant == cenemy.variant
+                    ):
+                        if best_match_hp is None or penemy.hp > best_match_hp:
+                            best_match_hp = penemy.hp
+                if best_match_hp is not None and cenemy.hp < best_match_hp:
+                    raw_damage += best_match_hp - cenemy.hp
+
+        return raw_damage
 
     def _compute_kills(self, state: GameState) -> float:
         if self.config.enemy_killed == 0.0:
@@ -187,13 +393,32 @@ class RewardShaper:
     def _compute_damage_taken(self, state: GameState) -> float:
         prev_hp = self._total_hp(self.prev_state.player)
         curr_hp = self._total_hp(state.player)
+        reward = 0.0
         if curr_hp < prev_hp:
             half_hearts_lost = prev_hp - curr_hp
             self._took_damage_this_room = True
-            return half_hearts_lost * self.config.damage_taken
-        return 0.0
+            reward = half_hearts_lost * self.config.damage_taken
+
+        # Red-heart damage is the deal-protection signal (floor-scoped).
+        prev_red = self.prev_state.player.hp_red
+        curr_red = state.player.hp_red
+        if curr_red < prev_red:
+            red_loss = prev_red - curr_red
+            self._red_heart_damage_this_floor += red_loss
+            if self.config.deal_protected_penalty != 0.0:
+                penalty = red_loss * self.config.deal_protected_penalty
+                reward += penalty
+                self.reward_components["deal_protected"] = (
+                    self.reward_components.get("deal_protected", 0.0) + penalty
+                )
+
+        return reward
+
+    # -- pickups ---------------------------------------------------------
 
     def _compute_pickups(self, state: GameState) -> float:
+        if self.config.pickup_collected == 0.0:
+            return 0.0
         prev_coins = self.prev_state.player.num_coins
         curr_coins = state.player.num_coins
         collected = max(0, curr_coins - prev_coins)
@@ -222,6 +447,8 @@ class RewardShaper:
             return 0.0
 
         return (prev_dist - curr_dist) * self.config.pickup_approach_scale
+
+    # -- wall collision --------------------------------------------------
 
     def _compute_wall_collision(
         self,
@@ -391,3 +618,14 @@ class RewardShaper:
         if not state:
             return None
         return state.player.position
+
+    # -- run metrics -----------------------------------------------------
+
+    def run_metrics(self) -> dict:
+        """Run-level counters for dashboards / info dicts."""
+        return {
+            "rooms_visited": len(self._visited_rooms),
+            "boss_kills": self._boss_kills,
+            "floors_seen": self._floors_seen,
+            "red_heart_damage_this_floor": self._red_heart_damage_this_floor,
+        }

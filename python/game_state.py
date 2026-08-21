@@ -248,6 +248,7 @@ class GameState:
     special_rocks: list[SpecialRockState] = field(default_factory=list)
     doors: list[DoorState] = field(default_factory=list)
     run: RunInfo = field(default_factory=RunInfo)
+    events: list[dict] = field(default_factory=list)
     raw: dict = field(default_factory=dict, repr=False)
 
     @staticmethod
@@ -267,6 +268,9 @@ class GameState:
         doors = data.get("doors", [])
         if not isinstance(doors, list):
             doors = []
+        events = data.get("events", [])
+        if not isinstance(events, list):
+            events = []
         return GameState(
             episode_id=int(data.get("episode_id", 0)),
             episode_tick=int(data.get("episode_tick", 0)),
@@ -284,5 +288,6 @@ class GameState:
             special_rocks=[SpecialRockState.from_dict(r) for r in special_rocks if isinstance(r, dict)],
             doors=[DoorState.from_dict(d) for d in doors if isinstance(d, dict)],
             run=RunInfo.from_dict(data.get("run", {})),
+            events=[e for e in events if isinstance(e, dict)],
             raw=data,
         )

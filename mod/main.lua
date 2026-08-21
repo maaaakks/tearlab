@@ -22,6 +22,26 @@ local debugInfo = nil  -- compact training HUD payload from Python
 -- Explicit end-of-episode request from Python (victory / abandon). Consumed by
 -- the terminal detection and cleared on the next run start.
 local requestedTerminalReason = nil
+
+-- B2 lifecycle events: one-shot events attached to the next successfully sent
+-- state. Python consumes them for rewards and run-level metrics.
+local pendingEvents = {}
+local lastRoomKey = -1
+local lastStage = -1
+local lastStageType = -1
+local lastRoomClear = false
+local ROOM_TYPE_BOSS = 5  -- RoomType.ROOM_BOSS
+
+local function queueEvent(name, fields)
+    local event = {name = name, tick = episodeTick}
+    if fields then
+        for key, value in pairs(fields) do
+            event[key] = value
+        end
+    end
+    table.insert(pendingEvents, event)
+end
+
 local hudFont = Font()
 hudFont:Load("font/terminus.fnt")
 
@@ -58,6 +78,19 @@ local function compactNumber(value)
         return string.format("%.1fk", number / 1000)
     end
     return tostring(math.floor(number + 0.5))
+end
+
+local function shortTerminalReason(reason)
+    local labels = {
+        room_cleared = "CLEAR",
+        death = "DEATH",
+        timeout = "TIMEOUT",
+        pickup_target_reached = "TARGET",
+        pickup_collected = "PICKUP",
+        unknown = "--",
+    }
+    local raw = tostring(reason or "unknown")
+    return labels[raw] or string.upper(string.sub(raw, 1, 8))
 end
 
 local function drawHudText(text, x, y, color)
@@ -145,11 +178,32 @@ local function drawTrainingHud(info)
 
     drawHudText(
         string.format(
-            "R %+.1f   AVG %+.1f",
+            "R %+.1f   AVG%d %+.1f",
             tonumber(info.episode_reward) or 0,
+            tonumber(info.rolling_window) or 20,
             tonumber(info.rolling_reward) or 0
         ),
         x, y, HUD_COLOR.white
+    )
+    y = y + HUD_LINE_HEIGHT
+
+    local lastReason = shortTerminalReason(info.last_episode_reason)
+    local lastColor = HUD_COLOR.muted
+    if lastReason == "CLEAR" or lastReason == "TARGET" then
+        lastColor = HUD_COLOR.green
+    elseif lastReason == "DEATH" then
+        lastColor = HUD_COLOR.red
+    elseif lastReason == "TIMEOUT" then
+        lastColor = HUD_COLOR.yellow
+    end
+    drawHudText(
+        string.format(
+            "LAST %+.1f L%d %s",
+            tonumber(info.last_episode_reward) or 0,
+            tonumber(info.last_episode_length) or 0,
+            lastReason
+        ),
+        x, y, lastColor
     )
     y = y + HUD_LINE_HEIGHT
 
@@ -183,6 +237,11 @@ function mod:onGameStart(isContinue)
     pickupsCollected = 0
     lastAction = {move = 0, shoot = 0}
     requestedTerminalReason = nil
+    pendingEvents = {}
+    lastRoomKey = -1
+    lastStage = -1
+    lastStageType = -1
+    lastRoomClear = false
     hudContextText = nil
     hudContextExpiresAt = 0
     ActionInjector.reset()
@@ -293,6 +352,49 @@ function mod:onUpdate()
     -- Serialize state
     local state = StateSerializer.serialize(game)
 
+    -- B2 lifecycle events: one-shot diffs against the last seen room/floor.
+    local roomKey = state.run.room_list_index
+    if roomKey == nil or roomKey < 0 then
+        roomKey = state.run.room_grid_index
+    end
+    if lastRoomKey == -1 and roomKey >= 0 then
+        queueEvent("room_entered", {
+            room_list_index = state.run.room_list_index,
+            room_type = state.run.room_type,
+        })
+    elseif lastRoomKey >= 0 and roomKey >= 0 and roomKey ~= lastRoomKey then
+        queueEvent("room_entered", {
+            room_list_index = state.run.room_list_index,
+            room_type = state.run.room_type,
+        })
+    end
+
+    local stage = state.run.stage
+    local stageType = state.run.stage_type
+    if lastStage == -1 and stage >= 0 then
+        queueEvent("floor_entered", {stage = stage, stage_type = stageType})
+    elseif lastStage >= 0 and (stage ~= lastStage or stageType ~= lastStageType) then
+        queueEvent("floor_cleared", {stage = lastStage, stage_type = lastStageType})
+        queueEvent("floor_entered", {stage = stage, stage_type = stageType})
+    end
+
+    if state.run.room_clear and not lastRoomClear then
+        queueEvent("room_cleared", {
+            room_list_index = state.run.room_list_index,
+            room_type = state.run.room_type,
+        })
+        if state.run.room_type == ROOM_TYPE_BOSS then
+            queueEvent("boss_killed", {
+                room_list_index = state.run.room_list_index,
+            })
+        end
+    end
+
+    lastRoomKey = roomKey
+    lastStage = stage
+    lastStageType = stageType
+    lastRoomClear = state.run.room_clear
+
     -- Track whether enemies have appeared this episode
     if state.enemy_count > 0 then
         hadEnemies = true
@@ -338,6 +440,14 @@ function mod:onUpdate()
     state.terminal = terminal
     state.terminal_reason = terminalReason
 
+    -- Explicit victory closes the run with a run_won event on the final state.
+    if terminal and terminalReason == "run_won" then
+        queueEvent("run_won", {})
+    end
+
+    -- Attach queued one-shot lifecycle events to this state.
+    state.events = pendingEvents
+
     -- Send state to Python. In free-running mode the send is non-blocking:
     -- if Python is busy running a PPO update the frame is dropped and the
     -- game keeps playing at full speed with the last latched action.
@@ -346,6 +456,12 @@ function mod:onUpdate()
         sent = server:sendStateNonBlocking(state)
     else
         sent = server:sendState(state)
+    end
+
+    -- Events are only cleared when Python actually received the state; a
+    -- dropped frame keeps them queued for the next successful send.
+    if sent then
+        pendingEvents = {}
     end
 
     -- If terminal: restart immediately regardless of whether Python saw the
