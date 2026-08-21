@@ -21,6 +21,22 @@ class GameStateTests(unittest.TestCase):
         self.assertTrue(state.terminal)
         self.assertEqual(state.terminal_reason, "pickup_target_reached")
 
+    def test_packed_grid_is_unpacked(self):
+        packed = [
+            "1,0,0|0,0,0",      # walls (2 rows x 3 cols)
+            "0,0.25,1|0.5,0,0",
+        ]
+        state = GameState.from_dict({"grid": packed})
+        self.assertEqual(state.grid, [
+            [[1.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+            [[0.0, 0.25, 1.0], [0.5, 0.0, 0.0]],
+        ])
+
+    def test_legacy_nested_grid_still_accepted(self):
+        nested = [[[0.0, 1.0], [1.0, 0.0]]]
+        state = GameState.from_dict({"grid": nested})
+        self.assertEqual(state.grid, nested)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -63,6 +63,42 @@ local function createGrid()
     return grid
 end
 
+-- Wire format: instead of nesting 910 numbers as JSON lists (expensive pure-
+-- Lua encode + large TCP payload), each channel becomes one compact text row
+-- set: cells joined by "," and rows joined by "|". Values quantize to <=4
+-- decimals; 0/1 hit a lookup table so the common case costs nothing.
+local CELL_TEXT = {[0] = "0", [1] = "1", [0.5] = "0.5", [0.25] = "0.25"}
+local function cellText(value)
+    local cached = CELL_TEXT[value]
+    if cached then
+        return cached
+    end
+    local text = (string.format("%.4f", value):gsub("0+$", ""))
+    text = (text:gsub("%.$", ""))
+    if text == "" then
+        text = "0"
+    end
+    CELL_TEXT[value] = text
+    return text
+end
+
+local function packGrid(grid)
+    local packed = {}
+    for c = 1, StateSerializer.NUM_CHANNELS do
+        local parts = {}
+        for y = 1, Config.GRID_HEIGHT do
+            local row = grid[c][y]
+            local cells = {}
+            for x = 1, Config.GRID_WIDTH do
+                cells[x] = cellText(row[x])
+            end
+            parts[y] = table.concat(cells, ",")
+        end
+        packed[c] = table.concat(parts, "|")
+    end
+    return packed
+end
+
 local function worldToGrid(room, pos)
     local idx = room:GetClampedGridIndex(pos)
     local w = room:GetGridWidth()
@@ -359,7 +395,7 @@ function StateSerializer.serialize(game)
     }
 
     local state = {
-        grid = grid,
+        grid = packGrid(grid),
         player = playerState,
         enemies = enemies,
         pickups = pickups,

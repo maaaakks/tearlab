@@ -6,6 +6,21 @@ import socket
 import time
 from collections.abc import Callable
 
+try:
+    import orjson
+
+    def _loads(data: str | bytes):
+        return orjson.loads(data)
+
+    def _dumps(data: dict) -> str:
+        return orjson.dumps(data).decode()
+
+except ImportError:  # pragma: no cover - fallback when orjson is unavailable
+    _loads = json.loads
+
+    def _dumps(data: dict) -> str:
+        return json.dumps(data, separators=(",", ":"))
+
 log = logging.getLogger("NetworkClient")
 
 
@@ -95,7 +110,7 @@ class NetworkClient:
 
     def send(self, data: dict):
         self.connect()
-        msg = json.dumps(data) + "\n"
+        msg = _dumps(data) + "\n"
         try:
             self.sock.sendall(msg.encode())
         except (ConnectionError, OSError) as e:
@@ -111,7 +126,7 @@ class NetworkClient:
             line = self.sock_file.readline()
             if not line:
                 raise ConnectionError("Connection closed by game")
-            return json.loads(line)
+            return _loads(line)
         except (ConnectionError, OSError) as e:
             if isinstance(e, (TimeoutError, socket.timeout)):
                 raise
@@ -120,7 +135,7 @@ class NetworkClient:
             line = self.sock_file.readline()
             if not line:
                 raise ConnectionError("Connection closed by game after reconnect")
-            return json.loads(line)
+            return _loads(line)
 
     def flush(self) -> int:
         """Flush stale data from the TCP buffer. Returns bytes flushed."""

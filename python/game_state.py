@@ -297,6 +297,19 @@ class GameState:
         events = data.get("events", [])
         if not isinstance(events, list):
             events = []
+        grid_data = data.get("grid", [])
+        if grid_data and isinstance(grid_data[0], str):
+            # Packed wire format: cells joined by ",", rows joined by "|"
+            grid = [
+                [
+                    [float(cell) for cell in row.split(",")]
+                    for row in channel.split("|")
+                ]
+                for channel in grid_data
+            ]
+        else:
+            # Legacy nested-list format
+            grid = grid_data
         return GameState(
             episode_id=int(data.get("episode_id", 0)),
             episode_tick=int(data.get("episode_tick", 0)),
@@ -306,7 +319,7 @@ class GameState:
             room_cleared=bool(data.get("room_cleared", False)),
             player_dead=bool(data.get("player_dead", False)),
             enemy_count=int(data.get("enemy_count", 0)),
-            grid=data.get("grid", []),
+            grid=grid,
             player=PlayerState.from_dict(data.get("player", {})),
             enemies=[EnemyState.from_dict(enemy) for enemy in enemies if isinstance(enemy, dict)],
             pickups=[PickupState.from_dict(p) for p in pickups if isinstance(p, dict)],
