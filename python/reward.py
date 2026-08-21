@@ -104,20 +104,30 @@ class RewardShaper:
 
     def _compute_damage_dealt(self, state: GameState) -> float:
         prev_enemies = {
-            (e.type, e.variant, e.position[0], e.position[1]): e.hp
-            for e in self.prev_state.enemies
+            e.init_seed: e.hp for e in self.prev_state.enemies if e.init_seed != 0
         }
+        legacy_enemies = [
+            e for e in self.prev_state.enemies if e.init_seed == 0
+        ]
         reward = 0.0
         for enemy in state.enemies:
-            key = (enemy.type, enemy.variant, enemy.position[0], enemy.position[1])
-            # Try to match by proximity since positions change
-            best_match_hp = None
-            for pkey, php in prev_enemies.items():
-                if pkey[0] == enemy.type and pkey[1] == enemy.variant:
-                    if best_match_hp is None or php > best_match_hp:
-                        best_match_hp = php
-            if best_match_hp is not None and enemy.hp < best_match_hp:
-                damage = best_match_hp - enemy.hp
+            damage = None
+            if enemy.init_seed != 0 and enemy.init_seed in prev_enemies:
+                # Exact identity match via the game's InitSeed
+                prev_hp = prev_enemies[enemy.init_seed]
+                if enemy.hp < prev_hp:
+                    damage = prev_hp - enemy.hp
+            elif enemy.init_seed == 0 and legacy_enemies:
+                # Fallback for mods/states without InitSeed: best-effort match
+                # by type+variant with highest previous HP.
+                best_match_hp = None
+                for penemy in legacy_enemies:
+                    if penemy.type == enemy.type and penemy.variant == enemy.variant:
+                        if best_match_hp is None or penemy.hp > best_match_hp:
+                            best_match_hp = penemy.hp
+                if best_match_hp is not None and enemy.hp < best_match_hp:
+                    damage = best_match_hp - enemy.hp
+            if damage is not None:
                 reward += damage * self.config.damage_dealt
         return reward
 

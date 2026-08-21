@@ -1,6 +1,8 @@
 import logging
 import socket
 import time
+from collections import deque
+
 import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
@@ -30,15 +32,25 @@ class IsaacEnv(gym.Env):
         self.env_cfg = self.config.env
         self.reward_shaper = RewardShaper(self.config.reward)
 
-        # Action space: MultiDiscrete([9, 5]) = 9 movement * 5 shooting
-        self.action_space = spaces.MultiDiscrete([9, 5])
+        # Action space: MultiDiscrete([9, 9]) = 9 movement * 9 shooting
+        # (8 directions + none for each head, incl. diagonal tears)
+        self.action_space = spaces.MultiDiscrete([9, 9])
+
+        # Frame stacking: stack the last N grids along the channel axis so the
+        # network can infer velocities from consecutive frames.
+        self.frame_stack = max(1, int(self.env_cfg.frame_stack))
+        self._grid_stack: deque[np.ndarray] = deque(maxlen=self.frame_stack)
 
         # Observation space: Dict with grid (CNN input) and player (vector input)
         self.observation_space = spaces.Dict({
             "grid": spaces.Box(
                 low=0.0,
                 high=1.0,
-                shape=(self.env_cfg.grid_channels, self.env_cfg.grid_height, self.env_cfg.grid_width),
+                shape=(
+                    self.env_cfg.grid_channels * self.frame_stack,
+                    self.env_cfg.grid_height,
+                    self.env_cfg.grid_width,
+                ),
                 dtype=np.float32,
             ),
             "player": spaces.Box(
@@ -90,6 +102,11 @@ class IsaacEnv(gym.Env):
     def _receive_state(self) -> GameState:
         return GameState.from_dict(self._client.receive())
 
+    def _push_grid(self, grid: np.ndarray) -> np.ndarray:
+        """Append a grid to the frame stack and return the stacked observation."""
+        self._grid_stack.append(grid)
+        return np.concatenate(list(self._grid_stack), axis=0)
+
     def _state_to_obs(self, state: GameState) -> dict:
         grid = np.array(state.grid, dtype=np.float32)
         if grid.shape != (self.env_cfg.grid_channels, self.env_cfg.grid_height, self.env_cfg.grid_width):
@@ -97,6 +114,10 @@ class IsaacEnv(gym.Env):
                 (self.env_cfg.grid_channels, self.env_cfg.grid_height, self.env_cfg.grid_width),
                 dtype=np.float32,
             )
+        if len(self._grid_stack) == 0:
+            # New episode: pre-fill the stack so all frames match
+            for _ in range(self.frame_stack):
+                self._grid_stack.append(grid)
 
         p = state.player
         player_features = [
@@ -137,7 +158,7 @@ class IsaacEnv(gym.Env):
                 f"expected {self.env_cfg.player_features}"
             )
 
-        return {"grid": grid, "player": player}
+        return {"grid": self._push_grid(grid), "player": player}
 
     def _wait_for_new_episode(self, timeout=120.0):
         """Wait for first non-terminal observation of a new episode_id."""
@@ -189,6 +210,7 @@ class IsaacEnv(gym.Env):
         self._ep_step_latencies = []
         self._ep_receive_times = []
         self.reward_shaper.reset()
+        self._grid_stack.clear()
 
         if self._last_episode_id == 0:
             # First episode in this Python process: force game back to active play
@@ -317,14 +339,15 @@ class IsaacEnv(gym.Env):
         return obs, reward, terminated, truncated, info
 
     def action_masks(self) -> np.ndarray:
-        """Return flattened action mask for MultiDiscrete([9, 5])."""
+        """Return flattened action mask for MultiDiscrete([9, 9])."""
         move_mask = np.ones(9, dtype=bool)
 
         if self.config.phase.mask_shoot:
-            # Allow only "don't shoot" (0); mask shoot directions 1..4.
-            shoot_mask = np.array([True, False, False, False, False], dtype=bool)
+            # Allow only "don't shoot" (0); mask shoot directions 1..8.
+            shoot_mask = np.zeros(9, dtype=bool)
+            shoot_mask[0] = True
         else:
-            shoot_mask = np.ones(5, dtype=bool)
+            shoot_mask = np.ones(9, dtype=bool)
 
         return np.concatenate((move_mask, shoot_mask))
 

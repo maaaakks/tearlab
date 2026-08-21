@@ -10,10 +10,12 @@ class EnvConfig:
     port: int = 9999
     grid_width: int = 13
     grid_height: int = 7
-    grid_channels: int = 8
+    grid_channels: int = 10
     player_features: int = 22
     mask_distance_vectors: bool = False
-    frame_skip: int = 1
+    frame_skip: int = 3
+    frame_stack: int = 1
+    free_running: bool = True
     max_episode_steps: int = 3000
     action_timeout: float = 5.0
     n_workers: int = 1
@@ -30,7 +32,7 @@ class RewardConfig:
     pickup_collected: float = 2.0
     wall_collision_penalty: float = 0.0
     death: float = -50.0
-    time_penalty: float = -0.1
+    time_penalty: float = -0.005
     survival_bonus: float = 0.0
     floor_cleared: float = 100.0
     pickup_approach_scale: float = 0.0
@@ -46,6 +48,7 @@ class RewardConfig:
 @dataclass
 class TrainConfig:
     algorithm: str = "PPO"
+    live_mode: bool = True
     learning_rate: float = 3e-4
     n_steps: int = 2048
     batch_size: int = 64

@@ -453,6 +453,32 @@ def train(config_path: str | None = None, resume: str | None = None, config=None
         logging.getLogger(noisy).setLevel(logging.WARNING)
     if config is None:
         config = load_config(config_path)
+
+    # Live mode: the game never pauses. A collector thread steps the env
+    # continuously while PPO updates run on fresh buffered transitions.
+    if config.train.live_mode:
+        from live_trainer import LivePPOTrainer
+
+        isaac_env = IsaacEnv(config)
+        trainer = LivePPOTrainer(config, isaac_env)
+
+        interrupted = False
+
+        def _on_sigint(_sig, _frame):
+            nonlocal interrupted
+            if interrupted:
+                raise SystemExit(1)
+            interrupted = True
+            raise KeyboardInterrupt
+
+        signal.signal(signal.SIGINT, _on_sigint)
+        try:
+            trainer.learn()
+        except KeyboardInterrupt:
+            log.info("Interrupted; stopping collector...")
+            trainer.stop_event.set()
+        return
+
     n_workers = config.env.n_workers
     base_port = config.env.base_port
     host = config.env.host

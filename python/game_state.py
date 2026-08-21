@@ -7,17 +7,26 @@ class EnemyState:
     variant: int
     hp: float
     position: tuple[float, float]
+    init_seed: int = 0
+    max_hp: float = 0.0
+    velocity: tuple[float, float] = (0.0, 0.0)
 
     @staticmethod
     def from_dict(data: dict) -> "EnemyState":
         position = data.get("position", [0.0, 0.0])
         if not isinstance(position, (list, tuple)) or len(position) < 2:
             position = [0.0, 0.0]
+        velocity = data.get("velocity", [0.0, 0.0])
+        if not isinstance(velocity, (list, tuple)) or len(velocity) < 2:
+            velocity = [0.0, 0.0]
         return EnemyState(
             type=int(data.get("type", 0)),
             variant=int(data.get("variant", 0)),
             hp=float(data.get("hp", 0.0)),
             position=(float(position[0]), float(position[1])),
+            init_seed=int(data.get("init_seed", 0)),
+            max_hp=float(data.get("max_hp", 0.0)),
+            velocity=(float(velocity[0]), float(velocity[1])),
         )
 
 
