@@ -284,8 +284,53 @@ sans changer de politique ni de checkpoint.
       générales ou corrige une régression mesurée.
       → critère appliqué manuellement via B5/F1–F3.
 
-## Scénarios contrôlés : rôle limité
+## Choix de design importants
 
+Décisions structurantes à connaître avant de modifier le code ou de lancer un
+entraînement. Elles ne sont pas des règles absolues, mais des accords actuels
+qui expliquent pourquoi les choses sont câblées comme ça.
+
+1. **Tout est config-gated et additif.** `recurrent`, `aux_coef`,
+   `enable_goal_conditioning`, `normalize_returns`, `controlled_reset_fraction`
+   sont tous OFF par défaut. Les clés d'observation `entities`/`map`/`goal`/
+   `decision` sont additives : un checkpoint entraîné sans elles garde ses
+   clés `state_dict` (chargement `strict=False` + adaptation des colonnes
+   `fc.0`, voir C6). → On ne casse pas le legacy en ajoutant une branche.
+
+2. **La récurrence change la règle du minibatch.** En mode `recurrent`, le
+   PPO **ne shuffle plus** : le `hidden_in` de chaque transition est stocké à
+   la collecte et rejoué à l'identique pendant les epochs. Les états cachés
+   sont remis à zéro de façon lazily en début d'épisode (aucun reset sur la
+   route, sinon la run entière perd sa mémoire).
+
+3. **Le goal vector est une observation, pas une politique séparée.** Le
+   planner émet un `goal` (one-hot + position + type d'entité, dim 12) et le
+   decision engine un `decision` (8 features numériques). La même politique
+   les consomme ; aucun checkpoint par skill ni par route.
+
+4. **D1 = subset stratégique curaté.** `knowledge/items.json` couvre les items
+   que le planner/routes citent réellement ; la table complète (700+) n'est pas
+   vendée dans le repo. `scripts/gen_items_json.py --xml` régénère depuis les
+   fichiers extraits quand disponibles. Les tags `avoid` ne sont autoritaires
+   que pour les items dont le piège est déterministe (D100, Curse of the
+   Tower).
+
+5. **E6/E7 : le scheduler existe, l'injection (A4) non.** La fraction de
+   resets contrôlés décroît linéairement, mais le hook Lua `controlled_reset`
+   fait un reset naturel de repli tant que l'injection d'états A4 n'est pas
+   écrite. Ne pas considérer E6 "fait" avant A4.
+
+6. **Le coût de bombe est la pression d'économie minimale.** Chaque step bombe
+   coûte (`bomb_use_penalty: -0.05` dans full_game) pour éviter le spam
+   aléatoire ; un vrai usage doit se payer via le damage/clear qu'il rend
+   possible. Les bombes guidées par `BOMB_TARGET` restent désirables malgré ce
+   coût.
+
+7. **Mort toujours inacceptable** (principe 6) : les rewards de progression
+   sont bornés et la mort reste fortement négative même après une progression
+   maximale — vérifié par test (`B4DeathDominanceTests`).
+
+## Scénarios contrôlés : rôle limité
 Les anciens travaux A4 d'injection d'états ne sont pas supprimés, mais changent
 de rôle :
 
