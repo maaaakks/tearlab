@@ -27,7 +27,7 @@ neural nets handle perception, control, and context-dependent valuation.
       pocket items), deal history.
 - [x] A2. Action expansion: MultiDiscrete([9, 9, bomb, active, card/pill])
       with validity masks (no bombs -> masked).
-- [ ] A3. RunMemory module: room graph + visited set updated per room
+- [x] A3. RunMemory module: room graph + visited set updated per room
       transition; map summary encoding fed into controller obs.
 - [ ] A4. Mod debug commands to inject controlled start states (spawn at
       Depths II with Polaroid + Fool) for rare route-segment training.
