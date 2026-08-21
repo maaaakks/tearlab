@@ -167,15 +167,16 @@ entraînées conjointement.
       items, pickups, prix, portes et objets interactifs.
 - [x] C3. Fusionner grille locale, joueur, carte, objets et inventaire dans un
       seul embedding de politique.
-- [~] C4. Ajouter une mémoire récurrente GRU/LSTM pour les informations
+- [x] C4. Ajouter une mémoire récurrente GRU/LSTM pour les informations
       partiellement observables, avec états cachés correctement stockés dans la
       collecte async PPO.
-      → non implémenté ; le frame_skip/frame_stack + carte couvrent une partie
-        du besoin. À faire avant les runs longues.
-- [~] C5. Ajouter des têtes auxiliaires partagées : prédire type de salle,
-      accessibilité d'un objet, danger local et prochaine destination. Elles
-      améliorent les représentations sans créer de politiques séparées.
-      → non implémenté.
+      → GRU optionnelle (`train.recurrent`), hidden_in/hidden_out stockés par
+        transition et reset en début d'épisode; collecte sans shuffle en mode
+        récurrent; `evaluate_live.py` porte le hidden. Activée dans full_game.
+- [x] C5. Ajouter des têtes auxiliaires partagées : prédire type de salle,
+      accessibilité d'un objet, danger local et prochaine destination.
+      → 4 têtes (room_type, danger, next_dest, reachable) + `aux_coef`, cibles
+        dérivées de l'état post-step; activées dans full_game.
 - [x] C6. Vérifier que les anciennes observations peuvent charger leur encodeur
       spatial par transfert sélectif, sans imposer un ancien checkpoint.
       → chargement strict=False pour les clés additives (entities/map).
@@ -189,13 +190,14 @@ La connaissance est une aide structurée donnée au même agent. Les faits
 déterministes ne doivent pas être redécouverts par hasard après des millions de
 steps.
 
-- [~] D1. Générer `knowledge/items.json` depuis les données du jeu : IDs,
+- [x] D1. Générer `knowledge/items.json` depuis les données du jeu : IDs,
       qualité, tags, transformations et contraintes connues.
-      → à faire ; le schéma de décision (deals.yaml) et le decision engine
-        consommeront ce fichier une fois généré.
-- [~] D2. Décrire les prérequis de routes dans des DAGs : The Beast, Mega Satan
+      → subset stratégique validé + `scripts/gen_items_json.py --xml` pour la
+        régénération depuis les fichiers extraits du jeu.
+- [x] D2. Décrire les prérequis de routes dans des DAGs : The Beast, Mega Satan
       et autres objectifs.
-      → the_beast.yaml existe ; mega_satan.yaml et autres routes à décrire.
+      → the_beast.yaml + mega_satan.yaml + survive.yaml + mom.yaml ; chargés
+        par `knowledge_base.py`.
 - [x] D3. Construire un planner qui transforme l'état de run et l'objectif en
       un `goal vector` courant : explorer, boss, shop, préserver une bombe,
       chercher le crâne marqué, revenir à une porte, etc.
@@ -204,16 +206,18 @@ steps.
       de route.
       → squelette DecisionEngine + features numériques ; règles complètes à
         alimenter depuis knowledge/.
-- [~] D5. Exposer au réseau les utilités et contraintes comme features ; le
+- [x] D5. Exposer au réseau les utilités et contraintes comme features ; le
       réseau conserve la décision contextuelle lorsque plusieurs choix sont
       valides.
-      → le goal vector et le vocabulaire de features sont prêts ; l'injection
-        dans l'observation réseau n'est pas encore câblée.
+      → clés additives `goal` (vector 12) et `decision` (8 features) dans
+        l'observation, branches `goal_fc`/`decision_fc` dans l'extracteur,
+        `env.enable_goal_conditioning` + `phase.objective`.
 - [~] D6. Gérer explicitement la préservation Angel/Devil, les Key Pieces, les
       statues d'anges, le crâne marqué, les salles secrètes et les objets à
       éviter selon le build.
-      → régime partiel : crâne marqué + préservation Angel dans le planner /
-        deals.yaml; Key Pieces/statues/salles secrètes à ajouter.
+      → statues d'anges + Key Pieces exposés (Lua+Python) et règles planner
+        MEGA_SATAN ; `should_avoid_pedestal_item`/`secret_room_candidates`
+        branches ajoutées mais alimentées par knowledge/ (à enrichir).
 - [x] D7. Tester les règles indépendamment du réseau avec des états synthétiques
       déterministes.
 
@@ -241,16 +245,21 @@ sans changer de politique ni de checkpoint.
 - [~] E6. Si les situations rares sont absentes des données, autoriser une
       petite fraction de resets contrôlés mélangés aux runs naturelles, par
       exemple 10–15 %, sans créer de modèle spécialisé.
-      → non implémenté (A4 injection d'états en attente).
+      → scheduler implémenté (fraction configurable + choix de scénario +
+        fallback) ; l'injection réelle de scénarios (A4) reste à écrire côté
+        Lua.
 - [~] E7. Réduire progressivement ces resets rares lorsque la couverture des
       runs naturelles augmente.
-      → dépend de E6.
+      → décroissance linéaire de la fraction implémentée
+        (`_current_controlled_fraction`).
 - [~] E8. Évaluer `gamma: 0.995` ou un traitement hiérarchique des retours pour
       les conséquences multi-salles.
-      → gamma 0.995 déjà dans full_game.yaml ; l'évaluation expérimentale reste.
-- [~] E9. Normaliser les rewards/returns si la value loss devient instable sur
+      → gamma 0.995 dans full_game.yaml ; métrique `effective_horizon` (200
+        steps à 0.995) exposée. L'évaluation expérimentale reste.
+- [x] E9. Normaliser les rewards/returns si la value loss devient instable sur
       les longues runs.
-      → à surveiller ; non automatisé.
+      → `train.normalize_returns` + stats courantes + tests ; désactivé par
+        défaut (comportement legacy intact).
 
 ## F. Évaluation et garde-fous
 
@@ -291,10 +300,12 @@ salles secrètes.
 
 ## Prochaine action concrète
 
-**B1–B4, C1–C3, C6, D3–D4, D7, E4, F5 sont faits (côté code, testée).** Reste
-en priorité :
+**B1–B4, C1–C6, D1–D5, D7, E4, E9, F5 sont faits (côté code, testée).**
+D6, E6/E7 sont en large partie faits (scheduler + hooks ; l'injection réelle
+de scénarios A4 reste côté Lua). Reste en priorité :
 1. **B5 in-game** (run réelle) dès qu'Isaac tourne ;
-2. **C4** (GRU/LSTM + états cachés async) et **C5** (têtes auxiliaires) ;
-3. **D1** (`knowledge/items.json`), **D2** (routes manquantes), **D5/D6**
-   (exposition réseau + cas spéciaux) ;
-4. **E6/E8/E9** et **F1–F4** (protocoles d'éval et dashboards).
+2. **A4** : injection d'états côté Lua pour rendre E6/E7 opérationnels ;
+3. **D6** : alimenter `should_avoid_pedestal_item`/`secret_room_candidates`
+   depuis `knowledge/` (tags item, géométrie des murs) ;
+4. **F1–F4** (protocoles d'éval et dashboards) et l'évaluation expérimentale
+   de E8 (gamma 0.995 vs hiérarchique).
