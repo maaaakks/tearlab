@@ -68,18 +68,18 @@ pas découvrir le jeu.
 
 ### B1. Séparer les événements de salle des fins d'épisode
 
-- [ ] Ajouter un mode `full_run` dans la configuration.
-- [ ] En mode `full_run`, une salle nettoyée émet un événement
+- [x] Ajouter un mode `full_run` dans la configuration.
+- [x] En mode `full_run`, une salle nettoyée émet un événement
       `room_cleared` mais `state.terminal` reste faux.
-- [ ] Ne plus appeler `resetEpisode()` après chaque salle.
-- [ ] Conserver le même `episode_id` pendant les changements de salle et
+- [x] Ne plus appeler `resetEpisode()` après chaque salle.
+- [x] Conserver le même `episode_id` pendant les changements de salle et
       d'étage.
-- [ ] Terminer un épisode seulement sur :
+- [x] Terminer un épisode seulement sur :
       - mort ;
       - victoire / objectif final atteint ;
       - abandon explicite ;
       - timeout global de sécurité.
-- [ ] Garder le comportement mono-salle pour les tests existants.
+- [x] Garder le comportement mono-salle pour les tests existants.
 
 ### B2. Cycle de vie salle, étage et run
 
@@ -95,15 +95,15 @@ pas découvrir le jeu.
 
 ### B3. Configuration générale
 
-- [ ] Créer `configs/full_game.yaml` :
+- [x] Créer `configs/full_game.yaml` :
       - `full_run: true` ;
       - ennemis et layouts naturels ;
       - mémoire de carte activée ;
       - toutes les branches d'action activées ;
       - timeout global exprimé en temps de run, pas en durée de salle.
-- [ ] Démarrer depuis Basement I avec un seed naturel.
-- [ ] Ne pas injecter quatre Gapers dans cette configuration.
-- [ ] Conserver `phase1a.yaml` comme test rapide du contrôleur de combat.
+- [x] Démarrer depuis Basement I avec un seed naturel.
+- [x] Ne pas injecter quatre Gapers dans cette configuration.
+- [x] Conserver `phase1a.yaml` comme test rapide du contrôleur de combat.
 
 ### B4. Reward system généraliste
 
@@ -239,5 +239,8 @@ salles secrètes.
 
 ## Prochaine action concrète
 
-Commencer par **B1 : empêcher `room_cleared` de terminer l'épisode en mode
-`full_run`**, tout en conservant le mode mono-salle pour les tests Phase 1A.
+**B1 et B3 sont terminés.** Prochaine étape : **B2** (événements distincts
+`room_entered`/`room_cleared`/`boss_killed`/`floor_entered`/`floor_cleared`/
+`run_won` + cycle de vie salle/étage/run), puis **B4** (reward généraliste
+borné par salle, coup final compté, signaux boss/étage/victoire) avant la
+validation en jeu **B5**.
