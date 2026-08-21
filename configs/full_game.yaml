@@ -1,0 +1,62 @@
+# Full-run generalist agent (TODO stage B).
+#
+# One policy, one training flow, one checkpoint history. The agent learns
+# combat, navigation, loot and decisions in natural multi-room runs. A cleared
+# room emits room_cleared but no longer ends the episode (see env.full_run).
+
+env:
+  frame_skip: 3
+  frame_stack: 3            # velocity inference across rooms
+  free_running: true
+  normalize_player_features: true
+  enable_map_memory: true   # RunMemory room-graph map observation
+  full_run: true            # episode = full run, not a single room
+  # Global safety timeout expressed in run time. At frame_skip=3 the game
+  # emits ~10 states/sec, so 54000 states ~= 90 minutes of in-game time.
+  max_episode_steps: 54000
+
+reward:
+  # Room-level, bounded and comparable across room sizes (TODO B4 refines the
+  # final-blow counting and per-room budget; current scheme still applies).
+  damage_dealt: 1.0
+  damage_progress_cap: 0.25
+  enemy_killed: 0.0
+  room_cleared: 2.0
+  no_hit_bonus: 0.5
+  damage_taken: -0.5
+  death: -5.0
+  timeout_penalty: -5.0
+  time_penalty: -0.0005
+  floor_cleared: 100.0
+  aim_misalignment_penalty: -0.01
+  aim_tolerance_deg: 30.0
+  aim_shoot_no_enemy_penalty: -0.002
+
+train:
+  live_mode: true
+  total_timesteps: 5000000
+  learning_rate: 0.0003
+  n_steps: 2048
+  batch_size: 64
+  n_epochs: 10
+  gamma: 0.995             # multi-room consequences (TODO E8)
+  gae_lambda: 0.95
+  target_kl: 0.03
+  ent_coef: 0.02
+  ent_coef_final: 0.005
+  entropy_decay_fraction: 0.8
+  save_interval_seconds: 600
+
+phase:
+  # Natural layouts, enemies, drops and progression: do NOT inject enemies.
+  spawn_enemies: false
+  spawn_obstacles: false
+  disable_shooting: false
+  mask_shoot: false
+  enable_interactions: true   # bombs, active item, card/pill all active
+
+wandb:
+  enabled: true
+  project: "binding-of-ai"
+  run_name: "phaseB-full-run-natural"
+  tags: ["phaseB", "full-run", "natural", "map-memory"]
