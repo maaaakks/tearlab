@@ -127,3 +127,11 @@ This file captures durable lessons from training runs so we can reuse what we le
 - **Takeaway:** When evaluating RL training, don't cut runs short based on short-window stalls. Look for a true plateau sustained over 1M+ steps before concluding the model has converged. Growth can be slow and noisy — what looks like a plateau in a 500K window may be the middle of a long upward trend.
 - Confidence: high — 30 hours of training, clear convergence.
 - Follow-up: now adding wall collision penalty (-0.05) and unmasking distance vectors to see if they can push beyond 36 pickups.
+
+## 2026-08-21 - Checkpoint resume when an observation branch is added (entities)
+
+- **Bug:** Resuming a pre-entities checkpoint with the new entity-set branch crashed in `_load_checkpoint`: `RuntimeError: size mismatch for features.fc.0.weight` (`[256, 5888]` vs `[256, 5952]`). The entities encoder appends 64 features to the fused input, growing the first projection layer's input dim. `load_state_dict(strict=False)` only drops *missing* keys — it cannot bridge a *size* mismatch, and the optimizer would have hit the same wall next (param-set mismatch).
+- **Fix (in `live_trainer.py`):** `_adapt_state_dict` copies the overlapping columns of any layer whose last dim grew under section (pre-existing streams are concatenated first, the new stream last), leaves the new columns at fresh init, and raises on incompatible shapes. As a heuristic rule, both the policy `fc.0` and value head share the same input, so both grow by the same delta. The optimizer state is only restored when the parameter sets match exactly (`_architecture_matches`); otherwise it is skipped with a warning and Adam moments reset.
+- **Lesson:** "Additive" observation extensions (new encoder branches) silently change the *shape* of fuse layers, not just the key set. Treat "(strict=False) fresh weights for new branches" narrowly — it only covers brand-new params, so size-mismatch adaptation must be explicit and tested. Also, if you transfer weights on a sliced concat you cannot transfer the optimizer's moments (the param set is different), so reset them.
+- Confidence: high — regression test reproduces the exact save-then-add-entities-resume path and passes.
+- Follow-up: this only grows columns for append-style concat; a reordering of streams would need param-name remapping instead.

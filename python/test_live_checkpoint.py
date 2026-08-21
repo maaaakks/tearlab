@@ -29,6 +29,23 @@ class DummyEnv:
         self.metrics.update(metrics)
 
 
+class EntitiesEnv(DummyEnv):
+    """Like DummyEnv but with the identity-bearing entity table observation."""
+
+    def __init__(self):
+        self.observation_space = spaces.Dict(
+            {
+                "grid": spaces.Box(0.0, 1.0, shape=(10, 7, 13), dtype=np.float32),
+                "player": spaces.Box(
+                    -np.inf, np.inf, shape=(22,), dtype=np.float32
+                ),
+                "entities": spaces.Box(-1.0, 1.0, shape=(32, 16), dtype=np.float32),
+            }
+        )
+        self.action_space = spaces.MultiDiscrete([9, 9, 2, 2, 2])
+        self.metrics = {}
+
+
 class LiveCheckpointTests(unittest.TestCase):
     def test_round_trip_restores_policy_optimizer_and_progress(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -79,6 +96,51 @@ class LiveCheckpointTests(unittest.TestCase):
                     checkpoint_base / "live",
                 )
                 self.assertEqual(latest, saved_path)
+
+    def test_resume_with_added_entities_observation(self):
+        """A pre-entities checkpoint must load once the entities branch is
+        added: overlapping fc.0 columns are copied, the new columns keep fresh
+        init, and the optimizer state is reset (parameter set changed)."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            checkpoint_base = Path(temp_dir) / "checkpoints"
+            config = Config()
+            config.wandb.run_name = "checkpoint-entities-add"
+
+            with patch(
+                "live_checkpoint.get_checkpoint_dir",
+                return_value=checkpoint_base,
+            ):
+                trainer = LivePPOTrainer(config, DummyEnv())
+                # Populate optimizer state on a real policy param so we can
+                # verify it gets reset on resume.
+                loss = trainer.policy.features.fc[0].weight.square().mean()
+                trainer.optimizer.zero_grad()
+                loss.backward()
+                trainer.optimizer.step()
+                self.assertTrue(trainer.optimizer.state_dict()["state"])
+                saved_path = trainer.save("periodic")
+                old_fc = trainer.policy.state_dict()["features.fc.0.weight"]
+                old_fc_in = old_fc.shape[1]
+
+            with patch(
+                "live_checkpoint.get_checkpoint_dir",
+                return_value=checkpoint_base,
+            ):
+                resumed = LivePPOTrainer(config, EntitiesEnv(), resume=str(saved_path))
+                new_state = resumed.policy.state_dict()
+
+                # Input dim grew by exactly the entity-encoder width (64).
+                new_fc = new_state["features.fc.0.weight"]
+                self.assertEqual(new_fc.shape[1], old_fc_in + 64)
+                # Overlapping columns preserved, new columns finite (fresh init).
+                self.assertTrue(torch.equal(new_fc[:, :old_fc_in], old_fc))
+                self.assertTrue(torch.isfinite(new_fc).all())
+                # Entity branch exists with freshly initialized weights.
+                self.assertTrue(
+                    any("entity_encoder" in key for key in new_state)
+                )
+                # Optimizer state was reset because the parameter set changed.
+                self.assertFalse(resumed.optimizer.state_dict()["state"])
 
     def test_entropy_schedule_decays_to_final_value(self):
         config = Config()

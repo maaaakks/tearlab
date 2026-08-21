@@ -366,6 +366,55 @@ class LivePPOTrainer:
             for key, space in observation_space.spaces.items()
         }
 
+    @staticmethod
+    def _adapt_state_dict(stored: dict, current: dict) -> dict:
+        """Adapt a checkpoint state dict for additive observation growth.
+
+        The feature extractor concatenates observation streams and projects
+        them with ``features.fc.0``; adding a new stream (e.g. ``entities``)
+        grows that layer's input dim. ``load_state_dict(strict=False)`` cannot
+        bridge a size mismatch, so copy the overlapping slice (pre-existing
+        streams come first in the concat, the new stream is appended last) and
+        leave the new columns at their fresh init. Any other incompatibility
+        raises a descriptive error instead of silently corrupting weights.
+        """
+        adapted = {}
+        for key, stored_tensor in stored.items():
+            if key not in current:
+                continue  # stale key — dropped (strict=False)
+            current_tensor = current[key]
+            if stored_tensor.shape == current_tensor.shape:
+                adapted[key] = stored_tensor
+                continue
+            if (
+                stored_tensor.ndim == current_tensor.ndim
+                and stored_tensor.shape[:-1] == current_tensor.shape[:-1]
+                and stored_tensor.shape[-1] < current_tensor.shape[-1]
+            ):
+                log.warning(
+                    "Parameter %s shape grew %s -> %s; copying overlapping "
+                    "slice, new columns keep fresh init.",
+                    key,
+                    tuple(stored_tensor.shape),
+                    tuple(current_tensor.shape),
+                )
+                copy = current_tensor.clone()
+                copy[..., : stored_tensor.shape[-1]] = stored_tensor
+                adapted[key] = copy
+                continue
+            raise ValueError(
+                f"Cannot adapt checkpoint parameter {key}: stored shape "
+                f"{tuple(stored_tensor.shape)} is incompatible with current "
+                f"{tuple(current_tensor.shape)}."
+            )
+        return adapted
+
+    @staticmethod
+    def _architecture_matches(stored: dict, current: dict) -> bool:
+        return set(stored) == set(current) and all(
+            stored[key].shape == current[key].shape for key in stored
+        )
+
     def _load_checkpoint(self, path: Path) -> int:
         try:
             checkpoint = torch.load(path, map_location=self.device, weights_only=False)
@@ -431,10 +480,22 @@ class LivePPOTrainer:
                 "a new normalized run."
             )
 
-        self.policy.load_state_dict(checkpoint["state_dict"], strict=False)
+        checkpoint_state = checkpoint["state_dict"]
+        self.policy.load_state_dict(
+            self._adapt_state_dict(checkpoint_state, self.policy.state_dict()),
+            strict=False,
+        )
         optimizer_state = checkpoint.get("optimizer_state_dict")
-        if optimizer_state:
+        if optimizer_state and self._architecture_matches(
+            checkpoint_state, self.policy.state_dict()
+        ):
             self.optimizer.load_state_dict(optimizer_state)
+        elif optimizer_state:
+            log.warning(
+                "Model architecture differs from checkpoint (e.g. a new "
+                "observation branch); skipping optimizer state restore — "
+                "Adam moments reset."
+            )
 
         self.update_count = int(checkpoint.get("update_count", 0))
         steps = int(checkpoint.get("global_steps", 0))
