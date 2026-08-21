@@ -29,12 +29,16 @@ class RewardShaper:
         self.reward_components = {}
         self._nav_target: tuple[float, float] | None = None
         self._nav_reached = False
+        self._damage_progress_total = 0.0
+        self._took_damage_this_room = False
 
     def reset(self):
         self.prev_state = None
         self.reward_components = {}
         self._nav_target = None
         self._nav_reached = False
+        self._damage_progress_total = 0.0
+        self._took_damage_this_room = False
 
     def compute(self, state: GameState, action: Sequence[int] | None = None) -> float:
         reward = 0.0
@@ -53,17 +57,18 @@ class RewardShaper:
             reward += self.config.survival_bonus
             self.reward_components["survival_bonus"] = self.config.survival_bonus
 
-        # Damage dealt (enemy HP decreased)
+        # Damage dealt (enemy HP decreased), capped cumulatively per episode
         damage_reward = self._compute_damage_dealt(state)
         reward += damage_reward
         self.reward_components["damage_dealt"] = damage_reward
 
-        # Enemy killed (enemy count decreased)
+        # Enemy killed (optional; redundant with damage progress, default off)
         kill_reward = self._compute_kills(state)
         reward += kill_reward
-        self.reward_components["kills"] = kill_reward
+        if kill_reward != 0.0:
+            self.reward_components["kills"] = kill_reward
 
-        # Damage taken (player HP decreased)
+        # Damage taken (per half-heart lost)
         damage_taken_reward = self._compute_damage_taken(state)
         reward += damage_taken_reward
         self.reward_components["damage_taken"] = damage_taken_reward
@@ -89,27 +94,47 @@ class RewardShaper:
             self.reward_components["nav_progress"] = nav_progress_reward
             self.reward_components["nav_reach_bonus"] = nav_reach_bonus
 
-        # Room cleared
+        # Room cleared (+ no-hit bonus if the room was cleared damage-free)
         if state.room_cleared and not self.prev_state.room_cleared:
             reward += self.config.room_cleared
             self.reward_components["room_cleared"] = self.config.room_cleared
+            if (
+                self.config.no_hit_bonus != 0.0
+                and not self._took_damage_this_room
+            ):
+                reward += self.config.no_hit_bonus
+                self.reward_components["no_hit_bonus"] = self.config.no_hit_bonus
+            # New room starts fresh for the no-hit tracker
+            self._took_damage_this_room = False
+        elif state.enemy_count > 0 and self.prev_state.enemy_count == 0:
+            # Combat (re)started in a new room without a clear transition
+            self._took_damage_this_room = False
 
         # Death
         if state.player_dead:
             reward += self.config.death
             self.reward_components["death"] = self.config.death
 
+        # Timeout (truncation): penalized at least as much as death so that
+        # hiding until timeout is never the optimal strategy.
+        if state.terminal_reason == "timeout":
+            reward += self.config.timeout_penalty
+            self.reward_components["timeout"] = self.config.timeout_penalty
+
         self.prev_state = state
         return reward
 
     def _compute_damage_dealt(self, state: GameState) -> float:
+        if self._damage_progress_total >= self.config.damage_progress_cap:
+            return 0.0
+
         prev_enemies = {
             e.init_seed: e.hp for e in self.prev_state.enemies if e.init_seed != 0
         }
         legacy_enemies = [
             e for e in self.prev_state.enemies if e.init_seed == 0
         ]
-        reward = 0.0
+        raw_damage = 0.0
         for enemy in state.enemies:
             damage = None
             if enemy.init_seed != 0 and enemy.init_seed in prev_enemies:
@@ -128,10 +153,20 @@ class RewardShaper:
                 if best_match_hp is not None and enemy.hp < best_match_hp:
                     damage = best_match_hp - enemy.hp
             if damage is not None:
-                reward += damage * self.config.damage_dealt
-        return reward
+                raw_damage += damage
+
+        if raw_damage <= 0.0:
+            return 0.0
+
+        scaled = raw_damage * self.config.damage_dealt
+        remaining = self.config.damage_progress_cap - self._damage_progress_total
+        granted = min(scaled, remaining)
+        self._damage_progress_total += granted
+        return granted
 
     def _compute_kills(self, state: GameState) -> float:
+        if self.config.enemy_killed == 0.0:
+            return 0.0
         prev_count = self.prev_state.enemy_count
         curr_count = state.enemy_count
         kills = max(0, prev_count - curr_count)
@@ -141,7 +176,9 @@ class RewardShaper:
         prev_hp = self._total_hp(self.prev_state.player)
         curr_hp = self._total_hp(state.player)
         if curr_hp < prev_hp:
-            return self.config.damage_taken
+            half_hearts_lost = prev_hp - curr_hp
+            self._took_damage_this_room = True
+            return half_hearts_lost * self.config.damage_taken
         return 0.0
 
     def _compute_pickups(self, state: GameState) -> float:

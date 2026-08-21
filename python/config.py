@@ -27,14 +27,21 @@ class EnvConfig:
 
 @dataclass
 class RewardConfig:
+    # Damage progress: scaled per HP point, capped cumulatively per episode
+    # so total damage reward can never exceed damage_progress_cap.
     damage_dealt: float = 1.0
-    enemy_killed: float = 5.0
-    damage_taken: float = -10.0
-    room_cleared: float = 20.0
+    damage_progress_cap: float = 0.25
+    # Deprecated (redundant with damage progress): 0 disables it.
+    enemy_killed: float = 0.0
+    room_cleared: float = 2.0
+    no_hit_bonus: float = 0.5
+    # Penalty per half-heart lost.
+    damage_taken: float = -0.5
     pickup_collected: float = 2.0
     wall_collision_penalty: float = 0.0
-    death: float = -50.0
-    time_penalty: float = -0.005
+    death: float = -5.0
+    timeout_penalty: float = -5.0
+    time_penalty: float = 0.0
     survival_bonus: float = 0.0
     floor_cleared: float = 100.0
     pickup_approach_scale: float = 0.0
