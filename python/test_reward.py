@@ -10,8 +10,14 @@ from game_state import GameState, PlayerState
 from reward import RewardShaper
 
 
-def make_state(position: tuple[float, float]) -> GameState:
-    return GameState(player=PlayerState(position=position))
+def make_state(
+    position: tuple[float, float],
+    pos_x: float = 0.5,
+    pos_y: float = 0.5,
+) -> GameState:
+    return GameState(
+        player=PlayerState(position=position, pos_x=pos_x, pos_y=pos_y)
+    )
 
 
 class RewardShaperWallCollisionTests(unittest.TestCase):
@@ -32,8 +38,12 @@ class RewardShaperWallCollisionTests(unittest.TestCase):
     def test_applies_wall_collision_penalty_when_moving_but_stuck(self):
         shaper = self.make_shaper()
 
-        shaper.compute(make_state((100.0, 100.0)))
-        reward = shaper.compute(make_state((100.0, 100.0)), action=(4, 0))
+        # pos_x=0.0 places the player against the left wall; moving right (4)
+        # while the raw x-position does not change means the player is stuck.
+        shaper.compute(make_state((100.0, 100.0), pos_x=0.0))
+        reward = shaper.compute(
+            make_state((100.0, 100.0), pos_x=0.0), action=(4, 0)
+        )
 
         self.assertEqual(reward, -0.5)
         self.assertEqual(shaper.reward_components["wall_collision"], -0.5)
@@ -50,8 +60,11 @@ class RewardShaperWallCollisionTests(unittest.TestCase):
     def test_skips_wall_collision_penalty_when_player_moves(self):
         shaper = self.make_shaper()
 
-        shaper.compute(make_state((100.0, 100.0)))
-        reward = shaper.compute(make_state((102.0, 100.0)), action=(4, 0))
+        # Near the left wall but actually progressing on x -> no penalty.
+        shaper.compute(make_state((100.0, 100.0), pos_x=0.0))
+        reward = shaper.compute(
+            make_state((102.0, 100.0), pos_x=0.0), action=(4, 0)
+        )
 
         self.assertEqual(reward, 0.0)
         self.assertEqual(shaper.reward_components["wall_collision"], 0.0)
@@ -59,8 +72,12 @@ class RewardShaperWallCollisionTests(unittest.TestCase):
     def test_applies_wall_collision_penalty_when_diagonal_move_slides_on_one_axis(self):
         shaper = self.make_shaper()
 
-        shaper.compute(make_state((100.0, 100.0)))
-        reward = shaper.compute(make_state((102.0, 100.1)), action=(6, 0))
+        # pos_y=0.0 (top wall): the diagonal move (6 = right-up) slides on y
+        # (dy ~ 0.1) while progressing on x, so the y axis is stuck.
+        shaper.compute(make_state((100.0, 100.0), pos_y=0.0))
+        reward = shaper.compute(
+            make_state((102.0, 100.1), pos_y=0.0), action=(6, 0)
+        )
 
         self.assertEqual(reward, -0.5)
         self.assertEqual(shaper.reward_components["wall_collision"], -0.5)
@@ -68,8 +85,10 @@ class RewardShaperWallCollisionTests(unittest.TestCase):
     def test_skips_wall_collision_penalty_when_diagonal_move_progresses_on_both_axes(self):
         shaper = self.make_shaper()
 
-        shaper.compute(make_state((100.0, 100.0)))
-        reward = shaper.compute(make_state((101.0, 99.0)), action=(6, 0))
+        shaper.compute(make_state((100.0, 100.0), pos_x=0.0, pos_y=0.0))
+        reward = shaper.compute(
+            make_state((101.0, 99.0), pos_x=0.0, pos_y=0.0), action=(6, 0)
+        )
 
         self.assertEqual(reward, 0.0)
         self.assertEqual(shaper.reward_components["wall_collision"], 0.0)
@@ -77,8 +96,10 @@ class RewardShaperWallCollisionTests(unittest.TestCase):
     def test_accepts_numpy_action_arrays_from_sb3(self):
         shaper = self.make_shaper()
 
-        shaper.compute(make_state((100.0, 100.0)))
-        reward = shaper.compute(make_state((102.0, 100.1)), action=np.array([6, 0]))
+        shaper.compute(make_state((100.0, 100.0), pos_y=0.0))
+        reward = shaper.compute(
+            make_state((102.0, 100.1), pos_y=0.0), action=np.array([6, 0])
+        )
 
         self.assertEqual(reward, -0.5)
         self.assertEqual(shaper.reward_components["wall_collision"], -0.5)
