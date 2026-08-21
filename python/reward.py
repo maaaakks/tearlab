@@ -52,6 +52,12 @@ class RewardShaper:
         reward += self.config.time_penalty
         self.reward_components["time"] = self.config.time_penalty
 
+        # Resource use costs (bomb / active item / card-pill)
+        resource_cost = self._compute_use_costs(action)
+        reward += resource_cost
+        if resource_cost != 0.0:
+            self.reward_components["use_cost"] = resource_cost
+
         # Reward staying alive while enemies are still present.
         if state.enemy_count > 0 and not state.player_dead:
             reward += self.config.survival_bonus
@@ -252,6 +258,18 @@ class RewardShaper:
             return self.config.wall_collision_penalty
 
         return 0.0
+
+    def _compute_use_costs(self, action: Sequence[int] | None) -> float:
+        if action is None or len(action) < 5:
+            return 0.0
+        cost = 0.0
+        if int(action[2]) == 1:
+            cost += self.config.bomb_use_penalty
+        if int(action[3]) == 1:
+            cost += self.config.active_use_penalty
+        if int(action[4]) == 1:
+            cost += self.config.pillcard_use_penalty
+        return cost
 
     @staticmethod
     def _movement_action(action: Sequence[int] | None) -> int:

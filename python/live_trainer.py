@@ -66,16 +66,38 @@ class IsaacPolicy(nn.Module):
         return value, logits
 
     @staticmethod
-    def _dist(logits):
+    def _dist(logits, masks=None):
+        if masks is not None:
+            logits = torch.where(
+                masks, logits, torch.full_like(logits, float("-inf"))
+            )
         return torch.distributions.Categorical(logits=logits)
 
-    def evaluate_actions(self, obs, actions):
-        """actions: LongTensor (B, K). Returns values, joint logprobs, joint entropy."""
+    @staticmethod
+    def split_masks(masks, action_nvec):
+        """Flat mask (B, sum(nvec)) -> list of per-dim BoolTensors (B, n_k)."""
+        parts = []
+        offset = 0
+        for n in action_nvec:
+            parts.append(masks[:, offset:offset + n])
+            offset += n
+        return parts
+
+    def evaluate_actions(self, obs, actions, masks=None):
+        """actions: LongTensor (B, K). Returns values, joint logprobs, joint entropy.
+
+        masks: optional BoolTensor (B, sum(nvec)) matching the action space;
+        masked-out actions get -inf logits so their probability is exactly 0.
+        """
         value, logits = self.forward(obs)
         logprob = None
         entropy = None
+        mb_masks = (
+            self.split_masks(masks, self.action_nvec)
+            if masks is not None else None
+        )
         for k, head_logits in enumerate(logits):
-            dist = self._dist(head_logits)
+            dist = self._dist(head_logits, mb_masks[k] if mb_masks else None)
             term = dist.log_prob(actions[:, k])
             ent = dist.entropy()
             logprob = term if logprob is None else logprob + term
@@ -91,6 +113,11 @@ def _obs_to_tensors(obs, device):
     if "map" in obs:
         tensors["map"] = torch.as_tensor(obs["map"], dtype=torch.float32, device=device).unsqueeze(0)
     return tensors
+
+
+def _mask_to_tensors(mask: np.ndarray, device):
+    """Flattened env mask -> BoolTensor (sum(nvec),)."""
+    return torch.as_tensor(mask, dtype=torch.bool, device=device)
 
 
 class Collector(threading.Thread):
@@ -155,9 +182,13 @@ class Collector(threading.Thread):
                     ),
                 )
                 tensors = _obs_to_tensors(obs, self.device)
+                mask_flat = _mask_to_tensors(self.env.action_masks(), self.device)
+                mask_parts = IsaacPolicy.split_masks(
+                    mask_flat.unsqueeze(0), self.env.action_space.nvec.tolist()
+                )
                 with torch.no_grad():
                     value, logits = self.policy(tensors)
-                    dists = [IsaacPolicy._dist(l) for l in logits]
+                    dists = [IsaacPolicy._dist(l, m[0]) for l, m in zip(logits, mask_parts)]
                     samples = [d.sample() for d in dists]
                     logprob = sum(
                         d.log_prob(s).squeeze() for d, s in zip(dists, samples)
@@ -174,6 +205,7 @@ class Collector(threading.Thread):
                 transition = {
                     "obs": {k: v.copy() for k, v in obs.items()},
                     "action": action,
+                    "mask": np.asarray(mask, dtype=bool).copy(),
                     "logprob": float(logprob.item()),
                     "value": float(value.item()),
                     "reward": float(reward),
@@ -426,6 +458,12 @@ class LivePPOTrainer:
         old_logprobs = torch.as_tensor(
             [tr["logprob"] for tr in batch], dtype=torch.float32, device=self.device
         )
+        if all("mask" in tr for tr in batch):
+            masks = torch.as_tensor(
+                np.stack([tr["mask"] for tr in batch]), dtype=torch.bool, device=self.device
+            )
+        else:
+            masks = None
         advs = torch.as_tensor(advantages, dtype=torch.float32, device=self.device)
         rets = torch.as_tensor(returns, dtype=torch.float32, device=self.device)
 
@@ -457,7 +495,9 @@ class LivePPOTrainer:
                 mb_obs = {"grid": grids[mb], "player": players[mb]}
                 if has_map:
                     mb_obs["map"] = maps[mb]
-                values, logprobs, entropy = self.policy.evaluate_actions(mb_obs, actions[mb])
+                values, logprobs, entropy = self.policy.evaluate_actions(
+                    mb_obs, actions[mb], masks[mb] if masks is not None else None
+                )
 
                 ratio = torch.exp(logprobs - old_logprobs[mb])
                 mb_adv = advs[mb]

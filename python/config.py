@@ -39,6 +39,12 @@ class RewardConfig:
     damage_taken: float = -0.5
     pickup_collected: float = 2.0
     wall_collision_penalty: float = 0.0
+    # Per-use resource costs: each use must "pay for itself" through the
+    # damage/clear/pickup rewards it enables, otherwise it nets negative.
+    # This teaches resource economy without complex waste attribution.
+    bomb_use_penalty: float = 0.0
+    active_use_penalty: float = 0.0
+    pillcard_use_penalty: float = 0.0
     death: float = -5.0
     timeout_penalty: float = -5.0
     # Small per-step cost: creates urgency without flipping strategy order.
