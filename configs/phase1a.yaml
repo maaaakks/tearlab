@@ -3,7 +3,7 @@ env:
   frame_stack: 1
   free_running: true
   normalize_player_features: true
-  max_episode_steps: 3000
+  max_episode_steps: 150  # ~15 seconds at 30 FPS with frame_skip=3
 
 reward:
   damage_dealt: 1.0

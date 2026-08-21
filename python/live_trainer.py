@@ -205,7 +205,7 @@ class Collector(threading.Thread):
                 transition = {
                     "obs": {k: v.copy() for k, v in obs.items()},
                     "action": action,
-                    "mask": np.asarray(mask, dtype=bool).copy(),
+                    "mask": np.asarray(mask_flat.cpu(), dtype=bool).copy(),
                     "logprob": float(logprob.item()),
                     "value": float(value.item()),
                     "reward": float(reward),
