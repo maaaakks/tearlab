@@ -141,6 +141,11 @@ class TrainConfig:
     # C5: auxiliary representation-learning heads (room type, danger, next
     # destination, reachability). 0 disables them (legacy behavior).
     aux_coef: float = 0.0
+    # E9: normalize the return targets of each PPO batch with running stats.
+    # OFF by default (legacy behavior); turn on if value loss destabilizes on
+    # long full runs where returns span many reward magnitudes.
+    normalize_returns: bool = False
+    return_norm_decay: float = 0.999
 
 
 @dataclass

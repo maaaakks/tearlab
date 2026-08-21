@@ -142,6 +142,47 @@ class LiveCheckpointTests(unittest.TestCase):
                 # Optimizer state was reset because the parameter set changed.
                 self.assertFalse(resumed.optimizer.state_dict()["state"])
 
+    def test_return_normalization_whitens_when_enabled(self):
+        """E9: normalize_returns whitens batch targets; off keeps them intact."""
+        config = Config()
+        config.train.normalize_returns = True
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with patch(
+                "live_checkpoint.get_checkpoint_dir",
+                return_value=Path(temp_dir),
+            ):
+                trainer = LivePPOTrainer(config, DummyEnv())
+                raw = np.array([10.0, -2.0, 4.0, 6.0, -8.0], dtype=np.float32)
+                normalized = trainer._maybe_normalize_returns(raw)
+                # First batch: mean-centered, roughly unit variance (n small).
+                self.assertAlmostEqual(float(normalized.mean()), 0.0, places=5)
+                self.assertLess(float(normalized.std()), 3.0)
+
+        config_off = Config()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with patch(
+                "live_checkpoint.get_checkpoint_dir",
+                return_value=Path(temp_dir),
+            ):
+                trainer = LivePPOTrainer(config_off, DummyEnv())
+                raw = np.array([10.0, -2.0, 4.0], dtype=np.float32)
+                self.assertTrue(
+                    np.array_equal(trainer._maybe_normalize_returns(raw), raw)
+                )
+
+    def test_effective_horizon_reflects_gamma(self):
+        config = Config()
+        config.train.gamma = 0.995
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with patch(
+                "live_checkpoint.get_checkpoint_dir",
+                return_value=Path(temp_dir),
+            ):
+                trainer = LivePPOTrainer(config, DummyEnv())
+                self.assertAlmostEqual(
+                    1.0 / (1.0 - trainer.gamma), 200.0, places=1
+                )
+
     def test_entropy_schedule_decays_to_final_value(self):
         config = Config()
         config.train.total_timesteps = 1000

@@ -514,6 +514,12 @@ class LivePPOTrainer:
         self.recurrent = bool(tc.recurrent)
         self.recurrent_hidden_size = int(tc.recurrent_hidden_size)
         self.aux_coef = float(tc.aux_coef)
+        self.normalize_returns = bool(tc.normalize_returns)
+        self.return_norm_decay = float(tc.return_norm_decay)
+        # E9 running statistics for return normalization.
+        self._return_mean = 0.0
+        self._return_var = 1.0
+        self._return_stats_seen = 0
         self.total_timesteps = tc.total_timesteps
         self.save_interval_seconds = max(1.0, float(tc.save_interval_seconds))
 
@@ -770,11 +776,37 @@ class LivePPOTrainer:
         returns = advantages + values
         return advantages, returns
 
+    def _maybe_normalize_returns(self, returns: np.ndarray) -> np.ndarray:
+        """E9: optionally whiten PPO return targets with running statistics.
+
+        Long full runs produce returns spanning death (-10) to win (10+) with
+        many intermediate magnitudes; global whitening keeps the value head
+        scale stable without changing the reward signal itself. Off by default.
+        """
+        if not self.normalize_returns:
+            return returns
+        batch_mean = float(returns.mean())
+        batch_var = float(returns.var()) if returns.size > 1 else 1.0
+        if self._return_stats_seen == 0:
+            self._return_mean = batch_mean
+            self._return_var = batch_var
+        else:
+            decay = self.return_norm_decay
+            self._return_mean = (
+                decay * self._return_mean + (1.0 - decay) * batch_mean
+            )
+            self._return_var = (
+                decay * self._return_var + (1.0 - decay) * batch_var
+            )
+        self._return_stats_seen += 1
+        return (returns - self._return_mean) / (np.sqrt(self._return_var) + 1e-8)
+
     def _update(self, batch: list):
         tc = self.config.train
         advantages, returns = self._compute_gae(batch)
         adv_mean, adv_std = advantages.mean(), advantages.std() + 1e-8
         advantages = (advantages - adv_mean) / adv_std
+        returns = self._maybe_normalize_returns(returns)
 
         grids = torch.as_tensor(
             np.stack([tr["obs"]["grid"] for tr in batch]), dtype=torch.float32, device=self.device
@@ -1074,6 +1106,9 @@ class LivePPOTrainer:
                 "clip_fraction": stats["clip_fraction"] / u,
                 "grad_norm": stats["grad_norm"] / u,
                 "aux_loss": stats["aux_loss"] / u,
+                "mean_return": float(rets.mean().item()),
+                "return_std": float(rets.std().item()),
+                "effective_horizon": 1.0 / max(1e-6, 1.0 - self.gamma),
                 "explained_variance": explained_variance,
                 "feature_abs_mean": sample_features.abs().mean().item(),
                 "dead_feature_fraction": dead_feature_fraction,
