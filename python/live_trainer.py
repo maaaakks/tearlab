@@ -158,6 +158,15 @@ class Collector(threading.Thread):
         self.recent_rewards = deque(maxlen=ROLLING_EPISODE_WINDOW)
         self.recent_lengths = deque(maxlen=ROLLING_EPISODE_WINDOW)
         self.recent_wins = deque(maxlen=ROLLING_EPISODE_WINDOW)
+        # F5 degenerate-behavior counters, reset each episode.
+        self.recent_idle_rate = deque(maxlen=ROLLING_EPISODE_WINDOW)
+        self.recent_wall_rate = deque(maxlen=ROLLING_EPISODE_WINDOW)
+        self.ep_idle_steps = 0
+        self.ep_wall_steps = 0
+        self.ep_bomb_uses = 0
+        self.last_ep_idle_rate = 0.0
+        self.last_ep_wall_rate = 0.0
+        self.last_ep_bomb_uses = 0
 
     def run(self):
         obs = None
@@ -185,6 +194,17 @@ class Collector(threading.Thread):
                         round(sum(self.recent_wins) / len(self.recent_wins), 3)
                         if self.recent_wins else 0.0
                     ),
+                    rolling_idle_rate=(
+                        round(sum(self.recent_idle_rate) / len(self.recent_idle_rate), 3)
+                        if self.recent_idle_rate else 0.0
+                    ),
+                    rolling_wall_rate=(
+                        round(sum(self.recent_wall_rate) / len(self.recent_wall_rate), 3)
+                        if self.recent_wall_rate else 0.0
+                    ),
+                    last_episode_idle_rate=round(self.last_ep_idle_rate, 3),
+                    last_episode_wall_rate=round(self.last_ep_wall_rate, 3),
+                    last_episode_bomb_uses=self.last_ep_bomb_uses,
                 )
                 tensors = _obs_to_tensors(obs, self.device)
                 mask_flat = _mask_to_tensors(self.env.action_masks(), self.device)
@@ -223,23 +243,45 @@ class Collector(threading.Thread):
                 self.ep_steps += 1
                 self.steps += 1
 
+                # F5 degenerate-behavior tracking.
+                if int(action[0]) == 0 and int(action[1]) == 0:
+                    self.ep_idle_steps += 1
+                rc = info.get("reward_components") or {}
+                if rc.get("wall_collision", 0.0) < 0.0:
+                    self.ep_wall_steps += 1
+                if len(action) > 2 and int(action[2]) == 1:
+                    self.ep_bomb_uses += 1
+
                 if done:
                     self.episodes += 1
                     self.last_ep_reward = self.ep_reward
                     self.last_ep_length = self.ep_steps
                     self.last_ep_reason = info.get("state").terminal_reason if info.get("state") else "unknown"
+                    self.last_ep_idle_rate = (
+                        self.ep_idle_steps / max(1, self.ep_steps)
+                    )
+                    self.last_ep_wall_rate = (
+                        self.ep_wall_steps / max(1, self.ep_steps)
+                    )
+                    self.last_ep_bomb_uses = self.ep_bomb_uses
                     self.recent_rewards.append(float(self.last_ep_reward))
                     self.recent_lengths.append(int(self.last_ep_length))
                     self.recent_wins.append(
                         float(self.last_ep_reason in ("room_cleared", "run_won"))
                     )
+                    self.recent_idle_rate.append(self.last_ep_idle_rate)
+                    self.recent_wall_rate.append(self.last_ep_wall_rate)
                     log.info(
-                        "EP %d (%s) | steps=%d reward=%.1f | total collected=%d",
+                        "EP %d (%s) | steps=%d reward=%.1f idle=%.2f wall=%.2f bombs=%d | total collected=%d",
                         self.episodes, self.last_ep_reason, self.ep_steps,
-                        self.ep_reward, self.steps,
+                        self.ep_reward, self.last_ep_idle_rate,
+                        self.last_ep_wall_rate, self.ep_bomb_uses, self.steps,
                     )
                     self.ep_reward = 0.0
                     self.ep_steps = 0
+                    self.ep_idle_steps = 0
+                    self.ep_wall_steps = 0
+                    self.ep_bomb_uses = 0
                     obs, _ = self.env.reset()
                 else:
                     obs = next_obs
@@ -732,6 +774,17 @@ class LivePPOTrainer:
                             sum(self.collector.recent_wins) / rolling_count
                             if rolling_count else 0.0
                         ),
+                        "rolling_idle_rate": (
+                            sum(self.collector.recent_idle_rate) / rolling_count
+                            if rolling_count else 0.0
+                        ),
+                        "rolling_wall_rate": (
+                            sum(self.collector.recent_wall_rate) / rolling_count
+                            if rolling_count else 0.0
+                        ),
+                        "last_episode_idle_rate": self.collector.last_ep_idle_rate,
+                        "last_episode_wall_rate": self.collector.last_ep_wall_rate,
+                        "last_episode_bomb_uses": self.collector.last_ep_bomb_uses,
                         **metrics,
                     }
                 )
