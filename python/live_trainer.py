@@ -84,10 +84,13 @@ class IsaacPolicy(nn.Module):
 
 
 def _obs_to_tensors(obs, device):
-    return {
+    tensors = {
         "grid": torch.as_tensor(obs["grid"], dtype=torch.float32, device=device).unsqueeze(0),
         "player": torch.as_tensor(obs["player"], dtype=torch.float32, device=device).unsqueeze(0),
     }
+    if "map" in obs:
+        tensors["map"] = torch.as_tensor(obs["map"], dtype=torch.float32, device=device).unsqueeze(0)
+    return tensors
 
 
 class Collector(threading.Thread):
@@ -426,6 +429,12 @@ class LivePPOTrainer:
         advs = torch.as_tensor(advantages, dtype=torch.float32, device=self.device)
         rets = torch.as_tensor(returns, dtype=torch.float32, device=self.device)
 
+        has_map = "map" in batch[0]["obs"]
+        if has_map:
+            maps = torch.as_tensor(
+                np.stack([tr["obs"]["map"] for tr in batch]), dtype=torch.float32, device=self.device
+            )
+
         n = len(batch)
         idx = np.arange(n)
         stats = {
@@ -446,6 +455,8 @@ class LivePPOTrainer:
                 if len(mb) < 2:
                     continue
                 mb_obs = {"grid": grids[mb], "player": players[mb]}
+                if has_map:
+                    mb_obs["map"] = maps[mb]
                 values, logprobs, entropy = self.policy.evaluate_actions(mb_obs, actions[mb])
 
                 ratio = torch.exp(logprobs - old_logprobs[mb])
@@ -498,6 +509,8 @@ class LivePPOTrainer:
                 "grid": grids[sample_idx],
                 "player": players[sample_idx],
             }
+            if has_map:
+                sample_obs["map"] = maps[sample_idx]
             with torch.no_grad():
                 sample_values, _ = self.policy(sample_obs)
                 sample_features = self.policy.features(sample_obs)

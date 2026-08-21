@@ -17,6 +17,7 @@ class EnvConfig:
     frame_skip: int = 3
     frame_stack: int = 1
     free_running: bool = True
+    enable_map_memory: bool = False
     max_episode_steps: int = 3000
     action_timeout: float = 5.0
     n_workers: int = 1

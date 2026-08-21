@@ -49,6 +49,25 @@ class IsaacFeatureExtractor(BaseFeaturesExtractor):
 
         combined_size = cnn_out_size + 64
 
+        # Optional floor-map branch (RunMemory summary). Created only when the
+        # observation space carries a "map" key, so checkpoints trained without
+        # map memory keep identical state_dict keys.
+        self.has_map = "map" in observation_space.spaces
+        if self.has_map:
+            map_shape = observation_space["map"].shape  # (C, 9, 13)
+            self.map_cnn = nn.Sequential(
+                nn.Conv2d(map_shape[0], 16, kernel_size=3, padding=1),
+                nn.ReLU(),
+                nn.Conv2d(16, 16, kernel_size=3, padding=1),
+                nn.ReLU(),
+                nn.Flatten(),
+            )
+            with torch.no_grad():
+                sample = torch.zeros(1, *map_shape)
+                map_out_size = self.map_cnn(sample).shape[1]
+            self.map_fc = nn.Sequential(nn.Linear(map_out_size, 32), nn.ReLU())
+            combined_size += 32
+
         # Final projection to features_dim
         self.fc = nn.Sequential(
             nn.Linear(combined_size, features_dim),
@@ -64,5 +83,10 @@ class IsaacFeatureExtractor(BaseFeaturesExtractor):
         cnn_out = self.cnn(grid)
         player_out = self.player_mlp(player)
 
-        combined = torch.cat([cnn_out, player_out], dim=1)
+        parts = [cnn_out, player_out]
+        if self.has_map and "map" in observations:
+            map_out = self.map_fc(self.map_cnn(observations["map"]))
+            parts.append(map_out)
+
+        combined = torch.cat(parts, dim=1)
         return self.fc(combined)

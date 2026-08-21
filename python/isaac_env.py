@@ -12,6 +12,7 @@ from config import Config
 from game_state import GameState
 from network_client import NetworkClient
 from reward import RewardShaper
+from run_memory import NUM_MAP_CHANNELS, MAP_HEIGHT, MAP_WIDTH, RunMemory
 
 log = logging.getLogger("IsaacEnv")
 
@@ -60,8 +61,12 @@ class IsaacEnv(gym.Env):
         self.frame_stack = max(1, int(self.env_cfg.frame_stack))
         self._grid_stack: deque[np.ndarray] = deque(maxlen=self.frame_stack)
 
+        # Run memory: persistent room-graph map summary appended to obs.
+        self.enable_map_memory = bool(getattr(self.env_cfg, "enable_map_memory", False))
+        self.run_memory = RunMemory()
+
         # Observation space: Dict with grid (CNN input) and player (vector input)
-        self.observation_space = spaces.Dict({
+        obs_spaces = {
             "grid": spaces.Box(
                 low=0.0,
                 high=1.0,
@@ -78,7 +83,15 @@ class IsaacEnv(gym.Env):
                 shape=(self.env_cfg.player_features,),
                 dtype=np.float32,
             ),
-        })
+        }
+        if self.enable_map_memory:
+            obs_spaces["map"] = spaces.Box(
+                low=0.0,
+                high=1.0,
+                shape=(NUM_MAP_CHANNELS, MAP_HEIGHT, MAP_WIDTH),
+                dtype=np.float32,
+            )
+        self.observation_space = spaces.Dict(obs_spaces)
 
         self._client = NetworkClient(
             host=self.env_cfg.host,
@@ -222,7 +235,10 @@ class IsaacEnv(gym.Env):
                 2.0,
             ).astype(np.float32)
 
-        return {"grid": self._push_grid(grid), "player": player}
+        obs: dict = {"grid": self._push_grid(grid), "player": player}
+        if self.enable_map_memory:
+            obs["map"] = self.run_memory.update(state)
+        return obs
 
     def _wait_for_new_episode(self, timeout=120.0):
         """Wait for first non-terminal observation of a new episode_id."""
@@ -275,6 +291,9 @@ class IsaacEnv(gym.Env):
         self._ep_receive_times = []
         self.reward_shaper.reset()
         self._grid_stack.clear()
+        if self.enable_map_memory:
+            # New episode = new run: wipe floor memory
+            self.run_memory.reset()
 
         if self._last_episode_id == 0:
             # First episode in this Python process: force game back to active play
