@@ -318,7 +318,7 @@ function StateSerializer.serialize(game)
         stage_type = level:GetStageType(),
         curse = safe(function() return level:GetCurses() end, 0),
         room_type = room:GetType(),
-        room_shape = room:GetShape(),
+        room_shape = safe(function() return room:GetRoomShape() end, -1),
         room_list_index = roomDesc and roomDesc.ListIndex or -1,
         room_grid_index = safe(function() return level:GetCurrentRoomIndex() end, -1),
         room_clear = room:IsClear(),
