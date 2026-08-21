@@ -535,6 +535,13 @@ local function applySpeedHack()
     end
     for _ = 1, mult - 1 do
         Game():Update()
+        -- A terminal/reset may have fired inside this nested tick (episode
+        -- ends call ExecuteCommand("restart")). Never keep updating a game
+        -- that is mid-restart or has no living player.
+        local nestedPlayer = Isaac.GetPlayer(0)
+        if GameControl.isResetting() or not nestedPlayer or nestedPlayer:IsDead() then
+            break
+        end
     end
 end
 
