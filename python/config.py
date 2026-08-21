@@ -146,6 +146,13 @@ class TrainConfig:
     # long full runs where returns span many reward magnitudes.
     normalize_returns: bool = False
     return_norm_decay: float = 0.999
+    # E6: fraction of episode resets that are controlled (rare-scenario) starts,
+    # mixed into natural runs. E7: the fraction decays linearly to
+    # controlled_reset_final over controlled_reset_decay_fraction of training.
+    controlled_reset_fraction: float = 0.0
+    controlled_reset_final: float = 0.0
+    controlled_reset_decay_fraction: float = 1.0
+    controlled_scenarios: list = field(default_factory=list)
 
 
 @dataclass

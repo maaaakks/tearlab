@@ -64,6 +64,13 @@ train:
   recurrent: true              # C4: GRU over partially-observable runs
   recurrent_hidden_size: 128
   aux_coef: 0.2                # C5: auxiliary representation heads
+  # E6/E7: ~10% of episode resets start from a rare scenario, decaying to 0
+  # over the first 80% of training. Scenario injection (A4) is pending, so
+  # the Lua hook currently falls back to a natural reset.
+  controlled_reset_fraction: 0.10
+  controlled_reset_final: 0.0
+  controlled_reset_decay_fraction: 0.8
+  controlled_scenarios: ["devil_deal", "angel_statue", "shop", "tinted_rock"]
 
 phase:
   # Natural layouts, enemies, drops and progression: do NOT inject enemies.

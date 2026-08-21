@@ -9,7 +9,7 @@ from gymnasium import spaces
 
 from config import Config
 from live_checkpoint import LiveCheckpointManager
-from live_trainer import LivePPOTrainer
+from live_trainer import LivePPOTrainer, IsaacPolicy
 
 
 class DummyEnv:
@@ -182,6 +182,58 @@ class LiveCheckpointTests(unittest.TestCase):
                 self.assertAlmostEqual(
                     1.0 / (1.0 - trainer.gamma), 200.0, places=1
                 )
+
+    def test_controlled_reset_fraction_decays_over_training(self):
+        """E6/E7: initial fraction decays linearly to the final value."""
+        config = Config()
+        config.train.total_timesteps = 100_000
+        config.train.controlled_reset_fraction = 0.15
+        config.train.controlled_reset_final = 0.02
+        config.train.controlled_reset_decay_fraction = 0.5
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with patch(
+                "live_checkpoint.get_checkpoint_dir",
+                return_value=Path(temp_dir),
+            ):
+                trainer = LivePPOTrainer(config, DummyEnv())
+
+        self.assertAlmostEqual(trainer._current_controlled_fraction(0), 0.15)
+        midpoint = trainer._current_controlled_fraction(25_000)
+        self.assertAlmostEqual(midpoint, 0.085)
+        endpoint = trainer._current_controlled_fraction(60_000)
+        self.assertAlmostEqual(endpoint, 0.02)
+
+    def test_collector_controlled_reset_requests_scenario(self):
+        """E6: the collector routes a sampled fraction of resets to the env."""
+        from unittest.mock import MagicMock
+
+        class Env(DummyEnv):
+            def __init__(self):
+                super().__init__()
+                self.requested = []
+
+            def request_controlled_reset(self, scenario):
+                self.requested.append(scenario)
+                return True
+
+        env = Env()
+        policy = IsaacPolicy(env.observation_space, env.action_space.nvec.tolist())
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with patch(
+                "live_checkpoint.get_checkpoint_dir",
+                return_value=Path(temp_dir),
+            ):
+                from live_trainer import Collector
+
+                collector = Collector.__new__(Collector)
+                collector.env = env
+                collector.steps = 0
+                collector.controlled_fraction_fn = lambda steps: 1.0
+                collector.controlled_scenarios = ["angel_statue", "shop"]
+                np.random.seed(0)
+                collector._maybe_controlled_reset()
+        self.assertEqual(len(env.requested), 1)
+        self.assertIn(env.requested[0], ("angel_statue", "shop"))
 
     def test_entropy_schedule_decays_to_final_value(self):
         config = Config()

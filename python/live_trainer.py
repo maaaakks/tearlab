@@ -261,6 +261,8 @@ class Collector(threading.Thread):
         stop_event,
         total_timesteps,
         initial_steps=0,
+        controlled_fraction_fn=None,
+        controlled_scenarios=None,
     ):
         super().__init__(daemon=True, name="isaac-collector")
         self.env = env
@@ -271,6 +273,8 @@ class Collector(threading.Thread):
         self.buffer_cv = buffer_cv
         self.stop_event = stop_event
         self.total_timesteps = total_timesteps
+        self.controlled_fraction_fn = controlled_fraction_fn
+        self.controlled_scenarios = list(controlled_scenarios or [])
         self.steps = int(initial_steps)
         self.episodes = 0
         self.ep_reward = 0.0
@@ -292,6 +296,29 @@ class Collector(threading.Thread):
         self.last_ep_bomb_uses = 0
         # C4: per-episode recurrent hidden state. Reset at episode starts.
         self.hidden = None
+
+    def _maybe_controlled_reset(self) -> None:
+        """E6/E7: occasionally restart from a rare scenario instead of natural.
+
+        The fraction is provided by the trainer over the collector steps; when
+        the env has no scenario hook it falls back to a natural reset.
+        """
+        fn = self.controlled_fraction_fn
+        if fn is None:
+            return
+        fraction = float(fn(self.steps))
+        if fraction <= 0.0:
+            return
+        if np.random.random() >= fraction:
+            return
+        request = getattr(self.env, "request_controlled_reset", None)
+        if request is None:
+            return
+        scenarios = self.controlled_scenarios
+        scenario = "natural"
+        if scenarios:
+            scenario = str(np.random.choice(scenarios))
+        request(scenario)
 
     @staticmethod
     def _aux_targets(info) -> dict | None:
@@ -448,6 +475,7 @@ class Collector(threading.Thread):
                     self.ep_wall_steps = 0
                     self.ep_bomb_uses = 0
                     self.hidden = None  # new episode -> zero recurrent state
+                    self._maybe_controlled_reset()
                     obs, _ = self.env.reset()
                 else:
                     obs = next_obs
@@ -520,6 +548,15 @@ class LivePPOTrainer:
         self._return_mean = 0.0
         self._return_var = 1.0
         self._return_stats_seen = 0
+        # E6/E7 controlled rare-reset scheduling.
+        self.controlled_reset_fraction = float(tc.controlled_reset_fraction)
+        self.controlled_reset_final = float(tc.controlled_reset_final)
+        self.controlled_reset_decay_fraction = max(
+            0.0, float(tc.controlled_reset_decay_fraction)
+        )
+        self.controlled_scenarios = list(
+            getattr(tc, "controlled_scenarios", None) or []
+        )
         self.total_timesteps = tc.total_timesteps
         self.save_interval_seconds = max(1.0, float(tc.save_interval_seconds))
 
@@ -542,6 +579,8 @@ class LivePPOTrainer:
             self.buffer, self.buffer_lock, self.buffer_cv, self.stop_event,
             self.total_timesteps,
             initial_steps,
+            controlled_fraction_fn=self._current_controlled_fraction,
+            controlled_scenarios=self.controlled_scenarios,
         )
         self.env.update_training_metrics(
             trainer="LIVE PPO",
@@ -717,6 +756,20 @@ class LivePPOTrainer:
             self.update_count,
         )
         return steps
+
+    def _current_controlled_fraction(self, steps: int) -> float:
+        """E7: linear decay of the controlled-reset fraction over training."""
+        start = self.controlled_reset_fraction
+        end = self.controlled_reset_final
+        if start <= 0.0 or self.controlled_reset_decay_fraction <= 0.0:
+            return end
+        if start == end:
+            return end
+        decay_steps = max(
+            1.0, self.total_timesteps * self.controlled_reset_decay_fraction
+        )
+        progress = min(1.0, max(0.0, steps / decay_steps))
+        return start + progress * (end - start)
 
     def _current_ent_coef(self, steps: int) -> float:
         if self.entropy_decay_fraction <= 0 or self.ent_coef == self.ent_coef_final:

@@ -283,6 +283,18 @@ local function handleMessage(message)
         ActionInjector.reset()
         lastAction = {move = 0, shoot = 0}
         GameControl.resetEpisode()
+    elseif message.command == "controlled_reset" then
+        -- E6/E7: rare-scenario start request. Scenario injection (A4) is not
+        -- implemented yet, so this is currently a hook that performs a plain
+        -- episode reset; the scheduler in Python still manages the fraction.
+        paused = false
+        Isaac.ConsoleOutput(
+            "IsaacRL[" .. Config.INSTANCE_ID .. "]: controlled_reset ("
+                .. tostring(message.scenario or "natural") .. ") -> plain reset\n"
+        )
+        ActionInjector.reset()
+        lastAction = {move = 0, shoot = 0}
+        GameControl.resetEpisode()
     elseif message.command == "end_episode" then
         -- Explicit terminal from Python: "run_won" (victory/final objective)
         -- or "abandoned". Ends the current episode without waiting for death

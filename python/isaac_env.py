@@ -56,7 +56,10 @@ class IsaacEnv(gym.Env):
         super().__init__()
         self.config = config or Config()
         self.env_cfg = self.config.env
-        self.reward_shaper = RewardShaper(self.config.reward)
+        self.reward_shaper = RewardShaper(
+            self.config.reward,
+            max_episode_steps=self.env_cfg.max_episode_steps,
+        )
 
         # Action space: MultiDiscrete([9, 9, 2, 2, 2])
         #   dim 0: movement (8 directions + none)
@@ -650,6 +653,26 @@ class IsaacEnv(gym.Env):
             interaction_mask = np.concatenate((bomb_mask, active_mask, pillcard_mask))
 
         return np.concatenate((move_mask, shoot_mask, interaction_mask))
+
+    def request_controlled_reset(self, scenario: str) -> bool:
+        """E6: request a rare-scenario restart instead of a natural reset.
+
+        The Lua mod acknowledges the scenario when state injection (A4) is
+        available; until then it falls back to a plain episode reset so the
+        training loop keeps running. Returns True when the scenario hook was
+        accepted, False when it fell back.
+        """
+        try:
+            self._client.send(
+                {"command": "controlled_reset", "scenario": scenario}
+            )
+            return True
+        except (ConnectionError, OSError, TimeoutError, socket.timeout):
+            log.warning(
+                "controlled_reset(%s) not available; falling back to reset",
+                scenario,
+            )
+            return False
 
     def end_episode(self, reason: str = "abandoned"):
         """Explicitly end the current episode (victory / abandon).
