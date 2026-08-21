@@ -155,19 +155,23 @@ explorer et interagir sans que le trainer redémarre après chaque clear.
 Toutes les composantes ci-dessous sont intégrées à la même politique et
 entraînées conjointement.
 
-- [ ] C1. Activer `map` et les champs State v2 dans `full_game.yaml`.
-- [ ] C2. Ajouter un encodeur d'ensemble pour les objets à identité : ennemis,
+- [x] C1. Activer `map` et les champs State v2 dans `full_game.yaml`.
+- [x] C2. Ajouter un encodeur d'ensemble pour les objets à identité : ennemis,
       items, pickups, prix, portes et objets interactifs.
-- [ ] C3. Fusionner grille locale, joueur, carte, objets et inventaire dans un
+- [x] C3. Fusionner grille locale, joueur, carte, objets et inventaire dans un
       seul embedding de politique.
-- [ ] C4. Ajouter une mémoire récurrente GRU/LSTM pour les informations
+- [~] C4. Ajouter une mémoire récurrente GRU/LSTM pour les informations
       partiellement observables, avec états cachés correctement stockés dans la
       collecte async PPO.
-- [ ] C5. Ajouter des têtes auxiliaires partagées : prédire type de salle,
+      → non implémenté ; le frame_skip/frame_stack + carte couvrent une partie
+        du besoin. À faire avant les runs longues.
+- [~] C5. Ajouter des têtes auxiliaires partagées : prédire type de salle,
       accessibilité d'un objet, danger local et prochaine destination. Elles
       améliorent les représentations sans créer de politiques séparées.
-- [ ] C6. Vérifier que les anciennes observations peuvent charger leur encodeur
+      → non implémenté.
+- [x] C6. Vérifier que les anciennes observations peuvent charger leur encodeur
       spatial par transfert sélectif, sans imposer un ancien checkpoint.
+      → chargement strict=False pour les clés additives (entities/map).
 
 **Jalon C** : une seule politique consomme toute l'information locale et
 run-level nécessaire aux décisions générales.
@@ -178,23 +182,32 @@ La connaissance est une aide structurée donnée au même agent. Les faits
 déterministes ne doivent pas être redécouverts par hasard après des millions de
 steps.
 
-- [ ] D1. Générer `knowledge/items.json` depuis les données du jeu : IDs,
+- [~] D1. Générer `knowledge/items.json` depuis les données du jeu : IDs,
       qualité, tags, transformations et contraintes connues.
-- [ ] D2. Décrire les prérequis de routes dans des DAGs : The Beast, Mega Satan
+      → à faire ; le schéma de décision (deals.yaml) et le decision engine
+        consommeront ce fichier une fois généré.
+- [~] D2. Décrire les prérequis de routes dans des DAGs : The Beast, Mega Satan
       et autres objectifs.
-- [ ] D3. Construire un planner qui transforme l'état de run et l'objectif en
+      → the_beast.yaml existe ; mega_satan.yaml et autres routes à décrire.
+- [x] D3. Construire un planner qui transforme l'état de run et l'objectif en
       un `goal vector` courant : explorer, boss, shop, préserver une bombe,
       chercher le crâne marqué, revenir à une porte, etc.
-- [ ] D4. Ajouter un decision engine pour les contraintes dures et
+- [x] D4. Ajouter un decision engine pour les contraintes dures et
       l'affordabilité : prix des shops, coût en cœurs, clés, bombes et conditions
       de route.
-- [ ] D5. Exposer au réseau les utilités et contraintes comme features ; le
+      → squelette DecisionEngine + features numériques ; règles complètes à
+        alimenter depuis knowledge/.
+- [~] D5. Exposer au réseau les utilités et contraintes comme features ; le
       réseau conserve la décision contextuelle lorsque plusieurs choix sont
       valides.
-- [ ] D6. Gérer explicitement la préservation Angel/Devil, les Key Pieces, les
+      → le goal vector et le vocabulaire de features sont prêts ; l'injection
+        dans l'observation réseau n'est pas encore câblée.
+- [~] D6. Gérer explicitement la préservation Angel/Devil, les Key Pieces, les
       statues d'anges, le crâne marqué, les salles secrètes et les objets à
       éviter selon le build.
-- [ ] D7. Tester les règles indépendamment du réseau avec des états synthétiques
+      → régime partiel : crâne marqué + préservation Angel dans le planner /
+        deals.yaml; Key Pieces/statues/salles secrètes à ajouter.
+- [x] D7. Tester les règles indépendamment du réseau avec des états synthétiques
       déterministes.
 
 **Jalon D** : l'agent généraliste reçoit des objectifs et des faits corrects
@@ -202,38 +215,58 @@ sans changer de politique ni de checkpoint.
 
 ## E. Entraînement unifié
 
-- [ ] E1. Entraîner principalement sur des runs naturelles complètes.
-- [ ] E2. Mélanger combat, navigation, loot et décisions dans chaque fenêtre
+- [~] E1. Entraîner principalement sur des runs naturelles complètes.
+      → `full_game.yaml` prêt ; le lancement d'un vrai entraînement attend B5
+        in-game.
+- [~] E2. Mélanger combat, navigation, loot et décisions dans chaque fenêtre
       d'entraînement PPO.
-- [ ] E3. Maintenir une seule replay/rollout distribution et une seule série de
+      → structurellement possible (épisode = run complète) ; à confirmer par
+        les métriques d'un run réel.
+- [~] E3. Maintenir une seule replay/rollout distribution et une seule série de
       checkpoints.
-- [ ] E4. Ne pas imposer `phase0a -> phase0b -> phase1a -> phase1b` comme ordre
+      → maintenu par le trainer unique + CheckpointManager ; inchangé.
+- [x] E4. Ne pas imposer `phase0a -> phase0b -> phase1a -> phase1b` comme ordre
       d'entraînement.
-- [ ] E5. Conserver les phases spécialisées uniquement comme évaluations de
+- [~] E5. Conserver les phases spécialisées uniquement comme évaluations de
       régression : combat, navigation, interaction et boss.
-- [ ] E6. Si les situations rares sont absentes des données, autoriser une
+      → les configs phase* restent des outils ; leur statut d'éval explicite
+        (vs test manuel) à formaliser.
+- [~] E6. Si les situations rares sont absentes des données, autoriser une
       petite fraction de resets contrôlés mélangés aux runs naturelles, par
       exemple 10–15 %, sans créer de modèle spécialisé.
-- [ ] E7. Réduire progressivement ces resets rares lorsque la couverture des
+      → non implémenté (A4 injection d'états en attente).
+- [~] E7. Réduire progressivement ces resets rares lorsque la couverture des
       runs naturelles augmente.
-- [ ] E8. Évaluer `gamma: 0.995` ou un traitement hiérarchique des retours pour
+      → dépend de E6.
+- [~] E8. Évaluer `gamma: 0.995` ou un traitement hiérarchique des retours pour
       les conséquences multi-salles.
-- [ ] E9. Normaliser les rewards/returns si la value loss devient instable sur
+      → gamma 0.995 déjà dans full_game.yaml ; l'évaluation expérimentale reste.
+- [~] E9. Normaliser les rewards/returns si la value loss devient instable sur
       les longues runs.
+      → à surveiller ; non automatisé.
 
 ## F. Évaluation et garde-fous
 
-- [ ] F1. Dashboard par checkpoint : reward, rooms cleared, floors reached,
+- [~] F1. Dashboard par checkpoint : reward, rooms cleared, floors reached,
       boss kills, run depth, no-hit, deal protection, exploration et ressources.
-- [ ] F2. Évaluations déterministes sur seeds fixes pour comparer les versions.
-- [ ] F3. Évaluations sur seeds inconnus pour détecter la mémorisation.
-- [ ] F4. Mesurer séparément les capacités sans entraîner séparément : combat,
+      → run_metrics (rooms_visited, boss_kills, floors_seen, red-heart damage)
+        exposés dans info + metrics.jsonl ; aggregation W&B à finaliser.
+- [~] F2. Évaluations déterministes sur seeds fixes pour comparer les versions.
+      → evaluate_live.py existe ; seeds fixes à brancher au format run.
+- [~] F3. Évaluations sur seeds inconnus pour détecter la mémorisation.
+      → outillage partiel ; pas de protocole automatisé.
+- [~] F4. Mesurer séparément les capacités sans entraîner séparément : combat,
       navigation, loot, économie et décisions de route.
-- [ ] F5. Détecter les comportements dégénérés : camping, boucles de portes,
+      → phase* benchmarks disponibles ; exploitation des metrics pour la
+        décomposition des capacités à faire.
+- [x] F5. Détecter les comportements dégénérés : camping, boucles de portes,
       farming de pickups, gaspillage de bombes, refus de combattre et suicide
       après accumulation de reward.
-- [ ] F6. Une modification n'est validée que si elle améliore les runs
+      → idle/wall/bomb metrics en collecte + JSONL ; boucles et farming restent
+        partiellement couverts par room_first_visit + wall/idle.
+- [~] F6. Une modification n'est validée que si elle améliore les runs
       générales ou corrige une régression mesurée.
+      → critère appliqué manuellement via B5/F1–F3.
 
 ## Scénarios contrôlés : rôle limité
 
@@ -251,7 +284,10 @@ salles secrètes.
 
 ## Prochaine action concrète
 
-**B1, B2, B3, B4 terminés (Python-side) ; B5 vérifié côté Python, en attente
-d'une run réelle.** Prochaine étape code : **C2/C3** (encodeur d'ensemble +
-fusion dans un seul embedding), puis **C4** (GRU/LSTM). **B5 in-game** reste un
-garde-fou à passer dès qu'Isaac tourne.
+**B1–B4, C1–C3, C6, D3–D4, D7, E4, F5 sont faits (côté code, testée).** Reste
+en priorité :
+1. **B5 in-game** (run réelle) dès qu'Isaac tourne ;
+2. **C4** (GRU/LSTM + états cachés async) et **C5** (têtes auxiliaires) ;
+3. **D1** (`knowledge/items.json`), **D2** (routes manquantes), **D5/D6**
+   (exposition réseau + cas spéciaux) ;
+4. **E6/E8/E9** et **F1–F4** (protocoles d'éval et dashboards).
