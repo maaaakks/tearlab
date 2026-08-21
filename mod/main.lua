@@ -520,6 +520,24 @@ function mod:onUpdate()
     ActionInjector.setAction(lastAction)
 end
 
+-- Speedhack: run extra full game updates per rendered frame. Each nested
+-- Game():Update() advances one real game tick (entities, physics, timers,
+-- MC_POST_UPDATE), so x8 processes ~8x ticks per wall-clock second. Render
+-- callbacks do not fire inside nested updates, so this is not re-entrant.
+local function applySpeedHack()
+    local mult = Config.SPEED_MULTIPLIER
+    if mult <= 1 or paused or GameControl.isResetting() then
+        return
+    end
+    local player = Isaac.GetPlayer(0)
+    if not player or player:IsDead() then
+        return
+    end
+    for _ = 1, mult - 1 do
+        Game():Update()
+    end
+end
+
 -- Accept connections and handle configure during non-gameplay states
 function mod:onRender()
     if not serverStarted then
@@ -527,6 +545,8 @@ function mod:onRender()
     end
 
     drawTrainingHud(debugInfo)
+
+    applySpeedHack()
 
     if not server.connected then
         server:acceptClient()

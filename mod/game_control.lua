@@ -293,6 +293,12 @@ function GameControl.configure(settings)
     if settings.frame_skip then
         Config.FRAME_SKIP = settings.frame_skip
     end
+    if settings.speed_multiplier ~= nil then
+        local mult = math.floor(tonumber(settings.speed_multiplier) or 1)
+        if mult < 1 then mult = 1 end
+        if mult > 8 then mult = 8 end
+        Config.SPEED_MULTIPLIER = mult
+    end
     if settings.spawn_enemies ~= nil then
         Config.SPAWN_ENEMIES = settings.spawn_enemies
     end

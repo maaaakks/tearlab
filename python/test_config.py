@@ -46,6 +46,41 @@ class FullRunConfigTests(unittest.TestCase):
         self.assertFalse(config.to_game_settings()["spawn_enemies"])
 
 
+class SpeedMultiplierConfigTests(unittest.TestCase):
+    def test_speed_multiplier_defaults_to_one(self):
+        config = Config()
+        self.assertEqual(config.env.speed_multiplier, 1)
+        self.assertEqual(config.to_game_settings()["speed_multiplier"], 1)
+
+    def test_speed_multiplier_is_wired_and_clamped(self):
+        config = Config()
+        config.env.speed_multiplier = 8
+        self.assertEqual(config.to_game_settings()["speed_multiplier"], 8)
+        config.env.speed_multiplier = 99
+        self.assertEqual(config.to_game_settings()["speed_multiplier"], 8)
+        config.env.speed_multiplier = 0
+        self.assertEqual(config.to_game_settings()["speed_multiplier"], 1)
+
+    def test_load_config_reads_speed_multiplier(self):
+        config_text = textwrap.dedent(
+            """
+            env:
+              speed_multiplier: 4
+            """
+        )
+        with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as handle:
+            handle.write(config_text)
+            path = handle.name
+
+        try:
+            config = load_config(path)
+        finally:
+            os.unlink(path)
+
+        self.assertEqual(config.env.speed_multiplier, 4)
+        self.assertEqual(config.to_game_settings()["speed_multiplier"], 4)
+
+
 class FullGameConfigFileTests(unittest.TestCase):
     def test_full_game_yaml_meets_stage_b_requirements(self):
         repo_root = Path(__file__).resolve().parent.parent
@@ -61,6 +96,25 @@ class FullGameConfigFileTests(unittest.TestCase):
         self.assertGreater(config.env.max_episode_steps, 10_000)
         # E8: multi-room consequences get a longer discount horizon.
         self.assertEqual(config.train.gamma, 0.995)
+        self.assertEqual(config.reward.time_penalty, 0.0)
+        self.assertGreater(config.reward.clear_speed_bonus, 0.0)
+        self.assertLess(config.reward.death_early_penalty, 0.0)
+        self.assertGreater(config.train.aim_aux_coef, 0.0)
+
+
+class UnifiedCombatConfigTests(unittest.TestCase):
+    def test_phase1a_uses_success_conditioned_speed_and_auxiliary_aim(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        config = load_config(str(repo_root / "configs" / "phase1a.yaml"))
+
+        self.assertEqual(config.reward.time_penalty, 0.0)
+        self.assertEqual(config.reward.aim_misalignment_penalty, 0.0)
+        self.assertEqual(config.reward.aim_shoot_no_enemy_penalty, 0.0)
+        self.assertEqual(config.reward.clear_speed_horizon, 150)
+        self.assertLess(config.reward.death_early_penalty, 0.0)
+        self.assertLess(config.reward.timeout_enemy_hp_penalty, 0.0)
+        self.assertGreater(config.train.aim_aux_coef, 0.0)
+        self.assertGreater(config.train.aim_aux_idle_weight, 0.0)
 
 
 if __name__ == "__main__":
