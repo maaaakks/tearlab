@@ -24,6 +24,10 @@ local GRID_SPIKES_ONOFF = 9
 local GRID_POOP = 14
 local GRID_TNT = 12
 local GRID_FIREPLACE = 13
+-- Angel statues are grid entities (GridEntityType.STATUE). Bombing one in an
+-- Angel Room spawns Uriel/Gabriel, whose Key Pieces are a Mega-Satan route
+-- prerequisite. Exposed as identity-bearing objects for the planner (D6).
+local GRID_STATUE = 21
 local GRID_SPIDERWEB = 10
 
 -- Channel indices for the grid observation
@@ -113,6 +117,7 @@ function StateSerializer.serialize(game)
     local gridWidth = room:GetGridWidth()
     local gridSize = room:GetGridSize()
     local specialRocks = {}  -- tinted rocks / marked skulls (identity matters)
+    local angelStatues = {}  -- angel statues (identity + position matter)
     for idx = 0, gridSize - 1 do
         local gx = (idx % gridWidth) + 1
         local gy = math.floor(idx / gridWidth) + 1
@@ -142,6 +147,16 @@ function StateSerializer.serialize(game)
                             })
                         end
                     end
+                elseif gType == GRID_STATUE then
+                    -- Angel statue. The planner targets intact statues for the
+                    -- Mega-Satan Key-Piece route. Key Pieces drop from the
+                    -- spawned angel, not from the grid entity, so we expose the
+                    -- statue itself while it exists in the room.
+                    local wpos = room:GetGridPosition(idx)
+                    table.insert(angelStatues, {
+                        variant = safe(function() return gridEntity.Variant end, 0),
+                        position = {wpos.X, wpos.Y},
+                    })
                 end
             end
         end
@@ -299,6 +314,18 @@ function StateSerializer.serialize(game)
         card_slot = safe(function() return player:GetCard(0) end, 0),
         pill_slot = safe(function() return player:GetPill(0) end, 0),
         trinket_id = safe(function() return player:GetTrinket(0) end, 0),
+        key_pieces_owned = safe(function()
+            return (player:GetCollectibleNum(238) or 0) + (player:GetCollectibleNum(239) or 0)
+        end, 0),
+        quest_items = safe(function()
+            local quest = {}
+            for _, id in ipairs({238, 239, 327, 328, 549}) do
+                if player:GetCollectibleNum(id) and player:GetCollectibleNum(id) > 0 then
+                    table.insert(quest, id)
+                end
+            end
+            return quest
+        end, {}),
         pos_x = playerPosX,
         pos_y = playerPosY,
         nearest_pickup_dx = nearestPickupDxNorm,
@@ -338,6 +365,7 @@ function StateSerializer.serialize(game)
         pickups = pickups,
         pedestal_items = pedestalItems,
         special_rocks = specialRocks,
+        angel_statues = angelStatues,
         doors = doors,
         run = run,
         room_cleared = room:IsClear(),

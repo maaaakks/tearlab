@@ -1,0 +1,48 @@
+# Route definition: SURVIVE
+# The default objective when no specific route is requested: descend natural
+# floors and survive as long as possible. No deal restrictions — hybrid
+# utility decisions are learned, the planner only resolves hard facts.
+
+objective: SURVIVE
+description: >
+  Free-form natural run. Progress floor by floor, fight, explore and improve
+  the build; the policy decides deals/shops contextually.
+
+milestones:
+  - id: clear_floor_1
+    description: Clear any room on the first floor
+    success:
+      condition: room_cleared
+      params: { stage: 1 }
+    reward: 10
+
+  - id: reach_floor_2
+    description: Descend to the second floor
+    success:
+      condition: stage_reached
+      params: { stage: 2 }
+    reward: 30
+
+  - id: reach_floor_3
+    description: Descend to the third floor
+    requires: [reach_floor_2]
+    success:
+      condition: stage_reached
+      params: { stage: 3 }
+    reward: 40
+
+  - id: reach_floor_4
+    description: Descend to the fourth floor
+    requires: [reach_floor_3]
+    success:
+      condition: stage_reached
+      params: { stage: 4 }
+    reward: 50
+
+  - id: defeat_mom
+    description: Defeat Mom
+    requires: [reach_floor_4]
+    success:
+      condition: boss_killed
+      params: { boss: MOM }
+    reward: 100

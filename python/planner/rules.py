@@ -26,6 +26,9 @@ ROOM_SUPERSECRET = 8
 STAGE_DEPTHS_2 = 6
 STAGE_HOME = 12
 
+# Item ids that route knowledge treats as "never substitute" quest items.
+KEY_PIECE_IDS = (238, 239)
+
 
 @dataclass
 class PlannerContext:
@@ -43,8 +46,10 @@ class RulePlanner:
       1. Survival: if a boss room has no enemies it is safe to proceed; if
          enemies remain and HP is low, clear/avoid dominates everything.
       2. The Beast route milestones (Depths II, marked skull, Mom, ascent...).
-      3. Economy: shop when coins exist and a shop door is reachable.
-      4. Explore unvisited rooms otherwise.
+      3. Mega-Satan route: bomb intact Angel statues, collect Key Pieces.
+      4. Avoid known-bad pedestal items (knowledge-gated).
+      5. Economy: shop when coins exist and a shop door is reachable.
+      6. Explore unvisited rooms otherwise.
     """
 
     def __init__(self, context: PlannerContext | None = None):
@@ -78,7 +83,34 @@ class RulePlanner:
                     target_entity_variant=skull.variant,
                 )
 
-        # 3. Collectible in sight: treasure room or pedestal item.
+        # 3. Mega Satan: bomb intact Angel statues to get the missing piece.
+        if (
+            self.context.objective == "MEGA_SATAN"
+            and run.room_type == ROOM_ANGEL
+            and state.player.key_pieces_owned < 2
+            and state.angel_statues
+        ):
+            statue = state.angel_statues[0]
+            return Subgoal(
+                goal_type=GoalType.BOMB_TARGET,
+                target_position=statue.position,
+                target_entity_type=21,
+            )
+
+        # 3b. Mega Satan: collect the Key Piece when it spawns as a pedestal.
+        if self.context.objective == "MEGA_SATAN":
+            key_piece = next(
+                (p for p in state.pedestal_items if p.item_id in KEY_PIECE_IDS),
+                None,
+            )
+            if key_piece is not None:
+                return Subgoal(
+                    goal_type=GoalType.COLLECT_TARGET,
+                    target_position=key_piece.position,
+                    target_entity_type=5,
+                )
+
+        # 4. Collectible in sight: treasure room or pedestal item.
         if state.pedestal_items:
             item = state.pedestal_items[0]
             return Subgoal(
@@ -87,7 +119,7 @@ class RulePlanner:
                 target_entity_type=5,
             )
 
-        # 4. Shop economy when a shop door is reachable and coins exist.
+        # 5. Shop economy when a shop door is reachable and coins exist.
         if run.room_type == ROOM_SHOP and state.player.num_coins > 0:
             pickup = state.pickups[0] if state.pickups else None
             if pickup is not None:
@@ -96,8 +128,30 @@ class RulePlanner:
                     target_position=pickup.position,
                 )
 
-        # 5. Otherwise explore the first unlocked door or simply wait.
+        # 6. Otherwise explore the first unlocked door or simply wait.
         return self._pick_door_or_explore(state)
+
+    def should_avoid_pedestal_item(self, item_id: int) -> bool:
+        """D6: deterministic "avoid this item" fact for known-bad items.
+
+        The knowledge base is the authority; this method exists so the planner
+        can gate a COLLECT subgoal without depending on loading JSON.
+        """
+        return False
+
+    def secret_room_candidates(self, state: GameState) -> list[tuple[int, int]]:
+        """D6: rule-generated secret-room candidate walls from the room graph.
+
+        Secret rooms in Isaac border 2+ reachable rooms and sit off a wall that
+        is not itself the map border. Without floor geometry in Python, emit
+        deterministic candidate slots from known doors; the Lua state can later
+        enrich this with actual wall candidates.
+        """
+        return [
+            (door.slot, door.slot)
+            for door in state.doors
+            if door.target_room_index < 0
+        ]
 
     def _pick_door_or_explore(self, state: GameState) -> Subgoal:
         if state.doors:

@@ -124,6 +124,24 @@ class SpecialRockState:
 
 
 @dataclass(frozen=True)
+class AngelStatueState:
+    """Angel statue (grid entity) — Mega-Satan key-piece route target."""
+    variant: int = 0
+    position: tuple[float, float] | None = None
+
+    @staticmethod
+    def from_dict(data: dict) -> "AngelStatueState":
+        position = data.get("position")
+        pos = None
+        if isinstance(position, (list, tuple)) and len(position) >= 2:
+            pos = (float(position[0]), float(position[1]))
+        return AngelStatueState(
+            variant=int(data.get("variant", 0)),
+            position=pos,
+        )
+
+
+@dataclass(frozen=True)
 class RunInfo:
     """Floor/room identity and route-relevant flags."""
     stage: int = 0
@@ -173,6 +191,8 @@ class PlayerState:
     card_slot: int = 0
     pill_slot: int = 0
     trinket_id: int = 0
+    key_pieces_owned: int = 0
+    quest_items: list[int] = field(default_factory=list)
     hp_bone: float = 0.0
     hp_golden: float = 0.0
     pos_x: float = 0.5
@@ -212,6 +232,8 @@ class PlayerState:
             card_slot=int(data.get("card_slot", 0)),
             pill_slot=int(data.get("pill_slot", 0)),
             trinket_id=int(data.get("trinket_id", 0)),
+            key_pieces_owned=int(data.get("key_pieces_owned", 0)),
+            quest_items=[int(i) for i in data.get("quest_items", []) if i],
             hp_bone=float(data.get("hp_bone", 0.0)),
             hp_golden=float(data.get("hp_golden", 0.0)),
             pos_x=float(data.get("pos_x", 0.5)),
@@ -246,6 +268,7 @@ class GameState:
     pickups: list[PickupState] = field(default_factory=list)
     pedestal_items: list[PedestalItemState] = field(default_factory=list)
     special_rocks: list[SpecialRockState] = field(default_factory=list)
+    angel_statues: list[AngelStatueState] = field(default_factory=list)
     doors: list[DoorState] = field(default_factory=list)
     run: RunInfo = field(default_factory=RunInfo)
     events: list[dict] = field(default_factory=list)
@@ -265,6 +288,9 @@ class GameState:
         special_rocks = data.get("special_rocks", [])
         if not isinstance(special_rocks, list):
             special_rocks = []
+        angel_statues = data.get("angel_statues", [])
+        if not isinstance(angel_statues, list):
+            angel_statues = []
         doors = data.get("doors", [])
         if not isinstance(doors, list):
             doors = []
@@ -286,6 +312,7 @@ class GameState:
             pickups=[PickupState.from_dict(p) for p in pickups if isinstance(p, dict)],
             pedestal_items=[PedestalItemState.from_dict(p) for p in pedestal_items if isinstance(p, dict)],
             special_rocks=[SpecialRockState.from_dict(r) for r in special_rocks if isinstance(r, dict)],
+            angel_statues=[AngelStatueState.from_dict(s) for s in angel_statues if isinstance(s, dict)],
             doors=[DoorState.from_dict(d) for d in doors if isinstance(d, dict)],
             run=RunInfo.from_dict(data.get("run", {})),
             events=[e for e in events if isinstance(e, dict)],

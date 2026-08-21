@@ -1,0 +1,76 @@
+# Route definition: MEGA_SATAN
+# Reach and defeat Mega Satan. This route rewards Angel preservation: taking
+# Devil Deals reduces/removes Angel Room access, which blocks the Key Pieces.
+# The planner treats 0 deals as a hard requirement by default.
+
+objective: MEGA_SATAN
+description: >
+  Defeat Mega Satan in the Dark Room / Chest after opening the golden door
+  by destroying two Angel statues (Key Pieces 1 & 2). Preserve Angel Room
+  access — any Devil Deal forecloses the Key Pieces for this run.
+
+requires_key_pieces: true
+
+milestones:
+  - id: preserve_angel_access
+    description: Take no Devil Deals so Angel Rooms keep spawning
+    success:
+      condition: deal_policy_held
+      params: { max_deals: 0 }
+    reward: 10
+
+  - id: reach_angel_room
+    description: Find and enter an Angel Room
+    success:
+      condition: room_type_reached
+      params: { room_type: 15 }   # ROOM_ANGEL
+    reward: 20
+
+  - id: destroy_first_angel_statue
+    description: Bomb an Angel statue and defeat the angel, collect Key Piece 1
+    success:
+      condition: item_collected
+      params: { item_ids: [238] }
+    reward: 100
+    constraints:
+      min_bombs_before: 1
+
+  - id: destroy_second_angel_statue
+    description: Bomb the second Angel statue, collect Key Piece 2
+    requires: [destroy_first_angel_statue]
+    success:
+      condition: item_collected
+      params: { item_ids: [239] }
+    reward: 100
+    constraints:
+      min_bombs_before: 1
+
+  - id: open_mega_satan_door
+    description: Open the golden door (requires both Key Pieces)
+    requires: [destroy_second_angel_statue]
+    success:
+      condition: door_opened
+      params: { door: MEGA_SATAN_DOOR }
+    reward: 40
+
+  - id: reach_dark_room_or_chest
+    description: Reach the Dark Room (Negative) or Chest (Polaroid)
+    success:
+      condition: stage_reached
+      params: { stage_any_of: [10, 11] }
+    reward: 80
+
+  - id: defeat_mega_satan
+    description: Defeat Mega Satan
+    requires: [open_mega_satan_door]
+    success:
+      condition: boss_killed
+      params: { boss: MEGA_SATAN }
+    reward: 300
+
+  - id: win_the_run
+    description: Finish the run after Mega Satan
+    requires: [defeat_mega_satan]
+    success:
+      condition: game_won
+    reward: 300

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "source": {
+    "generator": "scripts/gen_items_json.py",
+    "note": "Curated strategic subset maintained by hand (quality + tags only). Run scripts/gen_items_json.py --xml <repentance_items.xml> to regenerate the full table from game data when the extracted files are available."
+  },
+  "items": {
+    "84":   {"name": "The Wafer",            "quality": 4, "tags": ["defensive"],                                "transformations": [], "avoid": false},
+    "105":  {"name": "The D6",               "quality": 4, "tags": ["active", "utility", "reroll"],             "transformations": [], "avoid": false},
+    "118":  {"name": "Pinking Shears",       "quality": 3, "tags": ["active", "damage"],                        "transformations": [], "avoid": false},
+    "119":  {"name": "Dead Sea Scrolls",     "quality": 2, "tags": ["active", "utility"],                       "transformations": [], "avoid": false},
+    "158":  {"name": "Crystal Ball",         "quality": 2, "tags": ["active", "vision"],                        "transformations": [], "avoid": false},
+    "169":  {"name": "Polyphemus",           "quality": 4, "tags": ["damage"],                                  "transformations": [], "avoid": false},
+    "182":  {"name": "Sacred Heart",         "quality": 4, "tags": ["damage", "defensive"],                     "transformations": [], "avoid": false},
+    "188":  {"name": "Abaddon",              "quality": 4, "tags": ["damage", "defensive", "devil"],            "transformations": [], "avoid": false},
+    "201":  {"name": "Iron Bar",             "quality": 2, "tags": ["damage"],                                  "transformations": [], "avoid": false},
+    "226":  {"name": "Black Lotus",          "quality": 3, "tags": ["hearts", "utility"],                       "transformations": [], "avoid": false},
+    "238":  {"name": "Key Piece 1",          "quality": 0, "tags": ["quest", "key_piece", "mega_satan"],         "transformations": [], "avoid": false},
+    "239":  {"name": "Key Piece 2",          "quality": 0, "tags": ["quest", "key_piece", "mega_satan"],         "transformations": [], "avoid": false},
+    "327":  {"name": "The Polaroid",         "quality": 0, "tags": ["quest", "zone_access", "the_beast"],        "transformations": [], "avoid": false},
+    "328":  {"name": "The Negative",         "quality": 0, "tags": ["quest", "zone_access", "the_beast"],        "transformations": [], "avoid": false},
+    "386":  {"name": "D100",                 "quality": 3, "tags": ["active", "reroll", "chaotic"],             "transformations": [], "avoid": true},
+    "409":  {"name": "Curse of the Tower",   "quality": 1, "tags": ["defensive", "chaotic", "self_damage"],      "transformations": [], "avoid": true},
+    "549":  {"name": "Dad's Note",           "quality": 0, "tags": ["quest", "the_beast", "ascent"],             "transformations": [], "avoid": false},
+    "552":  {"name": "Glowing Hour Glass",   "quality": 3, "tags": ["active", "utility", "rewind"],             "transformations": [], "avoid": false},
+    "594":  {"name": "Teleport 2.0",         "quality": 3, "tags": ["active", "movement"],                      "transformations": [], "avoid": false}
+  },
+  "transformations": {
+    "guppy": {"item_ids": [144, 145, 146], "tags": ["flight", "utility", "synergy"]},
+    "bookworm": {"item_ids": [33, 34, 37, 74], "tags": ["active", "utility"]}
+  },
+  "tag_registry": [
+    "active", "damage", "defensive", "utility", "reroll", "vision",
+    "hearts", "quest", "key_piece", "mega_satan", "zone_access", "the_beast",
+    "chaotic", "self_damage", "ascent", "rewind", "movement", "devil",
+    "flight", "synergy", "escape", "card"
+  ]
+}
