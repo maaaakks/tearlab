@@ -20,7 +20,7 @@ neural nets handle perception, control, and context-dependent valuation.
 
 ## Stage A — Interfaces (prerequisite for everything)
 
-- [ ] A1. Serialized state v2 (additive, non-breaking):
+- [x] A1. Serialized state v2 (additive, non-breaking):
       stage/curse, room type/shape/index/stable ID, doors + destinations,
       pedestal items {id, price}, pickups {id, subtype}, gridEnt variants
       (tinted rock), inventory (coins/bombs/keys/hearts, active item,
