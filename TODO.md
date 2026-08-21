@@ -83,15 +83,17 @@ pas découvrir le jeu.
 
 ### B2. Cycle de vie salle, étage et run
 
-- [ ] Émettre des événements distincts : `room_entered`, `room_cleared`,
+- [x] Émettre des événements distincts : `room_entered`, `room_cleared`,
       `boss_killed`, `floor_entered`, `floor_cleared`, `run_won`.
-- [ ] Réinitialiser les compteurs room-level au changement de salle : budget
+- [x] Réinitialiser les compteurs room-level au changement de salle : budget
       de dégâts et tracker no-hit.
-- [ ] Conserver les compteurs run-level : salles visitées, boss, inventaire,
+- [x] Conserver les compteurs run-level : salles visitées, boss, inventaire,
       deals, ressources et route.
-- [ ] Réinitialiser RunMemory uniquement au début d'une nouvelle run.
-- [ ] Vérifier les transitions spéciales : boss room, trapdoor, alt path,
+- [x] Réinitialiser RunMemory uniquement au début d'une nouvelle run.
+- [~] Vérifier les transitions spéciales : boss room, trapdoor, alt path,
       Devil/Angel Room, Ascent et Home.
+      → partiellement couvert (boss room); trapdoor/alt/Ascent/Home à valider
+        en jeu (B5).
 
 ### B3. Configuration générale
 
@@ -107,33 +109,43 @@ pas découvrir le jeu.
 
 ### B4. Reward system généraliste
 
-- [ ] Conserver un budget de progression borné par salle, indépendant du
+- [x] Conserver un budget de progression borné par salle, indépendant du
       nombre et des HP des ennemis.
-- [ ] Corriger le calcul des dégâts pour compter le coup final et représenter
+- [x] Corriger le calcul des dégâts pour compter le coup final et représenter
       une vraie fraction de progression, pas seulement saturer le cap au
       premier tir.
-- [ ] Donner le bonus de clear uniquement si Isaac est vivant ; la mort est
+- [x] Donner le bonus de clear uniquement si Isaac est vivant ; la mort est
       prioritaire en cas de mort simultanée avec le dernier ennemi.
-- [ ] Conserver le bonus no-hit room-level.
-- [ ] Ajouter un signal distinct `deal_protected` basé sur les dégâts aux
+- [x] Conserver le bonus no-hit room-level.
+- [x] Ajouter un signal distinct `deal_protected` basé sur les dégâts aux
       cœurs rouges au niveau de l'étage.
-- [ ] Ajouter des rewards bornés pour boss, étage et victoire de run.
-- [ ] Ajouter un petit bonus one-shot pour la première visite d'une salle ;
+- [x] Ajouter des rewards bornés pour boss, étage et victoire de run.
+- [x] Ajouter un petit bonus one-shot pour la première visite d'une salle ;
       aucun reward pour boucler entre deux salles déjà visitées.
-- [ ] Ne pas donner un reward générique à tous les pickups : leur valeur dépend
+- [x] Ne pas donner un reward générique à tous les pickups : leur valeur dépend
       du prix, du besoin, du build et de la route.
-- [ ] Garantir par tests qu'une mort reste négative même après la progression
+      → `pickup_collected` passe à 0 par défaut ; les phases nav legacy
+        l'activent explicitement. L'attribution de valeur contextuelle relève
+        du decision engine D4/D5.
+- [x] Garantir par tests qu'une mort reste négative même après la progression
       maximale autorisée.
 
 ### B5. Validation minimale en jeu
 
-- [ ] Lancer une run naturelle depuis Basement I.
-- [ ] Nettoyer la première salle sans changement d'`episode_id`.
-- [ ] Traverser une porte et vérifier que RunMemory contient les deux salles.
-- [ ] Ramasser un pickup et utiliser une bombe dans la même run.
-- [ ] Changer d'étage sans reset Python/Lua.
-- [ ] Mourir et vérifier qu'une nouvelle run commence avec une mémoire vide.
-- [ ] Enregistrer et reprendre un checkpoint pendant une run multi-salles.
+- [~] Lancer une run naturelle depuis Basement I.
+      → Python-side simulé; run jeu réel à faire manuellement.
+- [~] Nettoyer la première salle sans changement d'`episode_id`.
+      → Python-side simulé; run jeu réel à faire manuellement.
+- [~] Traverser une porte et vérifier que RunMemory contient les deux salles.
+      → Python-side simulé; run jeu réel à faire manuellement.
+- [~] Ramasser un pickup et utiliser une bombe dans la même run.
+      → Python-side simulé; run jeu réel à faire manuellement.
+- [~] Changer d'étage sans reset Python/Lua.
+      → Python-side simulé; run jeu réel à faire manuellement.
+- [~] Mourir et vérifier qu'une nouvelle run commence avec une mémoire vide.
+      → Python-side simulé; run jeu réel à faire manuellement.
+- [~] Enregistrer et reprendre un checkpoint pendant une run multi-salles.
+      → Python-side simulé; run jeu réel à faire manuellement.
 
 **Jalon B** : le même agent peut jouer plusieurs salles naturelles, combattre,
 explorer et interagir sans que le trainer redémarre après chaque clear.
@@ -239,8 +251,7 @@ salles secrètes.
 
 ## Prochaine action concrète
 
-**B1 et B3 sont terminés.** Prochaine étape : **B2** (événements distincts
-`room_entered`/`room_cleared`/`boss_killed`/`floor_entered`/`floor_cleared`/
-`run_won` + cycle de vie salle/étage/run), puis **B4** (reward généraliste
-borné par salle, coup final compté, signaux boss/étage/victoire) avant la
-validation en jeu **B5**.
+**B1, B2, B3, B4 terminés (Python-side) ; B5 vérifié côté Python, en attente
+d'une run réelle.** Prochaine étape code : **C2/C3** (encodeur d'ensemble +
+fusion dans un seul embedding), puis **C4** (GRU/LSTM). **B5 in-game** reste un
+garde-fou à passer dès qu'Isaac tourne.
