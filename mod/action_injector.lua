@@ -77,6 +77,13 @@ function ActionInjector.init()
         BUTTON_TO_KEY[ButtonAction.ACTION_PILLCARD] = "ACTION_PILLCARD"
         INTERACTION_KEYS["ACTION_PILLCARD"] = true
     end
+    local mapped = 0
+    for _ in pairs(KEY_TO_BUTTON) do
+        mapped = mapped + 1
+    end
+    Isaac.ConsoleOutput(
+        "IsaacRL: ActionInjector.init mapped " .. tostring(mapped)
+            .. " button actions\n")
 end
 
 -- DEBUG: set to true to disable shooting (for death testing)

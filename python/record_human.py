@@ -124,6 +124,9 @@ def main():
     total_steps = 0
     started_at = time.monotonic()
     reasons: dict[str, int] = {}
+    # Diagnostics for the zero-action capture bug: distinguish "the mod never
+    # sends an action key" from "it sends one but reads no input".
+    stats = {"received": 0, "missing_action_key": 0, "zero_actions": 0}
 
     def start_episode():
         """Reset per-episode machinery; the caller seeds the first obs."""
@@ -174,6 +177,24 @@ def main():
             ep_reward += reward
             terminated = bool(state.terminal)
 
+            stats["received"] += 1
+            raw = state.raw if isinstance(state.raw, dict) else {}
+            if "action" not in raw:
+                stats["missing_action_key"] += 1
+            elif pending_action == ZERO_ACTION:
+                stats["zero_actions"] += 1
+            if stats["received"] == 30 and (
+                stats["zero_actions"] + stats["missing_action_key"]
+                == stats["received"]
+            ):
+                print(
+                    "\nWARNING: no human input captured after 30 states "
+                    f"({stats['missing_action_key']} missing action key, "
+                    f"{stats['zero_actions']} all-zero). Check the Isaac "
+                    "debug console for 'human input @tick' lines and the "
+                    "ActionInjector mapping count.\n"
+                )
+
             buffers["grid"].append(current_obs["grid"])
             buffers["player"].append(current_obs["player"])
             buffers["entities"].append(current_obs["entities"])
@@ -200,6 +221,16 @@ def main():
     print(f"\nDone: {episode_idx} episodes, {total_steps} steps "
           f"in {minutes:.1f} min -> {out_dir}")
     print(f"Outcomes: {reasons}")
+    print(
+        f"Input capture: {stats['received']} states | "
+        f"{stats['missing_action_key']} missing action key | "
+        f"{stats['zero_actions']} all-zero actions"
+    )
+    if stats["received"] and stats["zero_actions"] + stats[
+        "missing_action_key"
+    ] == stats["received"]:
+        print("!! ALL actions were zero — these episodes are NOT usable for "
+              "world-model training (actions carry no signal).")
 
 
 if __name__ == "__main__":

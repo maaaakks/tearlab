@@ -367,7 +367,17 @@ function mod:onUpdate()
     -- Human demo mode: attach the live input encoding so Python can record
     -- (obs, action) pairs aligned with the agent's action vocabulary.
     if Config.HUMAN_MODE then
-        state.action = ActionInjector.readHumanAction()
+        local humanAction = ActionInjector.readHumanAction()
+        state.action = humanAction
+        -- Runtime diagnostics for the zero-action capture bug.
+        if episodeTick % 90 == 0 then
+            Isaac.ConsoleOutput(string.format(
+                "IsaacRL: human input @tick %d: move=%d shoot=%d bomb=%d "
+                    .. "active=%d pillcard=%d\n",
+                episodeTick,
+                humanAction.move, humanAction.shoot, humanAction.bomb,
+                humanAction.active, humanAction.pillcard))
+        end
     end
 
     -- B2 lifecycle events: one-shot diffs against the last seen room/floor.
