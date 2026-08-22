@@ -108,68 +108,86 @@ def main():
     started_at = time.monotonic()
     total_steps = 0
     reasons: dict[str, int] = {}
+
+    def save_episode(buffers, episode_idx, reason, ep_reward, steps):
+        meta = json.dumps({
+            "episode_reason": reason,
+            "episode_reward": round(ep_reward, 3),
+            "steps": steps,
+            "saved_at": datetime.now(timezone.utc).isoformat(),
+        })
+        path = out_dir / f"episode_{episode_idx:04d}.npz"
+        np.savez_compressed(
+            path,
+            grid=np.asarray(buffers["grid"], dtype=np.float32),
+            player=np.asarray(buffers["player"], dtype=np.float32),
+            entities=np.asarray(buffers["entities"], dtype=np.float32),
+            action=np.asarray(buffers["action"], dtype=np.int64),
+            reward=np.asarray(buffers["reward"], dtype=np.float32),
+            done=np.asarray(buffers["done"], dtype=bool),
+            meta=meta,
+        )
+        reasons[reason] = reasons.get(reason, 0) + 1
+        print(f"[EP {episode_idx:>3}] {reason:<16} steps={steps:>4} "
+              f"reward={ep_reward:+8.2f}")
+
+    episode_idx = 1
+    buffers = {k: [] for k in buffers_template}
+    ep_reward = 0.0
+    steps = 0
     try:
-        for episode_idx in range(1, args.episodes + 1):
-            buffers = {k: [] for k in buffers_template}
+        while episode_idx <= args.episodes:
             obs, _ = env.reset()
             ep_reward = 0.0
             steps = 0
             hidden = None
             done = False
-            reason = "unknown"
-            while not done:
-                tensors = _obs_to_tensors(obs, device)
-                with torch.no_grad():
-                    _value, logits, hidden_out, _aux = policy(tensors, hidden=hidden)
-                if args.stochastic:
-                    action = [int(torch.distributions.Categorical(
-                        logits=head_logits).sample().item())
-                        for head_logits in logits]
-                else:
-                    action = [int(head_logits.argmax(dim=1).item())
-                              for head_logits in logits]
-                if config.phase.mask_shoot:
-                    action[1] = 0
-                if not config.phase.enable_interactions:
-                    action = action[:2] + [0, 0, 0]
+            try:
+                while not done:
+                    tensors = _obs_to_tensors(obs, device)
+                    with torch.no_grad():
+                        _value, logits, hidden_out, _aux = policy(
+                            tensors, hidden=hidden
+                        )
+                    if args.stochastic:
+                        action = [int(torch.distributions.Categorical(
+                            logits=head_logits).sample().item())
+                            for head_logits in logits]
+                    else:
+                        action = [int(head_logits.argmax(dim=1).item())
+                                  for head_logits in logits]
+                    if config.phase.mask_shoot:
+                        action[1] = 0
+                    if not config.phase.enable_interactions:
+                        action = action[:2] + [0, 0, 0]
 
-                buffers["grid"].append(obs["grid"])
-                buffers["player"].append(obs["player"])
-                buffers["entities"].append(obs["entities"])
-                buffers["action"].append(tuple(action))
+                    buffers["grid"].append(obs["grid"])
+                    buffers["player"].append(obs["player"])
+                    buffers["entities"].append(obs["entities"])
+                    buffers["action"].append(tuple(action))
 
-                obs, reward, terminated, truncated, info = env.step(action)
-                # Carry the GRU state only for recurrent policies.
-                hidden = hidden_out if config.train.recurrent else None
-                ep_reward += float(reward)
-                steps += 1
-                total_steps += 1
-                buffers["reward"].append(float(reward))
-                done = terminated or truncated
-                buffers["done"].append(done)
+                    obs, reward, terminated, truncated, info = env.step(action)
+                    # Carry the GRU state only for recurrent policies.
+                    hidden = hidden_out if config.train.recurrent else None
+                    ep_reward += float(reward)
+                    steps += 1
+                    total_steps += 1
+                    buffers["reward"].append(float(reward))
+                    done = terminated or truncated
+                    buffers["done"].append(done)
+            except KeyboardInterrupt:
+                # Stop requested mid-episode: salvage the partial episode.
+                save_episode(buffers, episode_idx, "interrupted",
+                             ep_reward, steps)
+                raise
 
             state = info.get("state")
             reason = str(state.terminal_reason) if state else "unknown"
-            meta = json.dumps({
-                "episode_reason": reason,
-                "episode_reward": round(ep_reward, 3),
-                "steps": steps,
-                "saved_at": datetime.now(timezone.utc).isoformat(),
-            })
-            path = out_dir / f"episode_{episode_idx:04d}.npz"
-            np.savez_compressed(
-                path,
-                grid=np.asarray(buffers["grid"], dtype=np.float32),
-                player=np.asarray(buffers["player"], dtype=np.float32),
-                entities=np.asarray(buffers["entities"], dtype=np.float32),
-                action=np.asarray(buffers["action"], dtype=np.int64),
-                reward=np.asarray(buffers["reward"], dtype=np.float32),
-                done=np.asarray(buffers["done"], dtype=bool),
-                meta=meta,
-            )
-            reasons[reason] = reasons.get(reason, 0) + 1
-            print(f"[EP {episode_idx:>3}] {reason:<16} steps={steps:>4} "
-                  f"reward={ep_reward:+8.2f}")
+            save_episode(buffers, episode_idx, reason, ep_reward, steps)
+            episode_idx += 1
+            buffers = {k: [] for k in buffers_template}
+    except KeyboardInterrupt:
+        print("\nStopped by user.")
     finally:
         env.close()
 
