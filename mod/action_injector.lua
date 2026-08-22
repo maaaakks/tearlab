@@ -164,13 +164,17 @@ end
 -- Read the live (human) input state and encode it into the same action
 -- vocabulary Python uses, so demonstrations align with the agent's action
 -- space. Sampled once per decision tick while HUMAN_MODE is active.
+--
+-- NOTE: must use Input.IsActionPressed here — IsButtonPressed expects
+-- Keyboard enum scancodes, not ButtonAction values (it silently returns
+-- false otherwise; see wofsauge/IsaacDocs Input.md).
 function ActionInjector.readHumanAction()
     local function pressed(key)
         local button = KEY_TO_BUTTON[key]
         if button == nil then
             return false
         end
-        return Input.IsButtonPressed(button, 0)
+        return Input.IsActionPressed(button, 0)
     end
 
     local move = encodeDir(
@@ -188,7 +192,7 @@ function ActionInjector.readHumanAction()
     local active = pressed("ACTION_ITEM") and 1 or 0
     local pillcard = false
     if ButtonAction.ACTION_PILLCARD ~= nil then
-        pillcard = Input.IsButtonPressed(ButtonAction.ACTION_PILLCARD, 0)
+        pillcard = Input.IsActionPressed(ButtonAction.ACTION_PILLCARD, 0)
     end
 
     return {
