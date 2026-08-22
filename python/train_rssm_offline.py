@@ -36,6 +36,12 @@ def parse_args():
     parser.add_argument("--train-steps", type=int, default=20_000)
     parser.add_argument("--lr", type=float, default=3e-4)
     parser.add_argument("--free-nats", type=float, default=3.0)
+    parser.add_argument(
+        "--kl-weight", type=float, default=1.0,
+        help="weight of the KL term; with raw-MSE reconstructions the "
+             "recon gradients are ~100x smaller than KL nats, so values "
+             ">0.1 collapse the posterior instantly",
+    )
     parser.add_argument("--val-fraction", type=float, default=0.1)
     parser.add_argument("--log-every", type=int, default=100)
     parser.add_argument("--save-every", type=int, default=5_000)
@@ -175,6 +181,7 @@ def main():
         max_entities=n_entities,
         entity_dim=entity_dim,
         free_nats=args.free_nats,
+        kl_weight=args.kl_weight,
     ).to(device)
     if args.init_from:
         init_payload = torch.load(args.init_from, map_location=device)
