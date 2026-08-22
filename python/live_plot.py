@@ -251,7 +251,7 @@ class LivePlot(tk.Tk):
         for i in range(tick_count + 1):
             frac = i / tick_count
             gy = y0 + frac * (y1 - y0)
-            value = -y_abs_max + 2 * y_abs_max * frac
+            value = y_abs_max - 2 * y_abs_max * frac
             canvas.create_line(x0, gy, x1, gy, fill=GRID)
             canvas.create_text(
                 x0 - 6, gy, anchor="e", fill=FG,
