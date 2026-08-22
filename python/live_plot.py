@@ -249,11 +249,10 @@ class LivePlot(tk.Tk):
         title_run = self.run_dir.name if self.run_dir else "waiting for a run…"
         if self.last_window:
             title_run += f"   [fenêtre : {self.last_window // 1000}k derniers steps]"
-        n_eps = sum(1 for v in self.last_ep if v == v)
         canvas.create_text(
             x0, 12, anchor="w", fill=FG,
             font=("TkDefaultFont", 11, "bold"),
-            text=f"{title_run}   ({len(self.steps)} updates, {n_eps} episodes)",
+            text=f"{title_run}   ({len(self.steps)} updates)",
         )
 
         if len(self.steps) < 2:
