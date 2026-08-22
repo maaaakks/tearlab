@@ -7,7 +7,7 @@ env:
   frame_stack: 1
   free_running: true
   normalize_player_features: true
-  max_episode_steps: 150  # ~15 seconds at 30 FPS with frame_skip=3
+  max_episode_steps: 300  # ~30 seconds at 30 FPS with frame_skip=3
 
 reward:
   damage_dealt: 1.0
@@ -16,7 +16,7 @@ reward:
   room_cleared: 3.0
   no_hit_bonus: 1.0
   clear_speed_bonus: 1.0
-  clear_speed_horizon: 150
+  clear_speed_horizon: 300
   damage_taken: -0.5
   death: -8.0
   death_early_penalty: -4.0
@@ -51,7 +51,7 @@ train:
 phase:
   enemy_type: 10        # Gaper
   enemy_variant: 0
-  enemy_count: 2
+  enemy_count: 4
   spawn_enemies: true
   random_spawn_positions: true
   spawn_radius_min: 80.0
@@ -62,5 +62,5 @@ phase:
 wandb:
   enabled: true
   project: "binding-of-ai"
-  run_name: "phase1a-1v1-speed4-v3"
-  tags: ["phase1a", "1v1", "speedhack-4x", "unified-policy", "success-speed", "aux-aim"]
+  run_name: "phase1a-4v1-speed12-h30s"
+  tags: ["phase1a", "4v1", "speedhack-12x", "horizon-30s"]
