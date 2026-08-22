@@ -50,6 +50,11 @@ def parse_args():
              "(in-mod speedhack; observations come from game memory so they "
              "stay identical — only wall-clock speeds up)",
     )
+    parser.add_argument(
+        "--enemies", type=int, default=0,
+        help="override phase.enemy_count for this session "
+             "(e.g. match your human-demo scenario)",
+    )
     return parser.parse_args()
 
 
@@ -82,6 +87,9 @@ def main():
     if args.speed:
         config.env.speed_multiplier = max(1, min(64, int(args.speed)))
         print(f"speed_multiplier overridden to {config.env.speed_multiplier}x")
+    if args.enemies:
+        config.phase.enemy_count = int(args.enemies)
+        print(f"enemy_count overridden to {config.phase.enemy_count}")
 
     env = IsaacEnv(config)
     stored_model = checkpoint.get("model", {})
