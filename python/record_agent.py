@@ -44,6 +44,12 @@ def parse_args():
         help="sample actions from the policy distribution instead of argmax "
              "(wider state coverage for world-model training)",
     )
+    parser.add_argument(
+        "--speed", type=int, default=0,
+        help="override env.speed_multiplier for faster collection "
+             "(in-mod speedhack; observations come from game memory so they "
+             "stay identical — only wall-clock speeds up)",
+    )
     return parser.parse_args()
 
 
@@ -73,6 +79,9 @@ def main():
     checkpoint_path = LiveCheckpointManager.resolve_checkpoint(args.checkpoint)
     checkpoint = load_checkpoint(checkpoint_path, device)
     config = resolve_config(checkpoint, args.config)
+    if args.speed:
+        config.env.speed_multiplier = max(1, min(64, int(args.speed)))
+        print(f"speed_multiplier overridden to {config.env.speed_multiplier}x")
 
     env = IsaacEnv(config)
     stored_model = checkpoint.get("model", {})

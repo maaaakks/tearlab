@@ -41,6 +41,10 @@ def parse_args():
     parser.add_argument("--save-every", type=int, default=5_000)
     parser.add_argument("--out", default=None)
     parser.add_argument("--device", default=None)
+    parser.add_argument(
+        "--init-from", default=None,
+        help="worldmodel_*.pt checkpoint to warm-start from (weights only)",
+    )
     return parser.parse_args()
 
 
@@ -172,6 +176,13 @@ def main():
         entity_dim=entity_dim,
         free_nats=args.free_nats,
     ).to(device)
+    if args.init_from:
+        init_payload = torch.load(args.init_from, map_location=device)
+        model.load_state_dict(init_payload["state_dict"])
+        print(
+            f"Warm-started weights from {args.init_from} "
+            f"(checkpoint step {init_payload.get('step', '?')})"
+        )
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
     val_count = max(1, int(len(store.episodes) * args.val_fraction))
