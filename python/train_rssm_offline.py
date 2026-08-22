@@ -185,8 +185,24 @@ def main():
         )
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
-    val_count = max(1, int(len(store.episodes) * args.val_fraction))
-    train_store = store
+    # Held-out split: val windows must come from episodes the model never
+    # trains on, otherwise "val" is just memorization telemetry.
+    import copy
+
+    rng = np.random.default_rng(0)
+    perm = rng.permutation(len(store.episodes))
+    n_val = max(1, int(len(perm) * args.val_fraction))
+    val_indices = set(perm[:n_val].tolist())
+    train_store = copy.copy(store)
+    train_store.episodes = [
+        ep for i, ep in enumerate(store.episodes) if i not in val_indices
+    ]
+    val_store = copy.copy(store)
+    val_store.episodes = [
+        ep for i, ep in enumerate(store.episodes) if i in val_indices
+    ]
+    print(f"split: {len(train_store.episodes)} train / "
+          f"{len(val_store.episodes)} val episodes")
     print(f"device={device} seq={args.seq_len} batch={args.batch_size}")
     print(f"out_dir={out_dir}")
 
@@ -201,7 +217,7 @@ def main():
         optimizer.step()
 
         if step % args.log_every == 0 or step == args.train_steps:
-            val = evaluate(model, store, device, args.batch_size)
+            val = evaluate(model, val_store, device, args.batch_size)
             entry = {
                 "type": "rssm_train",
                 "timestamp": datetime.now(timezone.utc).isoformat(),
