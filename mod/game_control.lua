@@ -320,6 +320,9 @@ function GameControl.configure(settings)
     if settings.full_run ~= nil then
         Config.FULL_RUN = settings.full_run
     end
+    if settings.human_mode ~= nil then
+        Config.HUMAN_MODE = settings.human_mode and true or false
+    end
 end
 
 return GameControl

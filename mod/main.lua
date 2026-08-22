@@ -263,8 +263,7 @@ local function handleMessage(message)
             if message.settings.disable_shooting ~= nil then
                 ActionInjector.setDisableShooting(message.settings.disable_shooting)
             end
-        end
-    elseif message.command == "pause" then
+        end    elseif message.command == "pause" then
         paused = true
         Isaac.ConsoleOutput("IsaacRL[" .. Config.INSTANCE_ID .. "]: Received pause command\n")
     elseif message.command == "resume" then
@@ -364,6 +363,12 @@ function mod:onUpdate()
 
     -- Serialize state
     local state = StateSerializer.serialize(game)
+
+    -- Human demo mode: attach the live input encoding so Python can record
+    -- (obs, action) pairs aligned with the agent's action vocabulary.
+    if Config.HUMAN_MODE then
+        state.action = ActionInjector.readHumanAction()
+    end
 
     -- B2 lifecycle events: one-shot diffs against the last seen room/floor.
     local roomKey = state.run.room_list_index
@@ -492,6 +497,12 @@ function mod:onUpdate()
         return
     end
 
+    if Config.HUMAN_MODE then
+        -- Human drives: no action to receive, nothing to inject. The next
+        -- decision tick re-reads the keyboard.
+        return
+    end
+
     if Config.FREE_RUNNING then
         -- Poll for a new action without ever blocking the game loop.
         while true do
@@ -574,9 +585,10 @@ function mod:onRender()
     end
 end
 
--- Input interception callback
+-- Input interception callback. In human demo mode we return nil everywhere:
+-- the real keyboard drives Isaac and Python only records.
 function mod:onInputAction(entity, inputHook, buttonAction)
-    if not server.connected then
+    if not server.connected or Config.HUMAN_MODE then
         return nil
     end
     return ActionInjector.onInputAction(nil, entity, inputHook, buttonAction)

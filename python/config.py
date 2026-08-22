@@ -20,6 +20,10 @@ class EnvConfig:
     speed_multiplier: int = 1
     frame_stack: int = 1
     free_running: bool = True
+    # Human demonstration mode: the mod stops injecting actions, real keyboard
+    # input drives Isaac, and each outgoing state carries the encoded input so
+    # a recorder can store (obs, action, reward) demonstrations.
+    human_mode: bool = False
     enable_map_memory: bool = False
     # TODO D5: append the planner's goal vector and the decision engine's
     # numeric features as fixed observation vectors. Additive keys — legacy
@@ -240,6 +244,7 @@ class Config:
             "speed_multiplier": max(1, min(64, int(self.env.speed_multiplier))),
             "max_episode_ticks": self.env.max_episode_steps,
             "full_run": self.env.full_run,
+            "human_mode": self.env.human_mode,
         }
 
 

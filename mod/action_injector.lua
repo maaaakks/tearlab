@@ -50,6 +50,7 @@ local SHOOT_MAP = {
 
 -- Map ButtonAction enum values to our string keys
 local BUTTON_TO_KEY = {}
+local KEY_TO_BUTTON = {}     -- reverse map for reading live human input
 local INTERACTION_KEYS = {}  -- set of string keys treated as one-shot
 
 function ActionInjector.init()
@@ -61,6 +62,9 @@ function ActionInjector.init()
     BUTTON_TO_KEY[ButtonAction.ACTION_SHOOTRIGHT] = "ACTION_SHOOTRIGHT"
     BUTTON_TO_KEY[ButtonAction.ACTION_SHOOTUP] = "ACTION_SHOOTUP"
     BUTTON_TO_KEY[ButtonAction.ACTION_SHOOTDOWN] = "ACTION_SHOOTDOWN"
+    for button, key in pairs(BUTTON_TO_KEY) do
+        KEY_TO_BUTTON[key] = button
+    end
     if ButtonAction.ACTION_BOMB ~= nil then
         BUTTON_TO_KEY[ButtonAction.ACTION_BOMB] = "ACTION_BOMB"
         INTERACTION_KEYS["ACTION_BOMB"] = true
@@ -134,6 +138,59 @@ end
 
 function ActionInjector.getAction()
     return currentAction
+end
+
+-- Encode four direction booleans into the 0-8 vocabulary
+-- (0=none, 1=up, 2=down, 3=left, 4=right, 5=UL, 6=UR, 7=DL, 8=DR).
+local function encodeDir(up, down, left, right)
+    if up and left then return 5 end
+    if up and right then return 6 end
+    if down and left then return 7 end
+    if down and right then return 8 end
+    if up then return 1 end
+    if down then return 2 end
+    if left then return 3 end
+    if right then return 4 end
+    return 0
+end
+
+-- Read the live (human) input state and encode it into the same action
+-- vocabulary Python uses, so demonstrations align with the agent's action
+-- space. Sampled once per decision tick while HUMAN_MODE is active.
+function ActionInjector.readHumanAction()
+    local function pressed(key)
+        local button = KEY_TO_BUTTON[key]
+        if button == nil then
+            return false
+        end
+        return Input.IsButtonPressed(button, 0)
+    end
+
+    local move = encodeDir(
+        pressed("ACTION_UP"), pressed("ACTION_DOWN"),
+        pressed("ACTION_LEFT"), pressed("ACTION_RIGHT")
+    )
+    local shoot = encodeDir(
+        pressed("ACTION_SHOOTUP"), pressed("ACTION_SHOOTDOWN"),
+        pressed("ACTION_SHOOTLEFT"), pressed("ACTION_SHOOTRIGHT")
+    )
+
+    -- Interaction dims: report "pressed now". A short human key tap can fall
+    -- between two decision ticks; holding the key ~0.1s guarantees capture.
+    local bomb = pressed("ACTION_BOMB") and 1 or 0
+    local active = pressed("ACTION_ITEM") and 1 or 0
+    local pillcard = false
+    if ButtonAction.ACTION_PILLCARD ~= nil then
+        pillcard = Input.IsButtonPressed(ButtonAction.ACTION_PILLCARD, 0)
+    end
+
+    return {
+        move = move,
+        shoot = ActionInjector.DISABLE_SHOOTING and 0 or shoot,
+        bomb = bomb,
+        active = active,
+        pillcard = pillcard and 1 or 0,
+    }
 end
 
 function ActionInjector.reset()

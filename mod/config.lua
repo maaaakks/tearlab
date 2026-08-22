@@ -26,6 +26,12 @@ Config.FREE_RUNNING = true
 -- global timeout. Set via the configure command (env.full_run).
 Config.FULL_RUN = false
 
+-- Human demonstration mode: Python never sends actions; real keyboard input
+-- drives Isaac. Each decision tick reads the live input state and attaches it
+-- to the outgoing state payload so Python can record (obs, action) demos.
+-- Set via the configure command (env.human_mode).
+Config.HUMAN_MODE = false
+
 -- Room grid dimensions (standard room)
 Config.GRID_WIDTH = 13
 Config.GRID_HEIGHT = 7
