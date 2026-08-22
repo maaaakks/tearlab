@@ -204,8 +204,8 @@ def main():
             with open(out_dir / "metrics.jsonl", "a") as f:
                 f.write(json.dumps(entry) + "\n")
             print(
-                f"[{step:>6}] total={float(losses['total']):7.4f} "
-                f"kl={float(losses['kl']):6.3f} "
+                f"[{step:>6}] total={losses['total'].detach().item():7.4f} "
+                f"kl={losses['kl'].detach().item():6.3f} "
                 f"grid={float(losses['grid_recon']):6.4f} "
                 f"player={float(losses['player_recon']):7.5f} "
                 f"| val_total={val['total']:7.4f} "
