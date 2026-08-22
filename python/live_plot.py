@@ -213,8 +213,9 @@ class LivePlot(tk.Tk):
 
     @property
     def _plot_rect(self):
-        w = max(self.winfo_width(), 100)
-        h = max(self.winfo_height(), 100)
+        # Canvas size (not window): the button bar eats the bottom rows.
+        w = max(self.canvas.winfo_width(), 100)
+        h = max(self.canvas.winfo_height(), 100)
         return (
             self.margin_left,
             self.margin_top,
@@ -315,13 +316,13 @@ class LivePlot(tk.Tk):
                 font=("TkDefaultFont", 9),
             )
             tick += tick_step
-        # vertical gridlines
+        # vertical gridlines, labeled in window coordinates
         for i in range(6):
             frac = i / 5
             gx = x0 + frac * (x1 - x0)
             canvas.create_line(gx, y0, gx, y1, fill=GRID)
-            label = int(max_step * frac)
-            text = f"{label // 1000}k" if label >= 1000 else str(label)
+            label = int(min_step + (max_step - min_step) * frac)
+            text = f"{label // 1000}k" if label >= 10000 else str(label)
             canvas.create_text(
                 gx, y1 + 14, fill=FG, text=text, font=("TkDefaultFont", 9)
             )
@@ -331,7 +332,7 @@ class LivePlot(tk.Tk):
             text="reward", font=("TkDefaultFont", 9),
         )
         canvas.create_text(
-            (x0 + x1) // 2, self.winfo_height() - 10, fill=FG,
+            (x0 + x1) // 2, y1 + 28, fill=FG,
             text="steps", font=("TkDefaultFont", 9),
         )
 
