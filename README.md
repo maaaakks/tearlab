@@ -118,22 +118,80 @@ Rappels pour que la run tourne réellement de bout en bout :
    l'`episode_id` reste stable à travers les clears de salle.
 4. `Ctrl+C` pendant l'entraînement sauvegarde un checkpoint `interrupted`.
 
-### 5. Parallel Launcher / TUI
+### 4b. Évaluation, démos et world model — copier/coller
 
-For multi-instance runs, launch the worker manager first:
+Toutes ces commandes se lancent depuis la racine du projet, Isaac ouvert et le
+mod **IsaacRL** activé.
 
-```powershell
-.venv\Scripts\python python\launcher.py tui --workers 8 --batch-size 4
-```
-
-The TUI monitors worker windows and TCP readiness, and lets you launch batches,
-send start sequences to selected workers, or terminate specific sandboxes.
-
-For the headless worker flow, use:
+#### Évaluer un checkpoint (politique déterministe, sans entraînement)
 
 ```powershell
-.venv\Scripts\python python\launcher.py launch --workers 8 --batch-size 4
+.\.venv\Scripts\python.exe python\evaluate_live.py latest --episodes 20
 ```
+
+- Joue en **argmax** (pas de bruit d'exploration) : c'est LE test de la vraie
+  compétence de l'agent. Le win rate mesuré pendant l'entraînement inclut du
+  sampling stochastique qui paraît erratique à l'écran.
+- `latest` peut être remplacé par un chemin précis
+  `checkpoints\live\<run_id>\periodic_XXXX.pt` ou `run:<wandb_run_id>`.
+- Rapport JSON complet écrit dans `checkpoints\live\<run_id>\evaluations\`.
+
+#### Enregistrer des démos HUMAINES (imitation / données world model)
+
+```powershell
+.\.venv\Scripts\python.exe python\record_human.py --config configs\phase1a-human.yaml --out data\human\session1 --max-episodes 50
+```
+
+- La config `phase1a-human.yaml` active le mode clavier : tu joues, le script
+  enregistre `(obs, action, reward, done)` au format agent.
+- Ctrl+C pour stopper ; chaque épisode devient
+  `data\human\session1\episode_NNNN.npz`.
+- Sans `--max-episodes`, tourne jusqu'au Ctrl+C.
+
+#### Enregistrer des épisodes joués par L'AGENT (world model sans humain)
+
+```powershell
+.\.venv\Scripts\python.exe python\record_agent.py latest --episodes 50 --out data\agent\session1
+```
+
+- Charge le dernier checkpoint PPO, joue des épisodes complets et sauvegarde
+  au format npz identique à `record_human.py`.
+- Par défaut les actions sont **déterministes** (argmax). Ajoutez
+  `--stochastic` pour échantillonner la distribution (couverture d'états plus
+  large pour l'entraînement du world model).
+- Autres checkpoints : chemin `.pt`, dossier de run, ou `run:<id>` — mêmes
+  règles que `evaluate_live.py`.
+
+#### Entraîner le world model (RSSM) offline sur ces enregistrements
+
+```powershell
+.\.venv\Scripts\python.exe python\train_rssm_offline.py --data data\agent\session1 data\human\session1 --train-steps 20000
+```
+
+- Aucune instance Isaac requise : 100 % hors-ligne, GPU utilisé si présent.
+- Accepte plusieurs sources (dossiers ou fichiers npz). Les épisodes plus
+  courts que `--seq-len` (32 défaut) sont ignorés.
+- Métriques train/val dans `<out>\metrics.jsonl`, checkpoints
+  `worldmodel_NNNNNNNN.pt` toutes les 5000 steps.
+
+#### Chaîne complète world model (copier/coller en séquence)
+
+```powershell
+.\.venv\Scripts\python.exe python\record_agent.py latest --stochastic --episodes 50 --out data\agent\s1
+.\.venv\Scripts\python.exe python\train_rssm_offline.py --data data\agent\s1 --train-steps 20000
+```
+
+### 5. Speedhack x4 (single Isaac)
+
+With Isaac closed, install the Cheat Engine watcher once:
+
+```powershell
+.\scripts\install_ce_speedhack_watch.ps1 -Action Install -Speed 4.0 -CheatEngineDir "C:\Program Files\Cheat Engine 7.5" -LaunchCheatEngine
+```
+
+Then open one Isaac window normally and run the usual training command. The
+watcher applies x4 automatically. Keep the window in the background rather
+than minimizing it; `PauseOnFocusLost=0` is sufficient.
 
 ### 6. Monitor
 
@@ -149,44 +207,43 @@ Or enable [Weights & Biases](#weights--biases) in your config for richer experim
 
 | Component | Shape | Description |
 |-----------|-------|-------------|
-| `grid` | `(8, 7, 13)` | 8-channel spatial grid — walls, obstacles, pits, player, enemies (normalized HP), projectiles, pickups, doors |
-| `player` | `(14,)` | HP (red/soul/black), speed, damage, range, fire rate, shot speed, luck, bombs, keys, coins, active item, charge |
+| `grid` | `(10 × frame_stack, 7, 13)` | Walls, obstacles, pits, player, enemies, projectiles and velocity, pickups, doors |
+| `player` | `(22,)` | HP, combat stats, resources, position and nearest pickup/enemy/projectile deltas |
+| `entities` | `(32, 16)` | Fixed object set for enemies, pickups, items, prices, doors and special rocks |
 
-**Actions** (`MultiDiscrete([9, 5])`):
+**Actions** (`MultiDiscrete([9, 9, 2, 2, 2])`):
 
 - **Move (0-8)**: idle, 4 cardinal, 4 diagonal
-- **Shoot (0-4)**: none, up, down, left, right
+- **Shoot (0-8)**: idle, 4 cardinal, 4 diagonal
+- **Interactions**: bomb, active item and card/pill one-shot actions
 
 ## Reward Shaping
 
 Rewards are computed from state diffs each tick:
 
-| Component | Default | Trigger |
+`phase1a.yaml` uses the unified success-conditioned combat objective:
+
+| Component | Value | Trigger |
 |-----------|---------|---------|
-| `damage_dealt` | +1.0 | Per HP of damage dealt to enemies |
-| `enemy_killed` | +5.0 | Per enemy eliminated |
-| `damage_taken` | -10.0 | Each time the player loses HP |
-| `room_cleared` | +20.0 | All enemies in the room are dead |
-| `death` | -50.0 | Player dies |
-| `time_penalty` | -0.1 | Every tick (encourages speed) |
-| `survival_bonus` | 0.0 | Per tick while enemies remain (optional) |
+| Damage progress | `0 → +1` | Fraction of total room HP removed, capped per room |
+| Room clear | `+3` | All enemies dead while Isaac is alive |
+| No-hit clear | `+1` | Room cleared without taking damage |
+| Fast-clear bonus | `0 → +1` | Paid only on clear; decays over 150 room steps |
+| Damage taken | `-0.5` | Per half-heart lost |
+| Death | `-8 → -12` | Earlier deaths are worse |
+| Timeout | `-4 → -6` | Scaled by the fraction of enemy HP left |
+| Continuous time/aim cost | `0` | Long survival is never punished |
 
-All weights are configurable per phase via YAML.
+Aim direction and empty-room shoot-idle behavior are taught to the same policy
+head through a small auxiliary loss. There is no separate aiming model.
 
-## Training Curriculum
+## Unified Training Direction
 
-Training follows a curriculum of increasing difficulty (see [CHECKLIST.md](CHECKLIST.md)):
-
-| Phase | Config | Goal |
-|-------|--------|------|
-| **1a** | `phase1a.yaml` | Kill Gapers — learn to aim and shoot |
-| **1b** | `phase1b.yaml` | Kill Monstro — learn to dodge projectiles |
-| **1c** | `phase1c.yaml` | Multiple mixed enemies — prioritization, kiting |
-| **2** | `phase2.yaml` | Room combat with pickups |
-| **3** | `phase3.yaml` | Single floor navigation |
-| **4** | `phase4.yaml` | Multi-floor runs (Basement to Mom) |
-
-Each phase resumes from the previous checkpoint to transfer learned behavior.
+The target is one generalist policy, one optimizer and one checkpoint history.
+`full_game.yaml` mixes combat, navigation, loot and decisions in natural runs.
+Specialized configs such as `phase1a.yaml` remain reproducible benchmarks; they
+are not mandatory training stages and their checkpoints are not transferred in
+sequence. See [TODO.md](TODO.md) for the current implementation milestones.
 
 ## Configuration
 
@@ -199,14 +256,17 @@ env:
 
 reward:
   damage_dealt: 1.0
-  enemy_killed: 5.0
-  death: -50.0
+  room_cleared: 3.0
+  clear_speed_bonus: 1.0
+  death: -8.0
+  death_early_penalty: -4.0
   # ... all weights configurable
 
 train:
   learning_rate: 0.0003
   total_timesteps: 1000000
-  save_interval: 50000       # Checkpoint frequency
+  aim_aux_coef: 0.10
+  save_interval_seconds: 600
 
 phase:
   enemy_type: 10             # Isaac EntityType (10=Gaper)

@@ -76,12 +76,14 @@ def evaluate(checkpoint_ref: str, config_path: str | None, episodes: int) -> dic
             "Checkpoint preprocessing mismatch: "
             f"stored={stored_preprocessing}, current={current_preprocessing}."
         )
+    stored_model = checkpoint.get("model", {})
     policy = IsaacPolicy(
         env.observation_space,
         env.action_space.nvec.tolist(),
         recurrent=bool(config.train.recurrent),
         recurrent_hidden_size=int(config.train.recurrent_hidden_size),
-        aux_coef=float(config.train.aux_coef),
+        aux_coef=float(stored_model.get("aux_coef", 0.0)),
+        next_state_coef=float(stored_model.get("next_state_coef", 0.0)),
     ).to(device)
     policy.load_state_dict(checkpoint["state_dict"])
     policy.eval()
