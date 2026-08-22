@@ -1358,9 +1358,12 @@ class LivePPOTrainer:
             # plateau can be localized to specific target components.
             ns_component_losses = {}
             if ns_enabled and ns_targets_full is not None:
+                # sample_idx lives on the training device; the numpy action
+                # array must be indexed with host indices.
+                host_idx = sample_idx.cpu().numpy()
                 with torch.no_grad():
                     sample_actions = torch.as_tensor(
-                        action_array[sample_idx],
+                        action_array[host_idx],
                         dtype=torch.long,
                         device=self.device,
                     )
@@ -1369,7 +1372,7 @@ class LivePPOTrainer:
                     )
                 spred = saux.get("next_state") if saux else None
                 if spred is not None:
-                    err = (spred - ns_targets_full[sample_idx]) ** 2
+                    err = (spred - ns_targets_full[host_idx]) ** 2
                     ns_component_losses = {
                         "next_state_loss_player": err[:, 0:2].mean().item(),
                         "next_state_loss_proximity": err[:, 2:8].mean().item(),

@@ -76,14 +76,16 @@ class NextStateHeadUpdateTests(unittest.TestCase):
         action_nvec = [9, 9, 2, 2, 2]
 
         trainer = LivePPOTrainer.__new__(LivePPOTrainer)
+        trainer.device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu"
+        )
         trainer.config = config
-        trainer.device = torch.device("cpu")
         trainer.policy = IsaacPolicy(
             observation_space,
             action_nvec,
             aux_coef=0.05,
             next_state_coef=0.05,
-        )
+        ).to(trainer.device)
         self.assertTrue(trainer.policy.next_state_enabled)
         self.assertIn(
             "aux_next_state.weight",
