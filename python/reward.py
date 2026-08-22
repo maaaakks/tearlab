@@ -32,8 +32,9 @@ class RewardShaper:
         8: (1, 1),
     }
 
-    def __init__(self, config: RewardConfig):
+    def __init__(self, config: RewardConfig, max_episode_steps: int = 0):
         self.config = config
+        self.max_episode_steps = max(0, int(max_episode_steps))
         self.prev_state: GameState | None = None
         self.reward_components = {}
         self._nav_target: tuple[float, float] | None = None
@@ -45,6 +46,7 @@ class RewardShaper:
         self._room_enemy_seeds: set[int] = set()
         self._took_damage_this_room = False
         self._room_key: tuple | None = None
+        self._room_start_tick = 0
 
         # Run-scoped counters (reset only in reset())
         self._visited_rooms: set[tuple] = set()
@@ -66,6 +68,7 @@ class RewardShaper:
         self._room_enemy_seeds = set()
         self._took_damage_this_room = False
         self._room_key = None
+        self._room_start_tick = 0
         self._visited_rooms = set()
         self._boss_kills = 0
         self._floors_seen = 0
@@ -97,6 +100,7 @@ class RewardShaper:
         if self.prev_state is None:
             self.prev_state = state
             self._room_key = self._room_key_of(state)
+            self._room_start_tick = max(0, int(state.episode_tick))
             self._floor_key = self._floor_key_of(state)
             # Seed the room HP pool from the first sighting of this room's
             # enemies so damage fractions are correct from the very first
@@ -188,14 +192,16 @@ class RewardShaper:
 
         # Death is always last so a simultaneous clear cannot mask it.
         if state.player_dead:
-            reward += self.config.death
-            self.reward_components["death"] = self.config.death
+            death_reward = self._death_reward(state)
+            reward += death_reward
+            self.reward_components["death"] = death_reward
 
-        # Timeout (truncation): penalized at least as much as death so that
-        # hiding until timeout is never the optimal strategy.
+        # Timeout (truncation): remaining enemy HP makes untouched-room camping
+        # worse, while survival still ranks above death.
         if state.terminal_reason == "timeout":
-            reward += self.config.timeout_penalty
-            self.reward_components["timeout"] = self.config.timeout_penalty
+            timeout_reward = self._timeout_reward(state)
+            reward += timeout_reward
+            self.reward_components["timeout"] = timeout_reward
 
         self.prev_state = state
         return reward
@@ -214,6 +220,7 @@ class RewardShaper:
             self._room_enemy_seeds = set()
             self._took_damage_this_room = False
             self._room_key = room_key
+            self._room_start_tick = max(0, int(state.episode_tick))
 
             first_visit = room_key not in self._visited_rooms
             self._visited_rooms.add(room_key)
@@ -255,6 +262,16 @@ class RewardShaper:
         if cleared and not state.player_dead:
             reward += self.config.room_cleared
             self.reward_components["room_cleared"] = self.config.room_cleared
+            speed_bonus = self._clear_speed_reward(state)
+            if (
+                speed_bonus != 0.0
+                and not (
+                    self.config.clear_speed_requires_no_hit
+                    and self._took_damage_this_room
+                )
+            ):
+                reward += speed_bonus
+                self.reward_components["clear_speed_bonus"] = speed_bonus
             if (
                 self.config.no_hit_bonus != 0.0
                 and not self._took_damage_this_room
@@ -294,6 +311,41 @@ class RewardShaper:
             self.reward_components["run_won"] = self.config.run_won
 
         return reward
+
+    def _clear_speed_reward(self, state: GameState) -> float:
+        """Success-only urgency: faster clears earn more, failures pay nothing."""
+        bonus = float(self.config.clear_speed_bonus)
+        horizon = int(self.config.clear_speed_horizon)
+        if bonus == 0.0 or horizon <= 0:
+            return 0.0
+        elapsed = max(0, int(state.episode_tick) - self._room_start_tick)
+        progress = min(1.0, elapsed / horizon)
+        return bonus * (1.0 - progress)
+
+    def _death_reward(self, state: GameState) -> float:
+        """Make early death worse without charging the agent for being alive."""
+        reward = float(self.config.death)
+        early = float(self.config.death_early_penalty)
+        if early == 0.0 or self.max_episode_steps <= 0:
+            return reward
+        progress = min(
+            1.0,
+            max(0.0, float(state.episode_tick) / self.max_episode_steps),
+        )
+        return reward + early * (1.0 - progress)
+
+    def _timeout_reward(self, state: GameState) -> float:
+        """Penalize camping in proportion to unfinished enemy HP."""
+        reward = float(self.config.timeout_penalty)
+        hp_penalty = float(self.config.timeout_enemy_hp_penalty)
+        if hp_penalty == 0.0:
+            return reward
+        self._ensure_enemies_seen(state)
+        if self._room_total_hp <= 0.0:
+            return reward
+        remaining_hp = sum(max(0.0, enemy.hp) for enemy in state.enemies)
+        remaining_fraction = min(1.0, remaining_hp / self._room_total_hp)
+        return reward + hp_penalty * remaining_fraction
 
     def _detect_floor_change_from_prev(self, state: GameState) -> bool:
         if self.prev_state is None:

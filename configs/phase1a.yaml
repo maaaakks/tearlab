@@ -3,7 +3,7 @@ env:
   # every 12-15 seconds while keeping several independent episodes per batch.
   n_workers: 1
   frame_skip: 3
-  speed_multiplier: 12
+  speed_multiplier: 1
   frame_stack: 1
   free_running: true
   normalize_player_features: true
@@ -14,10 +14,13 @@ reward:
   damage_progress_cap: 1.0
   enemy_killed: 0.0
   room_cleared: 3.0
-  no_hit_bonus: 1.0
+  # Survival strictly outranks urgency: a damaged clear can never beat a
+  # clean one, and speed only pays on a no-hit room.
+  no_hit_bonus: 2.0
   clear_speed_bonus: 1.0
   clear_speed_horizon: 300
-  damage_taken: -0.5
+  clear_speed_requires_no_hit: true
+  damage_taken: -1.0
   death: -8.0
   death_early_penalty: -4.0
   timeout_penalty: -4.0
@@ -46,6 +49,9 @@ train:
   aim_aux_final: 0.02
   aim_aux_decay_fraction: 0.8
   aim_aux_idle_weight: 0.25
+  # C5 auxiliary heads (room type, danger, next destination, reachability):
+  # supervised lessons every step, independent of RL credit assignment.
+  aux_coef: 0.05
   save_interval_seconds: 300
 
 phase:
@@ -62,5 +68,5 @@ phase:
 wandb:
   enabled: true
   project: "binding-of-ai"
-  run_name: "phase1a-4v1-speed12-h30s"
-  tags: ["phase1a", "4v1", "speedhack-12x", "horizon-30s"]
+  run_name: "phase1a-4v1-speed12-h30s-safety-aux"
+  tags: ["phase1a", "4v1", "speedhack-12x", "horizon-30s", "safety-first", "aux-heads"]

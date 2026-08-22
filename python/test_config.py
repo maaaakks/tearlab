@@ -110,11 +110,17 @@ class UnifiedCombatConfigTests(unittest.TestCase):
         self.assertEqual(config.reward.time_penalty, 0.0)
         self.assertEqual(config.reward.aim_misalignment_penalty, 0.0)
         self.assertEqual(config.reward.aim_shoot_no_enemy_penalty, 0.0)
-        self.assertEqual(config.reward.clear_speed_horizon, 150)
+        # 30s rooms: horizon matches max_episode_steps (300 decisions).
+        self.assertEqual(config.reward.clear_speed_horizon, 300)
+        # Safety-first hierarchy: speed only pays on a no-hit clear.
+        self.assertTrue(config.reward.clear_speed_requires_no_hit)
+        self.assertGreater(config.reward.no_hit_bonus, 1.0)
         self.assertLess(config.reward.death_early_penalty, 0.0)
         self.assertLess(config.reward.timeout_enemy_hp_penalty, 0.0)
         self.assertGreater(config.train.aim_aux_coef, 0.0)
         self.assertGreater(config.train.aim_aux_idle_weight, 0.0)
+        # C5 representation heads active.
+        self.assertGreater(config.train.aux_coef, 0.0)
 
 
 if __name__ == "__main__":

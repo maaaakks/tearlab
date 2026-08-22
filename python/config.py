@@ -53,6 +53,9 @@ class RewardConfig:
     # is never punished and a fast death can never benefit from urgency.
     clear_speed_bonus: float = 0.0
     clear_speed_horizon: int = 0
+    # When true, clear_speed_bonus is granted only if the room was cleared
+    # without taking damage — survival strictly outranks urgency.
+    clear_speed_requires_no_hit: bool = False
     # Penalty per half-heart lost.
     damage_taken: float = -0.5
     # Generic pickup reward is OFF by default: pickup value depends on price,
