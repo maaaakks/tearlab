@@ -321,7 +321,12 @@ function GameControl.configure(settings)
         Config.FULL_RUN = settings.full_run
     end
     if settings.human_mode ~= nil then
-        Config.HUMAN_MODE = settings.human_mode and true or false
+        local newHuman = settings.human_mode and true or false
+        if newHuman ~= Config.HUMAN_MODE then
+            Isaac.ConsoleOutput(
+                "IsaacRL: human_mode = " .. tostring(newHuman) .. "\n")
+        end
+        Config.HUMAN_MODE = newHuman
     end
 end
 
