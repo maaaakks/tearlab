@@ -9,3 +9,4 @@ wandb>=0.15.0
 pillow>=10.0.0
 pywin32>=306
 prompt_toolkit>=3.0.43
+matplotlib>=3.8
