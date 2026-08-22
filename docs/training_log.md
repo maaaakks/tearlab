@@ -160,3 +160,11 @@ This file captures durable lessons from training runs so we can reuse what we le
 - **Policy:** Run x4 for unattended training and ignore artifacts. Drop to x2 or x1 when spectating or recording footage.
 - Also fixed: the speedhack loop previously kept calling `Game():Update()` after an episode reset fired mid-nested-tick; it now breaks when `isResetting()` or the player is gone.
 - Confidence: high on cosmetic-only impact (agent behavior confirmed normal); medium on the exact ~2x threshold.
+
+## 2026-08-22 - n_steps must cover several full episodes
+
+- **Evidence:** With `n_steps: 512` and a 300-step episode horizon (30s rooms), each PPO batch contained ~1.7 episodes. Terminal signals (timeout/death/clear) arrived in irregular waves; the 4v1 run peaked at -9.4 rolling reward @50k then regressed to -11.2 @100k.
+- **Change:** `n_steps: 2048`, `batch_size: 256` (~7 episodes per batch).
+- **Result @100k:** no post-50k regression (-9.49 held vs -11.17), same wall-clock throughput (~160 steps/s). Win rate not yet improved; zero KL early-stops means lr headroom remains.
+- Confidence: medium — single seed, noisy metric; confirm at 200-300k before generalizing.
+- Follow-up: rule of thumb going forward: keep `n_steps` >= 3-5x mean episode length.
