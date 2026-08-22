@@ -52,10 +52,13 @@ train:
   # C5 auxiliary heads (room type, danger, next destination, reachability):
   # supervised lessons every step, independent of RL credit assignment.
   aux_coef: 0.05
-  # S1 world-model probe: next-state summary prediction head. Decision gate:
-  # next_state_loss must drop below 50% of next_state_baseline_var within
-  # ~100k steps before committing to the stage-2 RSSM.
-  next_state_coef: 0.05
+  # S1 world-model probe: next-state summary prediction head. A/B vs
+  # next_state_coef 0.05 (run 20260822_125600): the coef-0.05 ratio plateaued
+  # at ~2-2.5 from 70k steps — mathematically above the chance bound for a
+  # trained conditional predictor, i.e. underfitting, not irreducible noise.
+  # x10 gradient to test whether signal extraction was the bottleneck.
+  # Gate unchanged: next_state_ratio < 0.5 by ~100k.
+  next_state_coef: 0.5
   save_interval_seconds: 300
 
 phase:
@@ -72,5 +75,5 @@ phase:
 wandb:
   enabled: true
   project: "binding-of-ai"
-  run_name: "phase1a-4v1-speed12-h30s-safety-aux-nextstate"
-  tags: ["phase1a", "4v1", "speedhack-12x", "horizon-30s", "safety-first", "aux-heads", "worldmodel-s1"]
+  run_name: "phase1a-4v1-speed12-h30s-safety-aux-nextstate-nscoef05"
+  tags: ["phase1a", "4v1", "speedhack-12x", "horizon-30s", "safety-first", "aux-heads", "worldmodel-s1", "ns-coef05"]

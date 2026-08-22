@@ -1073,6 +1073,7 @@ class LivePPOTrainer:
         )
         ns_targets_full = None
         ns_baseline_var = 0.0
+        ns_group_vars: dict[str, float] = {}
         if ns_enabled:
             try:
                 ns_players = torch.as_tensor(
@@ -1104,6 +1105,20 @@ class LivePPOTrainer:
                 ns_baseline_var = float(
                     ns_targets_full.var(dim=0).mean().item()
                 )
+
+                def _group_var(sl: slice) -> float:
+                    return float(
+                        ns_targets_full[:, sl].var(dim=0).mean().item()
+                    )
+
+                # Per-component chance baselines so each ratio is normalized
+                # by its own scale (player pos deltas and enemy-count deltas
+                # do not share a variance magnitude).
+                ns_group_vars = {
+                    "player": _group_var(slice(0, 2)),
+                    "proximity": _group_var(slice(2, 8)),
+                    "enemies": _group_var(slice(8, 11)),
+                }
             except ValueError as exc:
                 log.warning("Next-state head disabled: %s", exc)
                 ns_enabled = False
@@ -1373,11 +1388,20 @@ class LivePPOTrainer:
                 spred = saux.get("next_state") if saux else None
                 if spred is not None:
                     err = (spred - ns_targets_full[host_idx]) ** 2
-                    ns_component_losses = {
-                        "next_state_loss_player": err[:, 0:2].mean().item(),
-                        "next_state_loss_proximity": err[:, 2:8].mean().item(),
-                        "next_state_loss_enemies": err[:, 8:11].mean().item(),
+                    comp = {
+                        "player": err[:, 0:2].mean().item(),
+                        "proximity": err[:, 2:8].mean().item(),
+                        "enemies": err[:, 8:11].mean().item(),
                     }
+                    ns_component_losses = {
+                        f"next_state_loss_{name}": value
+                        for name, value in comp.items()
+                    }
+                    for name, value in comp.items():
+                        base = ns_group_vars.get(name, 0.0)
+                        ns_component_losses[f"next_state_ratio_{name}"] = (
+                            value / base if base > 1e-12 else 0.0
+                        )
 
             return {
                 "pi_loss": stats["pi_loss"] / u,
