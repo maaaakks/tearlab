@@ -13,6 +13,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import bisect
 import json
 import sys
 import time
@@ -38,19 +39,20 @@ MAX_POINTS = 4000  # downsample beyond this to keep redraws cheap
 
 
 def resolve_run_dir(run: str | None) -> Path | None:
-    """run_id directory, or the one pointed at by latest.json."""
+    """Pinned run_id, else the run whose metrics.jsonl was written last."""
     if run:
         candidate = LIVE_ROOT / run
         return candidate if candidate.is_dir() else None
-    pointer = LIVE_ROOT / "latest.json"
-    if not pointer.is_file():
-        return None
-    try:
-        data = json.loads(pointer.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return None
-    candidate = LIVE_ROOT / str(data.get("path", "")).split("/")[0]
-    return candidate if candidate.is_dir() else None
+    best, best_mtime = None, -1.0
+    for metrics in LIVE_ROOT.glob("*/metrics.jsonl"):
+        try:
+            mtime = metrics.stat().st_mtime
+        except OSError:
+            continue
+        if mtime > best_mtime:
+            best_mtime = mtime
+            best = metrics.parent
+    return best
 
 
 class MetricsTail:
@@ -93,13 +95,20 @@ class LivePlot(tk.Tk):
     margin_left, margin_right = 64, 16
     margin_top, margin_bottom = 28, 40
 
-    def __init__(self, run: str | None, poll_seconds: float, show_win_rate: bool):
+    def __init__(
+        self,
+        run: str | None,
+        poll_seconds: float,
+        show_win_rate: bool,
+        last_window: int | None = None,
+    ):
         super().__init__()
         self.title("live training — binding-of-ai")
         self.geometry("900x520")
         self.configure(bg=BG)
         self.poll_seconds = poll_seconds
         self.show_win_rate = show_win_rate
+        self.last_window = last_window  # only plot the trailing N steps
         self.run_arg = run
 
         self.run_dir: Path | None = None
@@ -207,6 +216,8 @@ class LivePlot(tk.Tk):
         x0, y0, x1, y1 = self._plot_rect
 
         title_run = self.run_dir.name if self.run_dir else "waiting for a run…"
+        if self.last_window:
+            title_run += f"   [fenêtre : {self.last_window // 1000}k derniers steps]"
         n_eps = sum(1 for v in self.last_ep if v == v)
         canvas.create_text(
             x0, 12, anchor="w", fill=FG,
@@ -231,16 +242,28 @@ class LivePlot(tk.Tk):
             )
             return
 
-        max_step = max(self.steps)
-        x_scale = (x1 - x0) / max(1, max_step)
+        # Sliding window: only the trailing `last_window` steps are drawn.
+        if self.last_window and len(self.steps) > 2:
+            cutoff = self.steps[-1] - self.last_window
+            lo = bisect.bisect_left(self.steps, cutoff)
+        else:
+            lo = 0
+        steps = self.steps[lo:]
+        rolling = self.rolling[lo:]
+        last_ep = self.last_ep[lo:]
+        win_rate = self.win_rate[lo:]
 
-        _, clean_rolling = self._clean(self.rolling)
-        _, clean_last = self._clean(self.last_ep)
+        max_step = steps[-1]
+        min_step = steps[0]
+        x_scale = (x1 - x0) / max(1, max_step - min_step)
+
+        _, clean_rolling = self._clean(rolling)
+        _, clean_last = self._clean(last_ep)
         candidates = [abs(v) for v in clean_rolling + clean_last if v != 0]
         y_abs_max = self._nice_max(max(candidates) * 1.1 if candidates else 1.0)
 
         def px(step):
-            return x0 + step * x_scale
+            return x0 + (step - min_step) * x_scale
 
         def py(value):
             span = y1 - y0
@@ -281,26 +304,26 @@ class LivePlot(tk.Tk):
         def draw_series(values, color, width):
             pts = [
                 (px(s), py(v))
-                for s, v in zip(self.steps, values)
+                for s, v in zip(steps, values)
                 if v == v
             ]
             if len(pts) >= 2:
                 flat = [c for point in pts for c in point]
                 canvas.create_line(*flat, fill=color, width=width)
 
-        draw_series(self.last_ep, EPISODE_COLOR, 1)
-        draw_series(self.rolling, ROLLING_COLOR, 2)
+        draw_series(last_ep, EPISODE_COLOR, 1)
+        draw_series(rolling, ROLLING_COLOR, 2)
 
-        if self.show_win_rate and any(v == v for v in self.win_rate):
+        if self.show_win_rate and any(v == v for v in win_rate):
             wr_pts = []
-            for s, v in zip(self.steps, self.win_rate):
+            for s, v in zip(steps, win_rate):
                 if v == v:
                     wy = y1 - v * (y1 - y0)
                     wr_pts.append((px(s), wy))
             if len(wr_pts) >= 2:
                 flat = [c for point in wr_pts for c in point]
                 canvas.create_line(*flat, fill=WINRATE_COLOR, width=1, dash=(4, 3))
-            current_wr = next((v for v in reversed(self.win_rate) if v == v), None)
+            current_wr = next((v for v in reversed(win_rate) if v == v), None)
             if current_wr is not None:
                 canvas.create_text(
                     x1, y0 - 8, anchor="e", fill=WINRATE_COLOR,
@@ -346,6 +369,13 @@ def main():
     parser.add_argument("--run", default=None, help="run_id under checkpoints/live/")
     parser.add_argument("--interval", type=float, default=1.0, help="poll seconds")
     parser.add_argument("--win-rate", action="store_true", help="overlay win rate")
+    parser.add_argument(
+        "--last",
+        type=int,
+        default=None,
+        metavar="STEPS",
+        help="only plot the trailing STEPS (e.g. --last 100000)",
+    )
     args = parser.parse_args()
 
     if tk is None:
@@ -356,7 +386,7 @@ def main():
         )
         return 1
 
-    app = LivePlot(args.run, args.interval, args.win_rate)
+    app = LivePlot(args.run, args.interval, args.win_rate, args.last)
     app.mainloop()
 
 
