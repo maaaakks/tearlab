@@ -215,10 +215,19 @@ class LivePlot(tk.Tk):
         )
 
         if len(self.steps) < 2:
+            if self.tail is None:
+                status = f"aucun run avec metrics.jsonl sous {LIVE_ROOT}"
+            else:
+                try:
+                    size = self.tail.path.stat().st_size
+                    status = f"{self.tail.path} ({size} octets)"
+                except OSError:
+                    status = f"introuvable : {self.tail.path}"
             canvas.create_text(
                 (x0 + x1) // 2, (y0 + y1) // 2, fill="#616e88",
-                text="en attente de metrics.jsonl…",
+                text="en attente de metrics.jsonl…\n" + status,
                 font=("TkDefaultFont", 12),
+                justify="center",
             )
             return
 
