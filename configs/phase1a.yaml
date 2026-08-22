@@ -64,7 +64,9 @@ train:
 phase:
   enemy_type: 10        # Gaper
   enemy_variant: 0
-  enemy_count: 4
+  # Curriculum: 2v1 first to densify wins/signal, then 3v1, then back to 4v1.
+  # Resumed from the 150k nscoef05 4v1 checkpoint.
+  enemy_count: 2
   spawn_enemies: true
   random_spawn_positions: true
   spawn_radius_min: 80.0
@@ -75,5 +77,5 @@ phase:
 wandb:
   enabled: true
   project: "binding-of-ai"
-  run_name: "phase1a-4v1-speed12-h30s-safety-aux-nextstate-nscoef05"
-  tags: ["phase1a", "4v1", "speedhack-12x", "horizon-30s", "safety-first", "aux-heads", "worldmodel-s1", "ns-coef05"]
+  run_name: "phase1a-2v1-nscoef05-curriculum"
+  tags: ["phase1a", "2v1", "speedhack-12x", "horizon-30s", "safety-first", "aux-heads", "worldmodel-s1", "ns-coef05", "curriculum"]
