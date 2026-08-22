@@ -72,16 +72,69 @@ tokenizer + transformer causal si on passe un jour aux pixels.
 
 ## Jalons / critères de succès
 
-| Jalon | Critère |
-|---|---|
-| S1 | next-state loss < 50 % du baseline hasard après 100k steps |
-| S2 | rollouts imaginés à 10 steps restent cohérents visuellement |
-| S3 | politique imaginée ≥ politique PPO réel à budget de pas réel égal |
+| Jalon | Critère | Résultat (2026-08-22) |
+|---|---|---|
+| S1 | next-state loss < 50 % du baseline hasard après 100k steps | ❌ ratio plateau ~1.07 (>1 = hasard) |
+| S2 | rollouts imaginés à 10 steps restent cohérents visuellement | ❌ imagination 3x pire que la persistance |
+| S3 | politique imaginée ≥ politique PPO réel à budget de pas réel égal | non testé — bloqué par S2 |
+
+## Bilan S1+S2 (2026-08-22) — verdict : goulot = espace d'observation
+
+Chaîne complète construite et opérationnelle : tête `next_state` live
+(`next_state_coef`), recorder agent/humain npz, RSSM compact offline
+(`train_rssm_offline.py`), courbes (`plot_rssm.py`), rollouts imaginés
+rendus (`visualize_rssm.py`). Le pipeline tourne de bout en bout en <1h.
+C'est l'actif principal de cette itération : tout re-test post-enrichissement
+d'obs coûtera une heure, pas une semaine.
+
+### Ce qui a été mesuré
+
+- **S1 live (tête next_state sur tronc PPO)** : v1 plateaud à ratio ≈ 1.0
+  car l'action n'était pas en entrée (bug corrigé v2 : one-hot action + cibles
+  delta). v2 avec coef 0.05 puis 0.5 : descente nette puis **plateau à
+  ~1.06-1.10 dès ~70k** (run nscoef05, 290k steps). Ratio > 1 = sous le
+  hasard mathématiquement impossible pour un prédicteur conditionnel convergé
+  → le tronc PPO n'encode pas la dynamique, même gratuitement.
+- **S2 offline (RSSM compact, 40k transitions agent+hummain)** :
+  - posterior teacher-forced : player_recon 0.0145 → ~0.002 ✓ (la position
+    est extractible), mais val_grid ≈ 0.0044 vs hasard 0.0048 (marge).
+  - chemin stochastique : collapse structurel du posterior (kl ≡ 0) — z est
+    redondant car h contient déjà les embeds. Trois calibrations essayées
+    (free-nats 3→0, kl_weight 1.0→0.05) : le collapse persiste. Ce n'est pas
+    un problème de poids, c'est architecturalement décoratif à cette échelle
+    d'obs.
+  - **imagination prior-only 10 steps : MSE pos joueur 0.078 vs persistance
+    0.026 (8 défaites / 10 épisodes)**. Le jalon S2 est raté.
+
+### Interprétation
+
+Deux modèles d'architectures différentes (tronc PPO + tête linéaire ; RSSM
+dédié offline) échouent tous les deux à prédire la dynamique depuis ces
+observations. Le problème n'est ni l'algorithme ni le training : c'est
+l'information disponible en entrée. Suspects identifiés, par ordre probable :
+
+1. `frame_stack=1` : vitesses des ennemis non observables → leur position
+   future est quasi indépendante de l'état courant.
+2. Pas de tailles/rayons d'entités → impossible d'anticiper un contact.
+3. Grille 13×7 : discrétisation grossière des positions.
+
+### Décision
+
+- **Ne PAS adopter TD-MPC2** : changer de famille d'algo n'ajoute pas
+  d'information absente des observations. Notre RSSM déterministe-de-facto
+  est l'équivalent local suffisant quand l'obs sera riche.
+- **Ne PAS abandonner le world model** : le pipeline offline est bon marché,
+  il re-juge en une heure toute amélioration d'obs.
+- **Le PPO+curriculum reste la ligne principale** (il tourne déjà ; c'est lui
+  qui a produit les vrais gains : win rate 2v1 0.65).
+- **Prochaine itération = enrichissement d'obs**, dans cet ordre :
+  1. colonne rayon dans les entités (cols réservées 13–15, zéro impact wire)
+  2. vitesses ennemis (nouvelles cols ou frame_stack>1)
+  3. re-test : `record_agent --stochastic` → `train_rssm_offline` →
+     `visualize_rssm`, critère inchangé (battre la persistance à 10 steps).
 
 ## Prochaines actions concrètes
 
-1. Finir la collecte de démos humaines (≥ 50 épisodes propres)
-2. Script d'imitation warm-start (behavior cloning) → `pretrain_bc.py`
-3. Reprendre phase1a avec le checkpoint pré-entraîné (baseline comparatif)
+
 4. Implémenter la tête S1 `next_state`
 5. Décision S2 sur la base de la courbe de prédiction
