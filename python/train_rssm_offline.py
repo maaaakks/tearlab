@@ -233,8 +233,8 @@ def main():
             print(
                 f"[{step:>6}] total={losses['total'].detach().item():7.4f} "
                 f"kl={losses['kl'].detach().item():6.3f} "
-                f"grid={float(losses['grid_recon']):6.4f} "
-                f"player={float(losses['player_recon']):7.5f} "
+                f"grid={losses['grid_recon'].detach().item():6.4f} "
+                f"player={losses['player_recon'].detach().item():7.5f} "
                 f"| val_total={val['total']:7.4f} "
                 f"val_grid={val['grid_recon']:6.4f}"
             )
