@@ -19,6 +19,10 @@ local pickupsCollected = 0
 local lastAction = {move = 0, shoot = 0}
 local paused = false
 local debugInfo = nil  -- compact training HUD payload from Python
+-- Human-mode input-capture diagnostics.
+local humanTotalSamples = 0
+local humanNonZeroSamples = 0
+local humanLastNonZero = nil
 -- Explicit end-of-episode request from Python (victory / abandon). Consumed by
 -- the terminal detection and cleared on the next run start.
 local requestedTerminalReason = nil
@@ -232,6 +236,9 @@ function mod:onGameStart(isContinue)
     episodeId = episodeId + 1
     episodeTick = 0
     hadEnemies = false
+    humanTotalSamples = 0
+    humanNonZeroSamples = 0
+    humanLastNonZero = nil
     local player = Isaac.GetPlayer(0)
     episodeStartCoins = player and player:GetNumCoins() or 0
     pickupsCollected = 0
@@ -369,14 +376,24 @@ function mod:onUpdate()
     if Config.HUMAN_MODE then
         local humanAction = ActionInjector.readHumanAction()
         state.action = humanAction
-        -- Runtime diagnostics for the zero-action capture bug.
-        if episodeTick % 90 == 0 then
+        -- Runtime diagnostics for the zero-action capture bug: cumulative
+        -- counters so a single key press anywhere in the episode shows up,
+        -- even in short episodes that never reach the periodic print tick.
+        humanTotalSamples = humanTotalSamples + 1
+        local nz = (humanAction.move ~= 0 or humanAction.shoot ~= 0
+            or humanAction.bomb ~= 0 or humanAction.active ~= 0
+            or humanAction.pillcard ~= 0)
+        if nz then
+            humanNonZeroSamples = humanNonZeroSamples + 1
+            humanLastNonZero = string.format("m%d s%d b%d",
+                humanAction.move, humanAction.shoot, humanAction.bomb)
+        end
+        if episodeTick % 45 == 0 or episodeTick == 1 then
             Isaac.ConsoleOutput(string.format(
-                "IsaacRL: human input @tick %d: move=%d shoot=%d bomb=%d "
-                    .. "active=%d pillcard=%d\n",
-                episodeTick,
-                humanAction.move, humanAction.shoot, humanAction.bomb,
-                humanAction.active, humanAction.pillcard))
+                "IsaacRL: human capture @tick %d: %d/%d non-zero "
+                    .. "(last: %s)\n",
+                episodeTick, humanNonZeroSamples, humanTotalSamples,
+                tostring(humanLastNonZero)))
         end
     end
 
