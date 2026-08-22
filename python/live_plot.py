@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import bisect
 import json
+import math
 import sys
 import time
 from pathlib import Path
@@ -125,7 +126,34 @@ class LivePlot(tk.Tk):
         self.canvas.pack(fill="both", expand=True)
         self.canvas.bind("<Configure>", lambda _e: self.redraw())
 
+        bar = tk.Frame(self, bg=BG)
+        bar.pack(fill="x", side="bottom")
+        self.window_buttons = {}
+        for label, value in (
+            ("tout", None), ("100k", 100_000), ("50k", 50_000), ("10k", 10_000)
+        ):
+            btn = tk.Button(
+                bar, text=label, bd=0, padx=12, pady=2,
+                bg=BG, fg=FG, activebackground=GRID,
+                font=("TkDefaultFont", 9),
+                command=lambda v=value: self.set_window(v),
+            )
+            btn.pack(side="left", padx=(6, 0), pady=5)
+            self.window_buttons[value] = btn
+        self._style_window_buttons()
+
         self.after(500, self._poll_loop)
+
+    def set_window(self, value):
+        self.last_window = value
+        self._style_window_buttons()
+        self.redraw()
+
+    def _style_window_buttons(self):
+        for value, btn in self.window_buttons.items():
+            active = value == self.last_window
+            btn.configure(bg=ROLLING_COLOR if active else BG,
+                          fg=BG if active else FG)
 
     def _poll_loop(self):
         try:
@@ -195,15 +223,17 @@ class LivePlot(tk.Tk):
         )
 
     @staticmethod
-    def _nice_max(value: float) -> float:
-        if value <= 0:
+    def _nice_tick(span: float) -> float:
+        """Pleasant gridline spacing covering `span` with ~8 ticks."""
+        if span <= 0:
             return 1.0
-        exponent = 10 ** int(f"{value:.0e}".split("e")[1])
+        raw = span / 8
+        magnitude = 10 ** math.floor(math.log10(raw))
         for factor in (1.0, 2.0, 2.5, 5.0, 10.0):
-            limit = factor * exponent
-            if limit >= value:
-                return limit
-        return 10.0 * exponent
+            tick = factor * magnitude
+            if tick >= raw:
+                return tick
+        return 10.0 * magnitude
 
     @staticmethod
     def _clean(series: list[float]) -> tuple[list[int], list[float]]:
@@ -259,28 +289,32 @@ class LivePlot(tk.Tk):
 
         _, clean_rolling = self._clean(rolling)
         _, clean_last = self._clean(last_ep)
-        candidates = [abs(v) for v in clean_rolling + clean_last if v != 0]
-        y_abs_max = self._nice_max(max(candidates) * 1.1 if candidates else 1.0)
+        values = clean_rolling + clean_last
+        if values:
+            vmin, vmax = min(values), max(values)
+        else:
+            vmin, vmax = -1.0, 1.0
+        pad = max(0.5, (vmax - vmin) * 0.15)
+        ymin, ymax = vmin - pad, vmax + pad
 
         def px(step):
             return x0 + (step - min_step) * x_scale
 
         def py(value):
-            span = y1 - y0
-            return y1 - (value + y_abs_max) / (2 * y_abs_max) * span
+            return y1 - (value - ymin) / max(1e-9, ymax - ymin) * (y1 - y0)
 
-        # horizontal gridlines every nice tick
-        tick_count = 8
-        for i in range(tick_count + 1):
-            frac = i / tick_count
-            gy = y0 + frac * (y1 - y0)
-            value = y_abs_max - 2 * y_abs_max * frac
+        # horizontal gridlines at pleasant intervals across the data range
+        tick_step = self._nice_tick(ymax - ymin)
+        tick = math.ceil(ymin / tick_step) * tick_step
+        while tick <= ymax + 1e-9:
+            gy = py(tick)
             canvas.create_line(x0, gy, x1, gy, fill=GRID)
             canvas.create_text(
                 x0 - 6, gy, anchor="e", fill=FG,
-                text=f"{value:+.0f}" if abs(y_abs_max) >= 10 else f"{value:+.1f}",
+                text=f"{tick:+.0f}" if tick_step >= 1 else f"{tick:+.1f}",
                 font=("TkDefaultFont", 9),
             )
+            tick += tick_step
         # vertical gridlines
         for i in range(6):
             frac = i / 5
