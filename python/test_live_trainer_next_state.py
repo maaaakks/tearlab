@@ -171,10 +171,55 @@ class NextStateHeadUpdateTests(unittest.TestCase):
         self.assertIsNotNone(metrics)
         self.assertIn("next_state_loss", metrics)
         self.assertIn("next_state_baseline_var", metrics)
+        for key in (
+            "next_state_loss_player",
+            "next_state_loss_proximity",
+            "next_state_loss_enemies",
+        ):
+            self.assertIn(key, metrics)
+            self.assertGreaterEqual(metrics[key], 0.0)
         self.assertGreater(metrics["next_state_loss"], 0.0)
         self.assertTrue(np.isfinite(metrics["next_state_loss"]))
         self.assertGreater(metrics["next_state_baseline_var"], 0.0)
         self.assertGreater(metrics["next_state_ratio"], 0.0)
+
+    def test_prediction_depends_on_the_taken_action(self):
+        observation_space = _make_observation_space()
+        torch.manual_seed(0)
+        policy = IsaacPolicy(
+            observation_space, [9, 9, 2, 2, 2], next_state_coef=0.05
+        )
+        obs = {
+            key: torch.as_tensor(space.sample()).unsqueeze(0)
+            for key, space in observation_space.spaces.items()
+        }
+        actions_a = torch.tensor([[1, 2, 0, 1, 0]])
+        actions_b = torch.tensor([[8, 5, 1, 0, 1]])
+
+        policy.eval()
+        with torch.no_grad():
+            _v, _l, _h, aux_a = policy(obs, actions=actions_a)
+            _v, _l, _h, aux_b = policy(obs, actions=actions_b)
+
+        # f(state, action): identical state + different action must give a
+        # different prediction (this was the v1 plateau bug).
+        self.assertFalse(
+            torch.allclose(aux_a["next_state"], aux_b["next_state"])
+        )
+
+    def test_forward_without_actions_omits_next_state(self):
+        observation_space = _make_observation_space()
+        policy = IsaacPolicy(
+            observation_space, [9, 9, 2, 2, 2], next_state_coef=0.05
+        )
+        obs = {
+            key: torch.as_tensor(space.sample()).unsqueeze(0)
+            for key, space in observation_space.spaces.items()
+        }
+        with torch.no_grad():
+            _v, _l, _h, aux = policy(obs)
+        # Action-free inference (collector path) has no next-state to predict.
+        self.assertIsNone(aux)
 
     def test_head_disabled_without_coefficient(self):
         observation_space = _make_observation_space()

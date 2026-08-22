@@ -97,9 +97,15 @@ class IsaacPolicy(nn.Module):
             self.aux_reachable = nn.Linear(shared_dim, 1)
 
         if self.next_state_enabled:
+            # S1 v2: input is [pi features | one-hot taken action] — the doc
+            # asks for f(state, action); without action conditioning the best
+            # achievable prediction is the transition marginal mean, which is
+            # exactly the chance baseline (observed: ratio plateau at 1.0).
             # Additive head: legacy checkpoints resume with fresh weights here
             # via _adapt_state_dict + load_state_dict(strict=False).
-            self.aux_next_state = nn.Linear(hidden[-1], self.NEXT_STATE_DIM)
+            self.aux_next_state = nn.Linear(
+                hidden[-1] + sum(self.action_nvec), self.NEXT_STATE_DIM
+            )
 
     @staticmethod
     def _mlp(in_dim, hidden):
@@ -114,7 +120,14 @@ class IsaacPolicy(nn.Module):
     def _new_hidden(batch_size: int, hidden_size: int, device) -> torch.Tensor:
         return torch.zeros(1, batch_size, hidden_size, device=device)
 
-    def forward(self, obs, hidden=None):
+    def _one_hot_actions(self, actions: torch.Tensor) -> torch.Tensor:
+        """(B, K) LongTensor -> flat float one-hot (B, sum(nvec))."""
+        parts = []
+        for k, n in enumerate(self.action_nvec):
+            parts.append(torch.nn.functional.one_hot(actions[:, k], n).float())
+        return torch.cat(parts, dim=-1)
+
+    def forward(self, obs, hidden=None, actions=None):
         feat = self.features(obs)  # (B, F)
         if self.recurrent:
             if hidden is None:
@@ -134,19 +147,21 @@ class IsaacPolicy(nn.Module):
         value = self.value_head(self.vf(context)).squeeze(-1)
 
         aux = None
-        if self.aux_enabled or self.next_state_enabled:
-            aux = {}
-            if self.aux_enabled:
-                aux.update(
-                    {
-                        "room_type": self.aux_room_type(shared_pi),
-                        "danger": self.aux_danger(shared_pi).squeeze(-1),
-                        "next_dest": self.aux_next_dest(shared_pi),
-                        "reachable": self.aux_reachable(shared_pi).squeeze(-1),
-                    }
-                )
-            if self.next_state_enabled:
-                aux["next_state"] = self.aux_next_state(shared_pi)
+        if self.aux_enabled:
+            aux = {
+                "room_type": self.aux_room_type(shared_pi),
+                "danger": self.aux_danger(shared_pi).squeeze(-1),
+                "next_dest": self.aux_next_dest(shared_pi),
+                "reachable": self.aux_reachable(shared_pi).squeeze(-1),
+            }
+        if self.next_state_enabled and actions is not None:
+            # Only computed when the taken action is supplied (training path);
+            # action-free inference (collector) has no next-state to predict.
+            one_hot = self._one_hot_actions(actions)
+            pred = self.aux_next_state(
+                torch.cat([shared_pi, one_hot], dim=-1)
+            )
+            aux = {**(aux or {}), "next_state": pred}
         return value, logits, hidden_out, aux
 
     @staticmethod
@@ -192,16 +207,24 @@ class IsaacPolicy(nn.Module):
         return value, logprob, entropy, hidden_out, logits
 
     def aux_losses(
-        self, obs, aux_targets, hidden=None, next_targets=None
+        self, obs, aux_targets, hidden=None, next_targets=None, actions=None
     ) -> dict[str, torch.Tensor]:
-        """C5 + S1 auxiliary losses evaluated on the current parameters."""
+        """C5 + S1 auxiliary losses evaluated on the current parameters.
+
+        The next-state head needs the taken action (S1 v2); without it no
+        next_state loss is produced even when the head exists.
+        """
         if not self.aux_enabled and not (
-            self.next_state_enabled and next_targets is not None
+            self.next_state_enabled
+            and next_targets is not None
+            and actions is not None
         ):
             return {}
-        _value, _logits, hidden_out, aux = self.forward(obs, hidden)
+        _value, _logits, hidden_out, aux = self.forward(
+            obs, hidden, actions=actions
+        )
         losses = {}
-        if self.aux_enabled:
+        if self.aux_enabled and aux_targets is not None:
             room_type = aux_targets["room_type"]
             losses["room_type"] = torch.nn.functional.cross_entropy(
                 aux["room_type"], room_type
@@ -218,7 +241,11 @@ class IsaacPolicy(nn.Module):
                     aux["reachable"], aux_targets["reachable"]
                 )
             )
-        if self.next_state_enabled and next_targets is not None:
+        if (
+            self.next_state_enabled
+            and next_targets is not None
+            and actions is not None
+        ):
             losses["next_state"] = torch.nn.functional.mse_loss(
                 aux["next_state"], next_targets
             )
@@ -279,12 +306,14 @@ def aim_targets_from_player_features(players: torch.Tensor) -> torch.Tensor:
 def next_state_targets(
     players: torch.Tensor, entities: torch.Tensor | None
 ) -> torch.Tensor:
-    """S1 world-model probe: compact summary of the post-step observation.
+    """S1 world-model probe: compact summary of an observation.
 
-    Deterministic function of ``next_obs`` (no info/state needed), so the same
-    targets stay computable offline from a replay buffer at stage 2. Per doc
-    DREAMERV4_update.md we deliberately avoid predicting the full t+1 grid
-    (stochastic, partially observable) and supervise a summary instead:
+    Deterministic function of the observation tensors (no info/state needed),
+    so targets stay computable offline from a replay buffer at stage 2. The
+    trainer supervises the DELTA summary(next_obs) - summary(obs): absolute
+    positions contain a trivial persistence shortcut, deltas force actual
+    dynamics. Per doc DREAMERV4_update.md we deliberately avoid predicting
+    the full t+1 grid (stochastic, partially observable). Components:
 
       [0:2]   player position x/y (normalized)
       [2:8]   nearest pickup / enemy / projectile dx/dy
@@ -1036,6 +1065,8 @@ class LivePPOTrainer:
 
         # S1 next-state probe: targets come from the post-step observation the
         # collector already stores, so no env/protocol changes are needed.
+        # v2 supervises the DELTA summary(next_obs) - summary(obs) and
+        # conditions the head on the taken action (see IsaacPolicy).
         ns_enabled = (
             getattr(self, "next_state_coef", 0.0) > 0.0
             and self.policy.next_state_enabled
@@ -1062,7 +1093,11 @@ class LivePPOTrainer:
                     if "entities" in batch[0]["next_obs"]
                     else None
                 )
-                ns_targets_full = next_state_targets(ns_players, ns_entities)
+                cur_summary = next_state_targets(
+                    players, entities if has_entities else None
+                )
+                next_summary = next_state_targets(ns_players, ns_entities)
+                ns_targets_full = next_summary - cur_summary
                 # Chance baseline: MSE of predicting the batch mean equals the
                 # target variance. S1 go criterion: loss < 50% of this after
                 # ~100k steps (DREAMERV4_update.md).
@@ -1195,6 +1230,7 @@ class LivePPOTrainer:
                         next_targets=(
                             ns_targets_full[mb] if ns_enabled else None
                         ),
+                        actions=actions[mb],
                     )
                     ns_loss = aux_losses.pop("next_state", None)
                     for aux_loss in aux_losses.values():
@@ -1317,6 +1353,29 @@ class LivePPOTrainer:
                 entropy = -np.sum(probabilities * np.log(probabilities))
                 return float(entropy / math.log(9))
 
+            # S1 v2 diagnostics: per-component delta losses on the sample
+            # slice (player pos / proximity deltas / enemy aggregates) so a
+            # plateau can be localized to specific target components.
+            ns_component_losses = {}
+            if ns_enabled and ns_targets_full is not None:
+                with torch.no_grad():
+                    sample_actions = torch.as_tensor(
+                        action_array[sample_idx],
+                        dtype=torch.long,
+                        device=self.device,
+                    )
+                    _sv, _sl, _sh, saux = self.policy(
+                        sample_obs, actions=sample_actions
+                    )
+                spred = saux.get("next_state") if saux else None
+                if spred is not None:
+                    err = (spred - ns_targets_full[sample_idx]) ** 2
+                    ns_component_losses = {
+                        "next_state_loss_player": err[:, 0:2].mean().item(),
+                        "next_state_loss_proximity": err[:, 2:8].mean().item(),
+                        "next_state_loss_enemies": err[:, 8:11].mean().item(),
+                    }
+
             return {
                 "pi_loss": stats["pi_loss"] / u,
                 "v_loss": stats["v_loss"] / u,
@@ -1363,6 +1422,7 @@ class LivePPOTrainer:
                     if ns_enabled and ns_baseline_var > 1e-12
                     else 0.0
                 ),
+                **ns_component_losses,
             }
         return None
 

@@ -168,3 +168,11 @@ This file captures durable lessons from training runs so we can reuse what we le
 - **Result @100k:** no post-50k regression (-9.49 held vs -11.17), same wall-clock throughput (~160 steps/s). Win rate not yet improved; zero KL early-stops means lr headroom remains.
 - Confidence: medium — single seed, noisy metric; confirm at 200-300k before generalizing.
 - Follow-up: rule of thumb going forward: keep `n_steps` >= 3-5x mean episode length.
+
+## 2026-08-22 - World-model probe (S1): a next-state head must see the action
+
+- **Evidence:** The S1 `next_state` summary head (v1, `next_state_coef: 0.05`, state-only input) converged in ~20k steps then plateaued exactly at the chance baseline: `next_state_ratio` ≈ 1.0 from 40k to 260k steps (run `phase1a-4v1-speed12-h30s-safety-aux-nextstate`). Ratio 1.0 = MSE of predicting the batch mean.
+- **Root cause:** v1 predicted `summary(s_{t+1}) = f(s_t)` — the taken action was not part of the input. Without action conditioning the best achievable prediction IS the transition marginal mean, so the plateau was the theoretical optimum of the mis-specified problem. The doc (`DREAMERV4_update.md`) specified f(état, action); the implementation dropped the action.
+- **Fix (S1 v2):** one-hot MultiDiscrete action concatenated to the pi features at the head input; targets changed to DELTA `summary(s_{t+1}) - summary(s_t)` (removes the trivial persistence shortcut of absolute positions); per-component losses added (`next_state_loss_player/proximity/enemies`) to localize any future plateau.
+- Confidence: high on the diagnosis (ratio pinned at exactly the chance value + information-theoretic argument), low on v2 outcome — needs a fresh 100k run.
+- Follow-up: if v2 still plateaus above ~0.7 by ~100k, suspect observation coverage (enemy velocities unobservable, frame_stack=1) before abandoning the world-model track.
