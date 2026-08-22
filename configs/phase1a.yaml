@@ -3,7 +3,7 @@ env:
   # every 12-15 seconds while keeping several independent episodes per batch.
   n_workers: 1
   frame_skip: 3
-  speed_multiplier: 1
+  speed_multiplier: 12
   frame_stack: 1
   free_running: true
   normalize_player_features: true
@@ -52,6 +52,10 @@ train:
   # C5 auxiliary heads (room type, danger, next destination, reachability):
   # supervised lessons every step, independent of RL credit assignment.
   aux_coef: 0.05
+  # S1 world-model probe: next-state summary prediction head. Decision gate:
+  # next_state_loss must drop below 50% of next_state_baseline_var within
+  # ~100k steps before committing to the stage-2 RSSM.
+  next_state_coef: 0.05
   save_interval_seconds: 300
 
 phase:
@@ -68,5 +72,5 @@ phase:
 wandb:
   enabled: true
   project: "binding-of-ai"
-  run_name: "phase1a-4v1-speed12-h30s-safety-aux"
-  tags: ["phase1a", "4v1", "speedhack-12x", "horizon-30s", "safety-first", "aux-heads"]
+  run_name: "phase1a-4v1-speed12-h30s-safety-aux-nextstate"
+  tags: ["phase1a", "4v1", "speedhack-12x", "horizon-30s", "safety-first", "aux-heads", "worldmodel-s1"]

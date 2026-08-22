@@ -151,6 +151,10 @@ class TrainConfig:
     # C5: auxiliary representation-learning heads (room type, danger, next
     # destination, reachability). 0 disables them (legacy behavior).
     aux_coef: float = 0.0
+    # S1 world-model embryo (DREAMERV4_update.md): supervised head predicting
+    # a summary of the next observation f(state, action). Trained alongside
+    # the C5 heads; never consumed by the policy. 0 disables the head.
+    next_state_coef: float = 0.0
     # E9: normalize the return targets of each PPO batch with running stats.
     # OFF by default (legacy behavior); turn on if value loss destabilizes on
     # long full runs where returns span many reward magnitudes.

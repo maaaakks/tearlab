@@ -46,6 +46,7 @@ class IsaacPolicy(nn.Module):
 
     ROOM_TYPE_VOCAB = 17   # one-hot length for the room-type classifier
     DEST_VOCAB = 9         # door slot 0..7 + "none"
+    NEXT_STATE_DIM = 11    # next-state summary vector (see next_state_targets)
 
     def __init__(
         self,
@@ -56,6 +57,7 @@ class IsaacPolicy(nn.Module):
         recurrent: bool = False,
         recurrent_hidden_size: int = 128,
         aux_coef: float = 0.0,
+        next_state_coef: float = 0.0,
     ):
         super().__init__()
         self.features = IsaacFeatureExtractor(observation_space, features_dim)
@@ -63,6 +65,12 @@ class IsaacPolicy(nn.Module):
         self.recurrent = bool(recurrent)
         self.recurrent_hidden_size = int(recurrent_hidden_size)
         self.aux_enabled = bool(aux_coef and aux_coef > 0.0)
+        # S1 world-model embryo: supervised f(state, action) -> next-state
+        # summary head. Never consumed by the policy itself; its loss probes
+        # whether the trunk encodes action consequences (go/no-go for stage 2).
+        self.next_state_enabled = bool(
+            next_state_coef and next_state_coef > 0.0
+        )
 
         if self.recurrent:
             self.gru = nn.GRU(
@@ -87,6 +95,11 @@ class IsaacPolicy(nn.Module):
             self.aux_danger = nn.Linear(shared_dim, 1)
             self.aux_next_dest = nn.Linear(shared_dim, self.DEST_VOCAB)
             self.aux_reachable = nn.Linear(shared_dim, 1)
+
+        if self.next_state_enabled:
+            # Additive head: legacy checkpoints resume with fresh weights here
+            # via _adapt_state_dict + load_state_dict(strict=False).
+            self.aux_next_state = nn.Linear(hidden[-1], self.NEXT_STATE_DIM)
 
     @staticmethod
     def _mlp(in_dim, hidden):
@@ -121,13 +134,19 @@ class IsaacPolicy(nn.Module):
         value = self.value_head(self.vf(context)).squeeze(-1)
 
         aux = None
-        if self.aux_enabled:
-            aux = {
-                "room_type": self.aux_room_type(shared_pi),
-                "danger": self.aux_danger(shared_pi).squeeze(-1),
-                "next_dest": self.aux_next_dest(shared_pi),
-                "reachable": self.aux_reachable(shared_pi).squeeze(-1),
-            }
+        if self.aux_enabled or self.next_state_enabled:
+            aux = {}
+            if self.aux_enabled:
+                aux.update(
+                    {
+                        "room_type": self.aux_room_type(shared_pi),
+                        "danger": self.aux_danger(shared_pi).squeeze(-1),
+                        "next_dest": self.aux_next_dest(shared_pi),
+                        "reachable": self.aux_reachable(shared_pi).squeeze(-1),
+                    }
+                )
+            if self.next_state_enabled:
+                aux["next_state"] = self.aux_next_state(shared_pi)
         return value, logits, hidden_out, aux
 
     @staticmethod
@@ -172,27 +191,37 @@ class IsaacPolicy(nn.Module):
             entropy = ent if entropy is None else entropy + ent
         return value, logprob, entropy, hidden_out, logits
 
-    def aux_losses(self, obs, aux_targets, hidden=None) -> dict[str, torch.Tensor]:
-        """C5 auxiliary losses evaluated on the current parameters."""
-        if not self.aux_enabled:
+    def aux_losses(
+        self, obs, aux_targets, hidden=None, next_targets=None
+    ) -> dict[str, torch.Tensor]:
+        """C5 + S1 auxiliary losses evaluated on the current parameters."""
+        if not self.aux_enabled and not (
+            self.next_state_enabled and next_targets is not None
+        ):
             return {}
         _value, _logits, hidden_out, aux = self.forward(obs, hidden)
-        room_type = aux_targets["room_type"]
-        losses = {
-            "room_type": torch.nn.functional.cross_entropy(
+        losses = {}
+        if self.aux_enabled:
+            room_type = aux_targets["room_type"]
+            losses["room_type"] = torch.nn.functional.cross_entropy(
                 aux["room_type"], room_type
-            ),
-        }
-        # danger: bounded regression toward normalized enemy density.
-        losses["danger"] = torch.nn.functional.mse_loss(
-            aux["danger"], aux_targets["danger"]
-        )
-        losses["next_dest"] = torch.nn.functional.cross_entropy(
-            aux["next_dest"], aux_targets["next_dest"]
-        )
-        losses["reachable"] = torch.nn.functional.binary_cross_entropy_with_logits(
-            aux["reachable"], aux_targets["reachable"]
-        )
+            )
+            # danger: bounded regression toward normalized enemy density.
+            losses["danger"] = torch.nn.functional.mse_loss(
+                aux["danger"], aux_targets["danger"]
+            )
+            losses["next_dest"] = torch.nn.functional.cross_entropy(
+                aux["next_dest"], aux_targets["next_dest"]
+            )
+            losses["reachable"] = (
+                torch.nn.functional.binary_cross_entropy_with_logits(
+                    aux["reachable"], aux_targets["reachable"]
+                )
+            )
+        if self.next_state_enabled and next_targets is not None:
+            losses["next_state"] = torch.nn.functional.mse_loss(
+                aux["next_state"], next_targets
+            )
         return losses
 
 
@@ -245,6 +274,44 @@ def aim_targets_from_player_features(players: torch.Tensor) -> torch.Tensor:
     )
     targets = torch.argmax(unit @ directions.T, dim=1) + 1
     return torch.where(lengths > 1e-6, targets, torch.zeros_like(targets))
+
+
+def next_state_targets(
+    players: torch.Tensor, entities: torch.Tensor | None
+) -> torch.Tensor:
+    """S1 world-model probe: compact summary of the post-step observation.
+
+    Deterministic function of ``next_obs`` (no info/state needed), so the same
+    targets stay computable offline from a replay buffer at stage 2. Per doc
+    DREAMERV4_update.md we deliberately avoid predicting the full t+1 grid
+    (stochastic, partially observable) and supervise a summary instead:
+
+      [0:2]   player position x/y (normalized)
+      [2:8]   nearest pickup / enemy / projectile dx/dy
+      [8]     normalized enemy count min(1, n/8)
+      [9:11]  mean enemy position over visible enemies (0 when none)
+
+    players: (B, >=22) player feature vectors. entities: optional (B, E, D)
+    entity table where column 0 is kind (1 = enemy) and 6:8 the position.
+    """
+    if players.ndim != 2 or players.shape[1] < 22:
+        raise ValueError("Next-state targets require the 22-value player vector")
+    parts = [
+        players[:, 14:16],
+        players[:, 16:18],
+        players[:, 18:20],
+        players[:, 20:22],
+    ]
+    if entities is not None:
+        enemy_rows = entities[..., 0] == 1.0
+        counts = enemy_rows.sum(dim=-1)
+        parts.append((counts.float() / 8.0).clamp(max=1.0).unsqueeze(-1))
+        positions = entities[..., 6:8]
+        summed = (positions * enemy_rows.unsqueeze(-1)).sum(dim=1)
+        parts.append(summed / counts.clamp_min(1).float().unsqueeze(-1))
+    else:
+        parts.append(players.new_zeros(players.shape[0], 3))
+    return torch.cat(parts, dim=-1)
 
 
 class Collector(threading.Thread):
@@ -509,6 +576,7 @@ class LivePPOTrainer:
             recurrent=tc.recurrent,
             recurrent_hidden_size=tc.recurrent_hidden_size,
             aux_coef=tc.aux_coef,
+            next_state_coef=tc.next_state_coef,
         ).to(self.device)
         self.optimizer = optim.Adam(self.policy.parameters(), lr=tc.learning_rate)
         self.gamma = tc.gamma
@@ -543,6 +611,12 @@ class LivePPOTrainer:
         self.recurrent = bool(tc.recurrent)
         self.recurrent_hidden_size = int(tc.recurrent_hidden_size)
         self.aux_coef = float(tc.aux_coef)
+        self.next_state_coef = max(0.0, float(tc.next_state_coef))
+        if self.next_state_coef > 0.0 and int(config.env.player_features) < 22:
+            raise ValueError(
+                "Next-state head needs the 22-value player vector; set "
+                "env.player_features: 22 or train.next_state_coef: 0."
+            )
         self.normalize_returns = bool(tc.normalize_returns)
         self.return_norm_decay = float(tc.return_norm_decay)
         # E9 running statistics for return normalization.
@@ -960,6 +1034,45 @@ class LivePPOTrainer:
         )
         aux_loss_factor = self.aux_coef if has_aux_targets else 0.0
 
+        # S1 next-state probe: targets come from the post-step observation the
+        # collector already stores, so no env/protocol changes are needed.
+        ns_enabled = (
+            getattr(self, "next_state_coef", 0.0) > 0.0
+            and self.policy.next_state_enabled
+        )
+        ns_targets_full = None
+        ns_baseline_var = 0.0
+        if ns_enabled:
+            try:
+                ns_players = torch.as_tensor(
+                    np.stack(
+                        [tr["next_obs"]["player"] for tr in batch]
+                    ),
+                    dtype=torch.float32,
+                    device=self.device,
+                )
+                ns_entities = (
+                    torch.as_tensor(
+                        np.stack(
+                            [tr["next_obs"]["entities"] for tr in batch]
+                        ),
+                        dtype=torch.float32,
+                        device=self.device,
+                    )
+                    if "entities" in batch[0]["next_obs"]
+                    else None
+                )
+                ns_targets_full = next_state_targets(ns_players, ns_entities)
+                # Chance baseline: MSE of predicting the batch mean equals the
+                # target variance. S1 go criterion: loss < 50% of this after
+                # ~100k steps (DREAMERV4_update.md).
+                ns_baseline_var = float(
+                    ns_targets_full.var(dim=0).mean().item()
+                )
+            except ValueError as exc:
+                log.warning("Next-state head disabled: %s", exc)
+                ns_enabled = False
+
         idx = np.arange(n)
         stats = {
             "pi_loss": 0.0,
@@ -971,6 +1084,7 @@ class LivePPOTrainer:
             "updates": 0,
             "aux_loss": 0.0,
             "aim_aux_loss": 0.0,
+            "next_state_loss": 0.0,
         }
         current_ent_coef = self._current_ent_coef(self.collector.steps)
         current_aim_aux_coef = self._current_aim_aux_coef(
@@ -1058,25 +1172,36 @@ class LivePPOTrainer:
                 loss = loss + current_aim_aux_coef * aim_aux_loss
 
                 aux_loss_total = 0.0
-                if has_aux_targets:
-                    aux_targets = {
-                        key: torch.as_tensor(
-                            [tr["aux_targets"][key] for tr in
-                             [batch[i] for i in mb]],
-                            dtype=(
-                                torch.long if key in ("room_type", "next_dest")
-                                else torch.float32
-                            ),
-                            device=self.device,
-                        )
-                        for key in ("room_type", "danger", "next_dest", "reachable")
-                    }
+                ns_loss = None
+                if has_aux_targets or ns_enabled:
+                    aux_targets = None
+                    if has_aux_targets:
+                        aux_targets = {
+                            key: torch.as_tensor(
+                                [tr["aux_targets"][key] for tr in
+                                 [batch[i] for i in mb]],
+                                dtype=(
+                                    torch.long if key in ("room_type", "next_dest")
+                                    else torch.float32
+                                ),
+                                device=self.device,
+                            )
+                            for key in ("room_type", "danger", "next_dest", "reachable")
+                        }
                     aux_losses = self.policy.aux_losses(
-                        mb_obs, aux_targets, hidden=mb_hidden
+                        mb_obs,
+                        aux_targets,
+                        hidden=mb_hidden,
+                        next_targets=(
+                            ns_targets_full[mb] if ns_enabled else None
+                        ),
                     )
+                    ns_loss = aux_losses.pop("next_state", None)
                     for aux_loss in aux_losses.values():
                         aux_loss_total = aux_loss_total + aux_loss
                     loss = loss + aux_loss_factor * aux_loss_total
+                    if ns_loss is not None:
+                        loss = loss + self.next_state_coef * ns_loss
 
                 self.optimizer.zero_grad()
                 loss.backward()
@@ -1106,6 +1231,8 @@ class LivePPOTrainer:
                     float(aux_loss_total.item()) if has_aux_targets else 0.0
                 )
                 stats["aim_aux_loss"] += float(aim_aux_loss.item())
+                if ns_loss is not None:
+                    stats["next_state_loss"] += float(ns_loss.item())
                 stats["updates"] += 1
 
                 if tc.target_kl is not None and approx_kl > 1.5 * tc.target_kl:
@@ -1229,6 +1356,13 @@ class LivePPOTrainer:
                 "aim_idle_accuracy": aim_idle_accuracy,
                 "aim_visible_fraction": visible_targets.float().mean().item(),
                 "aux_loss": stats["aux_loss"] / u,
+                "next_state_loss": stats["next_state_loss"] / u,
+                "next_state_baseline_var": ns_baseline_var,
+                "next_state_ratio": (
+                    (stats["next_state_loss"] / u) / ns_baseline_var
+                    if ns_enabled and ns_baseline_var > 1e-12
+                    else 0.0
+                ),
             }
         return None
 
@@ -1303,6 +1437,12 @@ class LivePPOTrainer:
                         metrics["aim_visible_accuracy"], 4
                     ),
                     aim_idle_accuracy=round(metrics["aim_idle_accuracy"], 4),
+                    next_state_loss=round(
+                        metrics.get("next_state_loss", 0.0), 5
+                    ),
+                    next_state_ratio=round(
+                        metrics.get("next_state_ratio", 0.0), 4
+                    ),
                     current_ent_coef=round(metrics["ent_coef"], 5),
                     target_kl=tc.target_kl or 0.0,
                     update_seconds=round(dt, 2),
@@ -1409,6 +1549,7 @@ class LivePPOTrainer:
                 "recurrent": self.recurrent,
                 "recurrent_hidden_size": self.config.train.recurrent_hidden_size,
                 "aux_coef": self.aux_coef,
+                "next_state_coef": self.next_state_coef,
             },
             "torch_rng_state": torch.get_rng_state(),
             "numpy_rng_state": np.random.get_state(),
