@@ -87,3 +87,21 @@ de checks ne valide la gate. Tester uniquement une redistribution d'exemples :
 `chasers-focus`, 50 % quatre poursuivants, 10 % chacun sur 3P,2P,1P,1T,2T.
 Même reward sparse, même LR, même réseau, mêmes seuils, <=800 updates / 240 s.
 Cette expérience ne change pas la définition de réussite pour obtenir un passage.
+
+## Après concentration sur quatre poursuivants
+
+Deux checks passent : 4P=75,0 % puis 74,6 %, groupe poursuivants=~90 %, rétention
+un tireur >=98 %, deux tireurs >=63 %. Palier validé ; passage aux mélanges
+1P1T/1P2T/3P1T avec les cohortes de rétention définies. Budget <=1 600 updates
+/ 480 s, reward sparse conservée. Toujours aucune lecture des compositions réservées.
+
+## Premier audit et réplication indépendante
+
+Le palier mélange passe après deux checks ; poids figés. Première lecture du
+test réservé (graine 930001, 128 essais/cellule) : 48,5 % sans dégât sur les
+trois compositions, sans sélection sur ce résultat. Recette figée pour une
+seconde graine d'apprentissage 242579 ; mêmes tâches, rewards et gates, avec
+plafonds muraux suffisants pour terminer les expositions prévues. Le run sparse
+de réplication utilise 400 updates, comme le parent sélectionné du premier run.
+Le palier poursuivants utilise 1 000 updates puis focus si nécessaire, également
+comme le parent sélectionné. Aucun réentraînement du premier modèle après son audit.

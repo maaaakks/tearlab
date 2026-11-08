@@ -41,6 +41,8 @@ def main():
     if report['stop']!='mastery':raise RuntimeError('Aim did not pass: no automatic promotion')
     parent=folder/'life1-potential-best.pt'
     folder,report=stage('budget','budget',800,600,parent)
+    if report['final']['life1-potential']['dev']['life1']['cells'][0]['clear_rate']<.9:
+        raise RuntimeError('One shooter did not pass: no automatic promotion')
     # Fixed strict path retained from the first experiment; health ablation still reported.
     parent=folder/'life1-potential-best.pt'
     folder,report=stage('two4','curriculum',1600,480,parent,'two4')
@@ -57,7 +59,7 @@ def main():
         folder,report=stage('two12-confirm','curriculum',800,300,parent,'two12','sparse')
         parent=folder/'life1-sparse-best.pt'
         if report['stop']!='mastery':raise RuntimeError('Two12 did not pass: no automatic promotion')
-    folder,report=stage('chasers','curriculum',1200,400,parent,'chasers','sparse')
+    folder,report=stage('chasers','curriculum',1000,400,parent,'chasers','sparse')
     parent=folder/'life1-sparse-best.pt'
     if report['stop']!='mastery':
         folder,report=stage('chasers-focus','curriculum',800,300,parent,'chasers-focus','sparse')

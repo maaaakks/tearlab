@@ -113,7 +113,7 @@ Protocole : [PARALLEL_PPO_PROTOCOL.md](docs/PARALLEL_PPO_PROTOCOL.md).
 - [x] Budget expérimental 1/3 contacts, observation santé/immunité et timeouts finis explicites.
 - [x] Shaping potentiel avec annulation à tout terminal ; audit CPU et qualification GPU/tensorielle.
 - [x] Collecte/PPO capturés, curriculum par scènes dynamiques, examens et artefacts hors ligne.
-- [ ] Acquérir visée puis comparer le budget à exposition égale, apprendre deux tireurs et mélanges.
+- [x] Première graine : visée, ablation du budget à exposition égale, deux tireurs et mélanges avec rétention validés.
 - [ ] Auditer compositions/PV/géométrie réservés et reproduire sur une autre graine.
 
 Protocole figé avant expériences : docs/GENERALIZATION_PROTOCOL.md.
