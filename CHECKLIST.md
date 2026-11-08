@@ -114,6 +114,6 @@ Protocole : [PARALLEL_PPO_PROTOCOL.md](docs/PARALLEL_PPO_PROTOCOL.md).
 - [x] Shaping potentiel avec annulation à tout terminal ; audit CPU et qualification GPU/tensorielle.
 - [x] Collecte/PPO capturés, curriculum par scènes dynamiques, examens et artefacts hors ligne.
 - [x] Première graine : visée, ablation du budget à exposition égale, deux tireurs et mélanges avec rétention validés.
-- [ ] Auditer compositions/PV/géométrie réservés et reproduire sur une autre graine.
+- [x] Audits réservés sur deux apprentissages indépendants : compositions 48,5 % / 42,7 % sans dégât, contre ancien 4,4 % ; 3 PV 80,8 % / 72,2 %, contre 8,0 %. Limites et coûts consignés.
 
 Protocole figé avant expériences : docs/GENERALIZATION_PROTOCOL.md.

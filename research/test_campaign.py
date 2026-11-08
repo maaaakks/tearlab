@@ -104,6 +104,20 @@ class TaskContracts(unittest.TestCase):
 
 @unittest.skipUnless(os.environ.get('RUN_ISAAC_GPU_TESTS')=='1','Explicit GPU opt-in required')
 class GpuContracts(unittest.TestCase):
+    def test_finite_learner_cuts_timeout_and_resets_action_context(self):
+        torch.set_num_threads(1)
+        cache=Path(os.environ['ISAAC_NATIVE_CACHE'])
+        native=NativePhysics.load(ROOT/'data/physics_v2/calibration_r5.json')
+        learner=Learner(Policy().cuda(),[Scene(attacks=False)]*128,51,native,cache,budget=1)
+        learner.env.steps.fill_(398)
+        stats=learner.update(epochs=0)
+        self.assertEqual(stats['optimizer_steps'],0)
+        self.assertTrue(learner.batch['done'][1].all())
+        self.assertFalse(learner.batch['timeout'].any())
+        self.assertTrue((learner.batch['reward'][1]<-1.99).all())
+        self.assertTrue((learner.batch['previous'][2]==45).all())
+        self.assertTrue((learner.batch['obs'][2,:,7]==0).all())
+
     def test_native_matches_tensor_task_for_both_budgets(self):
         torch.set_num_threads(1)
         cache=Path(os.environ['ISAAC_NATIVE_CACHE'])

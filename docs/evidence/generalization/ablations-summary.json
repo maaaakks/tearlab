@@ -1,0 +1,50 @@
+{
+  "budgets": {
+    "129773": {
+      "strict_nohit": 0.98046875,
+      "strict_with_3hp": 0.98828125,
+      "life3_clear": 0.94921875,
+      "life3_nohit": 0.203125,
+      "life3_exam_1hp": 0.22265625,
+      "updates_per_arm": 800
+    },
+    "242579": {
+      "strict_nohit": 0.96484375,
+      "strict_with_3hp": 0.99609375,
+      "life3_clear": 0.98046875,
+      "life3_nohit": 0.46484375,
+      "life3_exam_1hp": 0.49609375,
+      "updates_per_arm": 800
+    }
+  },
+  "rewards": {
+    "129773": {
+      "life1-sparse": {
+        "two_shooters": 0.75,
+        "one_shooter": 0.99609375,
+        "updates": 436,
+        "selected_updates": 400
+      },
+      "life1-potential": {
+        "two_shooters": 0.7421875,
+        "one_shooter": 0.9921875,
+        "updates": 436,
+        "selected_updates": 400
+      }
+    },
+    "242579": {
+      "life1-sparse": {
+        "two_shooters": 0.81640625,
+        "one_shooter": 1.0,
+        "updates": 400,
+        "selected_updates": 400
+      },
+      "life1-potential": {
+        "two_shooters": 0.828125,
+        "one_shooter": 0.98046875,
+        "updates": 400,
+        "selected_updates": 400
+      }
+    }
+  }
+}

@@ -6,8 +6,10 @@ GPU natif qualifié ; aucune interaction avec le vrai jeu Isaac.
 
 ## Contrats de tâche
 
-- 1 ou 3 contacts autorisés, immunité native existante de 30 ticks. Trois contacts
-  est une expérience, pas une calibration des cœurs du jeu. Deux features ajoutées :
+- 1 ou 3 PV abstraits : un contact retire un PV, mort au premier ou au troisième
+  contact. Avec 3 PV, une victoire peut donc comporter au plus deux dégâts.
+  Immunité native existante de 30 ticks. Ce budget est une expérience, pas une
+  calibration des cœurs du jeu. Deux features ajoutées :
   santé restante / 3 et immunité / 30. Toutes les variantes ont la même entrée.
 - Victoire : tous les ennemis éliminés, santé strictement positive. Clear sans
   dégât mesuré séparément sur chaque politique, y compris celle à trois contacts.

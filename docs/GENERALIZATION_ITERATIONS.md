@@ -1,5 +1,9 @@
 # Décisions d'expérience consignées avant les runs suivants
 
+Terminologie : « budget 3 contacts » dans les premiers comptes rendus signifie
+trois PV abstraits, mort au troisième contact, donc au plus deux dégâts dans une
+victoire. Il ne s'agit pas de trois cœurs d'Isaac. Aucun seuil de simulation n'a changé.
+
 ## Après la visée et pendant l'ablation du budget
 
 La pratique atteint 100 % sans dégât sur deux checks de développement ; parent
@@ -105,3 +109,26 @@ plafonds muraux suffisants pour terminer les expositions prévues. Le run sparse
 de réplication utilise 400 updates, comme le parent sélectionné du premier run.
 Le palier poursuivants utilise 1 000 updates puis focus si nécessaire, également
 comme le parent sélectionné. Aucun réentraînement du premier modèle après son audit.
+
+## Réplication : prolongation d'un palier, critères inchangés
+
+Seed242579 atteint 70,3 % sur 4P au check 600, 69,9 % au check 700 et 71,1 % au
+check 800 du focus ; les gates ne sont pas validées deux fois de suite, malgré
+une rétention de 83,2 % sur deux tireurs. L'orchestrateur s'arrête donc sans
+promotion. Autoriser une continuation limitée à 600 updates / 240 s du même
+palier depuis le meilleur parent, mêmes scènes/reward/LR/réseau/gates. Ceci est
+une adaptation explicite du budget de la réplication, pas une recette à exposition
+strictement identique entre graines. Aucun audit OOD du deuxième modèle consulté.
+
+## Fin de réplication et second audit
+
+La continuation passe 4P=73,0 % sur deux checks ; le mélange passe ensuite ses
+gates aux checks 400 et 500. Poids figés avant second audit, mêmes cohortes 930001
+et 128 épisodes/cellule : 42,7 % sans dégât et 72,2 % de clears avec trois PV
+abstraits sur les compositions jamais entraînées. Première graine : 48,5 % et
+80,8 %. Ancien task_only réévalué : 4,4 % / 8,0 %. Aucun entraînement après ces audits.
+
+Limites conservées : 1P3T à 12,0–21,9 % sans dégât, quatre tireurs seuls à
+0,0–1,6 %. Le transfert géométrique varie aussi (52,8–68,3 %). Le progrès de
+composition est confirmé sur deux apprentissages, pas une maîtrise de tout Isaac.
+19 tests CPU/GPU et l'audit des 42 checkpoints/sources/lignées passent.

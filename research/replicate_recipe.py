@@ -64,6 +64,9 @@ def main():
     if report['stop']!='mastery':
         folder,report=stage('chasers-focus','curriculum',800,300,parent,'chasers-focus','sparse')
         parent=folder/'life1-sparse-best.pt'
+    if report['stop']!='mastery':
+        folder,report=stage('chasers-focus-continue','curriculum',600,240,parent,'chasers-focus','sparse')
+        parent=folder/'life1-sparse-best.pt'
     if report['stop']!='mastery':raise RuntimeError('Chasers did not pass: no automatic promotion')
     folder,report=stage('mixed','curriculum',1600,480,parent,'mixed','sparse')
     progress.update(complete=True,checkpoint=str(folder/'life1-sparse-best.pt'),mixed_mastery=report['stop']=='mastery')

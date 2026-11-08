@@ -1,0 +1,572 @@
+{
+  "passed": true,
+  "cpu_only": true,
+  "reports": [
+    {
+      "run": "outputs\\isaac-generalization\\aim-seed129773",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\budget-seed129773",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\chasers-focus-seed129773",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\chasers-seed129773",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\mixed-seed129773",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\replication-seed242579\\aim",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\replication-seed242579\\budget",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\replication-seed242579\\chasers",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\replication-seed242579\\chasers-focus",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\replication-seed242579\\chasers-focus-continue",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\replication-seed242579\\mixed",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\replication-seed242579\\reward",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\replication-seed242579\\two4",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\reward-seed129773",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\smoke-04",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\two4-continue-seed129773",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    },
+    {
+      "run": "outputs\\isaac-generalization\\two4-seed129773",
+      "complete": true,
+      "heldout_compositions_unseen": true,
+      "sources_verified": true
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpoint": "outputs\\isaac-generalization\\aim-seed129773\\life1-potential-best.pt",
+      "sha256": "f6dde00c35ff73f807e229a6aca35530ad89e0a3c6ddf6d7fd9b9b1b548a8ee8",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 400,
+      "decisions": 13107200,
+      "parent": null,
+      "offline_artifact": "offline:qc5v0dcw/aim-seed129773-life1-potential-best",
+      "lineage_training_decisions": 13107200
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\aim-seed129773\\life1-potential-latest.pt",
+      "sha256": "54145f58cad116986c913b77ed187cee22ff126fa42258db1f86b8df95a7938d",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 400,
+      "decisions": 13107200,
+      "parent": null,
+      "offline_artifact": "offline:qc5v0dcw/aim-seed129773-life1-potential-latest",
+      "lineage_training_decisions": 13107200
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\budget-seed129773\\life1-potential-best.pt",
+      "sha256": "197b08b0a37e8ab922303c916a0138263ffc946e8302b4f33d236f982f52a689",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 800,
+      "decisions": 26214400,
+      "parent": "f6dde00c35ff73f807e229a6aca35530ad89e0a3c6ddf6d7fd9b9b1b548a8ee8",
+      "offline_artifact": "offline:89u6vzaa/budget-seed129773-life1-potential-best",
+      "lineage_training_decisions": 39321600
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\budget-seed129773\\life1-potential-latest.pt",
+      "sha256": "3b01d87d5aba41d5a9f1e3a905e9bf9ea56cc50e1ceac1793e23ac4b720b3ad9",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 800,
+      "decisions": 26214400,
+      "parent": "f6dde00c35ff73f807e229a6aca35530ad89e0a3c6ddf6d7fd9b9b1b548a8ee8",
+      "offline_artifact": "offline:89u6vzaa/budget-seed129773-life1-potential-latest",
+      "lineage_training_decisions": 39321600
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\budget-seed129773\\life3-potential-best.pt",
+      "sha256": "72e64daa7d3e1590078b5cc4ea5a5e25421ac56e04dab1d9f49e28b23f4aa5d3",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 800,
+      "decisions": 26214400,
+      "parent": "f6dde00c35ff73f807e229a6aca35530ad89e0a3c6ddf6d7fd9b9b1b548a8ee8",
+      "offline_artifact": "offline:89u6vzaa/budget-seed129773-life3-potential-best",
+      "lineage_training_decisions": 39321600
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\budget-seed129773\\life3-potential-latest.pt",
+      "sha256": "ab4fcb1418b1cb82ad0471b6ecab241825e93e5d9f7cfeaa45fd47d3d2f84434",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 800,
+      "decisions": 26214400,
+      "parent": "f6dde00c35ff73f807e229a6aca35530ad89e0a3c6ddf6d7fd9b9b1b548a8ee8",
+      "offline_artifact": "offline:89u6vzaa/budget-seed129773-life3-potential-latest",
+      "lineage_training_decisions": 39321600
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\chasers-focus-seed129773\\life1-sparse-best.pt",
+      "sha256": "f8721cbaca16f5633c3fdfef2b3ef14605bf3274af7bd55d2fc05c6a458c7cc2",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 200,
+      "decisions": 6553600,
+      "parent": "6822830e2fa5fafaa7718a533c70e6a08b2b5a1e02aab033caa45ffac9814f1b",
+      "offline_artifact": "offline:t6jmbbg2/chasers-focus-seed129773-life1-sparse-best",
+      "lineage_training_decisions": 163840000
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\chasers-focus-seed129773\\life1-sparse-latest.pt",
+      "sha256": "7f347d595ad25e6763f8b178201273d047f34fe3dbae84d1ace9cb58acefc1a5",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 200,
+      "decisions": 6553600,
+      "parent": "6822830e2fa5fafaa7718a533c70e6a08b2b5a1e02aab033caa45ffac9814f1b",
+      "offline_artifact": "offline:t6jmbbg2/chasers-focus-seed129773-life1-sparse-latest",
+      "lineage_training_decisions": 163840000
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\chasers-seed129773\\life1-sparse-best.pt",
+      "sha256": "6822830e2fa5fafaa7718a533c70e6a08b2b5a1e02aab033caa45ffac9814f1b",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 1000,
+      "decisions": 32768000,
+      "parent": "546a5d480033d145fdc213a3b396c2f1f2fb24cb21f775c9aa2e6294cb930815",
+      "offline_artifact": "offline:52pjc3hi/chasers-seed129773-life1-sparse-best",
+      "lineage_training_decisions": 157286400
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\chasers-seed129773\\life1-sparse-latest.pt",
+      "sha256": "75acfb7e07f24fc858c3a836109ba364b02cc456f87ea9c4d8f9693f9b9a7cc0",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 1025,
+      "decisions": 33587200,
+      "parent": "546a5d480033d145fdc213a3b396c2f1f2fb24cb21f775c9aa2e6294cb930815",
+      "offline_artifact": "offline:52pjc3hi/chasers-seed129773-life1-sparse-latest",
+      "lineage_training_decisions": 158105600
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\mixed-seed129773\\life1-sparse-best.pt",
+      "sha256": "5fc87678ba806c153d7c0e28ab77a14511a1ec72f3616b269067aa6c96b824f4",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 300,
+      "decisions": 9830400,
+      "parent": "f8721cbaca16f5633c3fdfef2b3ef14605bf3274af7bd55d2fc05c6a458c7cc2",
+      "offline_artifact": "offline:6ual3tho/mixed-seed129773-life1-sparse-best",
+      "lineage_training_decisions": 173670400
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\mixed-seed129773\\life1-sparse-latest.pt",
+      "sha256": "811948b7d80455f6d6ebdadba5017e90b60bd26758620a92d0eb4b83d748dc7b",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 300,
+      "decisions": 9830400,
+      "parent": "f8721cbaca16f5633c3fdfef2b3ef14605bf3274af7bd55d2fc05c6a458c7cc2",
+      "offline_artifact": "offline:6ual3tho/mixed-seed129773-life1-sparse-latest",
+      "lineage_training_decisions": 173670400
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\aim\\life1-potential-best.pt",
+      "sha256": "373dd63d8b9d1ba6cd8e03c4965ff6c2350b4b6481b37213717b24b8c5b87e9b",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 200,
+      "decisions": 6553600,
+      "parent": null,
+      "offline_artifact": "offline:bafujuyc/aim-life1-potential-best",
+      "lineage_training_decisions": 6553600
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\aim\\life1-potential-latest.pt",
+      "sha256": "6c935b2eac41258b3270423043ba33119e151238e54364e712aec78a333f42ad",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 200,
+      "decisions": 6553600,
+      "parent": null,
+      "offline_artifact": "offline:bafujuyc/aim-life1-potential-latest",
+      "lineage_training_decisions": 6553600
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\budget\\life1-potential-best.pt",
+      "sha256": "709e3fdb4bebd1489924821d1f33de41b9b42eb82b9c6166f40e6526f7111871",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 800,
+      "decisions": 26214400,
+      "parent": "373dd63d8b9d1ba6cd8e03c4965ff6c2350b4b6481b37213717b24b8c5b87e9b",
+      "offline_artifact": "offline:t7ve2nsq/budget-life1-potential-best",
+      "lineage_training_decisions": 32768000
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\budget\\life1-potential-latest.pt",
+      "sha256": "6a2741659b13fbd93dd313e96a5c6850b7857814ee884675f3a963c43faa9ec8",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 800,
+      "decisions": 26214400,
+      "parent": "373dd63d8b9d1ba6cd8e03c4965ff6c2350b4b6481b37213717b24b8c5b87e9b",
+      "offline_artifact": "offline:t7ve2nsq/budget-life1-potential-latest",
+      "lineage_training_decisions": 32768000
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\budget\\life3-potential-best.pt",
+      "sha256": "62c349788b95e6646359672ffca412e3745c538e4dc4bcfecd750741ec4f976b",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 800,
+      "decisions": 26214400,
+      "parent": "373dd63d8b9d1ba6cd8e03c4965ff6c2350b4b6481b37213717b24b8c5b87e9b",
+      "offline_artifact": "offline:t7ve2nsq/budget-life3-potential-best",
+      "lineage_training_decisions": 32768000
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\budget\\life3-potential-latest.pt",
+      "sha256": "9f86be578f654eeb0a6b75874ae2c960e2f57b1ba2939e1f1e783dc4237914af",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 800,
+      "decisions": 26214400,
+      "parent": "373dd63d8b9d1ba6cd8e03c4965ff6c2350b4b6481b37213717b24b8c5b87e9b",
+      "offline_artifact": "offline:t7ve2nsq/budget-life3-potential-latest",
+      "lineage_training_decisions": 32768000
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\chasers\\life1-sparse-best.pt",
+      "sha256": "ad3212110f64147f2a5d4f92102b406c5c090842f9ca7dc03f64300d9f77bcbe",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 1000,
+      "decisions": 32768000,
+      "parent": "e6870580a22116f02d12d3735bb3757798da550f1d79c6e40fe05f82774eb02b",
+      "offline_artifact": "offline:gkhez51i/chasers-life1-sparse-best",
+      "lineage_training_decisions": 111411200
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\chasers\\life1-sparse-latest.pt",
+      "sha256": "b7dc61d710fe5411fe77059d7a6d3d539b5f18624307b7ea1cbcb8970b44ee4b",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 1000,
+      "decisions": 32768000,
+      "parent": "e6870580a22116f02d12d3735bb3757798da550f1d79c6e40fe05f82774eb02b",
+      "offline_artifact": "offline:gkhez51i/chasers-life1-sparse-latest",
+      "lineage_training_decisions": 111411200
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\chasers-focus\\life1-sparse-best.pt",
+      "sha256": "44db6f3b72eba102b2f409a2e216784b0c7da2b8e2ab1f64615be56c7430eedc",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 800,
+      "decisions": 26214400,
+      "parent": "ad3212110f64147f2a5d4f92102b406c5c090842f9ca7dc03f64300d9f77bcbe",
+      "offline_artifact": "offline:ypnycufo/chasers-focus-life1-sparse-best",
+      "lineage_training_decisions": 137625600
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\chasers-focus\\life1-sparse-latest.pt",
+      "sha256": "83ce41a748623769068ef716eb9c1d575c3ac267417cbcf43213c7f90f3808df",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 800,
+      "decisions": 26214400,
+      "parent": "ad3212110f64147f2a5d4f92102b406c5c090842f9ca7dc03f64300d9f77bcbe",
+      "offline_artifact": "offline:ypnycufo/chasers-focus-life1-sparse-latest",
+      "lineage_training_decisions": 137625600
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\chasers-focus-continue\\life1-sparse-best.pt",
+      "sha256": "5d4ff194cd621148951fea9a0464d204f8569ddd4b9f2f225b4faaff18f5ab80",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 200,
+      "decisions": 6553600,
+      "parent": "44db6f3b72eba102b2f409a2e216784b0c7da2b8e2ab1f64615be56c7430eedc",
+      "offline_artifact": "offline:ha1j5133/chasers-focus-continue-life1-sparse-best",
+      "lineage_training_decisions": 144179200
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\chasers-focus-continue\\life1-sparse-latest.pt",
+      "sha256": "f53fb5518ed739f0c5a307cb899e8ff66ac52aadb6eb162552cb8576e59007d7",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 200,
+      "decisions": 6553600,
+      "parent": "44db6f3b72eba102b2f409a2e216784b0c7da2b8e2ab1f64615be56c7430eedc",
+      "offline_artifact": "offline:ha1j5133/chasers-focus-continue-life1-sparse-latest",
+      "lineage_training_decisions": 144179200
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\mixed\\life1-sparse-best.pt",
+      "sha256": "c1545c27e393550e4c5bdf206257b6523981f9cc051ae412f8135ef84e0ed92f",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 500,
+      "decisions": 16384000,
+      "parent": "5d4ff194cd621148951fea9a0464d204f8569ddd4b9f2f225b4faaff18f5ab80",
+      "offline_artifact": "offline:s86lnz9c/mixed-life1-sparse-best",
+      "lineage_training_decisions": 160563200
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\mixed\\life1-sparse-latest.pt",
+      "sha256": "265bf6e439207a5c06d487a2443b97edc8f6de01d4ca08228afd4864e2170e07",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 500,
+      "decisions": 16384000,
+      "parent": "5d4ff194cd621148951fea9a0464d204f8569ddd4b9f2f225b4faaff18f5ab80",
+      "offline_artifact": "offline:s86lnz9c/mixed-life1-sparse-latest",
+      "lineage_training_decisions": 160563200
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\reward\\life1-potential-best.pt",
+      "sha256": "3b973080959111e0252ab75e13dbcb29a80024cf5bf17cd9b6987f4ee3edf7e7",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 400,
+      "decisions": 13107200,
+      "parent": "13803031b1938ed6470f644b3ff053746790b30cb6af9be7cb9127430f89e732",
+      "offline_artifact": "offline:hp4r1jpd/reward-life1-potential-best",
+      "lineage_training_decisions": 78643200
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\reward\\life1-potential-latest.pt",
+      "sha256": "205be6284ea7cc6a7895ff9d2c7e8b58e7a110bb318b9c5ad054b03fa591b11b",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 400,
+      "decisions": 13107200,
+      "parent": "13803031b1938ed6470f644b3ff053746790b30cb6af9be7cb9127430f89e732",
+      "offline_artifact": "offline:hp4r1jpd/reward-life1-potential-latest",
+      "lineage_training_decisions": 78643200
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\reward\\life1-sparse-best.pt",
+      "sha256": "e6870580a22116f02d12d3735bb3757798da550f1d79c6e40fe05f82774eb02b",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 400,
+      "decisions": 13107200,
+      "parent": "13803031b1938ed6470f644b3ff053746790b30cb6af9be7cb9127430f89e732",
+      "offline_artifact": "offline:hp4r1jpd/reward-life1-sparse-best",
+      "lineage_training_decisions": 78643200
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\reward\\life1-sparse-latest.pt",
+      "sha256": "9135d591f0e4ca5d8a5fa44f34eeef83959c7aba6b3677290b0c1e9fe1723a3c",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 400,
+      "decisions": 13107200,
+      "parent": "13803031b1938ed6470f644b3ff053746790b30cb6af9be7cb9127430f89e732",
+      "offline_artifact": "offline:hp4r1jpd/reward-life1-sparse-latest",
+      "lineage_training_decisions": 78643200
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\two4\\life1-potential-best.pt",
+      "sha256": "13803031b1938ed6470f644b3ff053746790b30cb6af9be7cb9127430f89e732",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 1000,
+      "decisions": 32768000,
+      "parent": "709e3fdb4bebd1489924821d1f33de41b9b42eb82b9c6166f40e6526f7111871",
+      "offline_artifact": "offline:v9ejn3gi/two4-life1-potential-best",
+      "lineage_training_decisions": 65536000
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\replication-seed242579\\two4\\life1-potential-latest.pt",
+      "sha256": "777120f41f9d52f51ada4af4238e8e2b85f7cad73e753d85da9584bea77f2137",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 1000,
+      "decisions": 32768000,
+      "parent": "709e3fdb4bebd1489924821d1f33de41b9b42eb82b9c6166f40e6526f7111871",
+      "offline_artifact": "offline:v9ejn3gi/two4-life1-potential-latest",
+      "lineage_training_decisions": 65536000
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\reward-seed129773\\life1-potential-best.pt",
+      "sha256": "8cc02201450aeb847eb984a8056bcaa152d2473fe45156329906adbdc3ad960e",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 400,
+      "decisions": 13107200,
+      "parent": "b1ee2a7414885e9f8cfeee1c34c6cd1b588fd69782a933de4ccf48933b91fa24",
+      "offline_artifact": "offline:2xjsisap/reward-seed129773-life1-potential-best",
+      "lineage_training_decisions": 124518400
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\reward-seed129773\\life1-potential-latest.pt",
+      "sha256": "9359e82986840caa735d3d288affc57309f35b495667100bfdccb81000bfe0db",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 436,
+      "decisions": 14286848,
+      "parent": "b1ee2a7414885e9f8cfeee1c34c6cd1b588fd69782a933de4ccf48933b91fa24",
+      "offline_artifact": "offline:2xjsisap/reward-seed129773-life1-potential-latest",
+      "lineage_training_decisions": 125698048
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\reward-seed129773\\life1-sparse-best.pt",
+      "sha256": "546a5d480033d145fdc213a3b396c2f1f2fb24cb21f775c9aa2e6294cb930815",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 400,
+      "decisions": 13107200,
+      "parent": "b1ee2a7414885e9f8cfeee1c34c6cd1b588fd69782a933de4ccf48933b91fa24",
+      "offline_artifact": "offline:2xjsisap/reward-seed129773-life1-sparse-best",
+      "lineage_training_decisions": 124518400
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\reward-seed129773\\life1-sparse-latest.pt",
+      "sha256": "1004e433a6f010580b99a6fca144ffad53dad8483543cccd2e3cf28c87e580f5",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 436,
+      "decisions": 14286848,
+      "parent": "b1ee2a7414885e9f8cfeee1c34c6cd1b588fd69782a933de4ccf48933b91fa24",
+      "offline_artifact": "offline:2xjsisap/reward-seed129773-life1-sparse-latest",
+      "lineage_training_decisions": 125698048
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\smoke-04\\life1-potential-best.pt",
+      "sha256": "f58d96d6b535175aa139c447a69bbbfc78a3eeb4a3b97b9eabb8c793cdaea0fb",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 2,
+      "decisions": 65536,
+      "parent": null,
+      "offline_artifact": "offline:z87cn1cz/smoke-04-life1-potential-best",
+      "lineage_training_decisions": 65536
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\smoke-04\\life1-potential-latest.pt",
+      "sha256": "689d2bcaf5f3bd409d95870a1a2d709124adbd9304986d94c81c173da6ee2205",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 2,
+      "decisions": 65536,
+      "parent": null,
+      "offline_artifact": "offline:z87cn1cz/smoke-04-life1-potential-latest",
+      "lineage_training_decisions": 65536
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\two4-continue-seed129773\\life1-potential-best.pt",
+      "sha256": "b1ee2a7414885e9f8cfeee1c34c6cd1b588fd69782a933de4ccf48933b91fa24",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 600,
+      "decisions": 19660800,
+      "parent": "05b60d7005eb2e9c0a27cbf56fe06ae6cef31eec317e146fddebb9603475469e",
+      "offline_artifact": "offline:qtmge98y/two4-continue-seed129773-life1-potential-best",
+      "lineage_training_decisions": 111411200
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\two4-continue-seed129773\\life1-potential-latest.pt",
+      "sha256": "bf09fe466224f8881608c8bab9317680d29607970d1fc02696cea337dc9d59dd",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 600,
+      "decisions": 19660800,
+      "parent": "05b60d7005eb2e9c0a27cbf56fe06ae6cef31eec317e146fddebb9603475469e",
+      "offline_artifact": "offline:qtmge98y/two4-continue-seed129773-life1-potential-latest",
+      "lineage_training_decisions": 111411200
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\two4-seed129773\\life1-potential-best.pt",
+      "sha256": "05b60d7005eb2e9c0a27cbf56fe06ae6cef31eec317e146fddebb9603475469e",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 1600,
+      "decisions": 52428800,
+      "parent": "197b08b0a37e8ab922303c916a0138263ffc946e8302b4f33d236f982f52a689",
+      "offline_artifact": "offline:jfkwfn6y/two4-seed129773-life1-potential-best",
+      "lineage_training_decisions": 91750400
+    },
+    {
+      "checkpoint": "outputs\\isaac-generalization\\two4-seed129773\\life1-potential-latest.pt",
+      "sha256": "46ce8171e8e281157b606a62a0907ddaa2e24c3272cffc733cec87a5f6ed3e88",
+      "finite": true,
+      "metadata_verified": true,
+      "updates": 1600,
+      "decisions": 52428800,
+      "parent": "197b08b0a37e8ab922303c916a0138263ffc946e8302b4f33d236f982f52a689",
+      "offline_artifact": "offline:jfkwfn6y/two4-seed129773-life1-potential-latest",
+      "lineage_training_decisions": 91750400
+    }
+  ]
+}

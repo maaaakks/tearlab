@@ -1,0 +1,3032 @@
+{
+  "complete": true,
+  "config": {
+    "mode": "reward",
+    "output": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-generalization\\replication-seed242579\\reward",
+    "parent": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-generalization\\replication-seed242579\\two4\\life1-potential-best.pt",
+    "seed": 242579,
+    "envs": 1024,
+    "updates": 400,
+    "seconds": 400.0,
+    "check_every": 100,
+    "cache": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-training-parallel\\cache",
+    "budget": 1,
+    "reward": "potential",
+    "lr": 0.0003,
+    "gamma": 0.995,
+    "audit": false,
+    "phase": "two4"
+  },
+  "source_sha256": {
+    "research/pilot_10m.py": "41f4ba2897abcaebd983cb00d54ecf4fb60e5b9ccaba71b04d4cd675eb4051ec",
+    "research/staged_simulator.py": "c20142000ed2da11979ee322feaee31727f6443d35d5698735628af82cdfd073",
+    "research/native_runtime.py": "965da0925fef81c124dda7ab38558b6102a9380c263b428d469d01cbc457c5de",
+    "research/gpu_simulator.py": "6c02697fa1435a43e987c639606dfa398fcd323ab6ed31bb52f27a3db233e2f5",
+    "research/rapid_physics.py": "7354bc47a9a9339e11b61256634481141dcfb5dcc5f9163a2f52d263fb4a93d6",
+    "research/native/isaac_kernels.h": "05221ccf8be9a46e46f69cd73115fce61e2f4ca3d180ac180e7ad476259603cc",
+    "research/native/isaac_kernels.cu": "96bf2c690929fdb588fab8f31f2b19875faf19eb77d90893d34c872a9f1f4767",
+    "python/physics_v2.py": "099df91816bdca3eaa7352763ae9d0552b3ad223fee6f87b023fb5cb841e2b18",
+    "python/shooter_lab.py": "05fad1add8ab0c2fcfc9218a317b506f3b013e44bae17411aef6b7879977a1f7",
+    "python/combat_suite.py": "d0227bf43f4ff51579457535de41199cbe2a8b60d81b497efa6d8935575eab67",
+    "python/multi_combat_lab.py": "a3b25fe001dea77896ed9a880bf254c5d931792d4c4f54e99ed604661d07d426",
+    "python/alignment_lab.py": "5c93f3950a6d9d18d8e87586847552c3c61ea93cd5c487832a4b8a403bd28539",
+    "python/combat_ppo.py": "5ee5cf7b13a923ddd053e52b6495725bff8f43675064e5d2f84b1be2ffe1013a",
+    "research/parallel_ppo.py": "ab3e4406930aa832a5b8497a285e3e892060d5a504d9994d75af318b126ca705",
+    "research/campaign_core.py": "53050149813fd871c9c4546c9f5704da2ee85b5383ae6b3c9d005730bf5b6664",
+    "research/run_campaign.py": "c3106294c8ba6b0c2bb7fe6e0b3c12050cf87634004376a7cc91707564778938",
+    "research/test_campaign.py": "f3166f44108e5538e061361e17331caf2029006646d486a9edb9097a8671d125"
+  },
+  "from_scratch": false,
+  "parent_sha256": "13803031b1938ed6470f644b3ff053746790b30cb6af9be7cb9127430f89e732",
+  "native": {
+    "schema": 1,
+    "idle_retention": 0.7749999668481111,
+    "parallel_retention": 0.7749999049682667,
+    "reverse_retention": 0.7142409767403988,
+    "transverse_retention": 0.6199999249728976,
+    "acceleration_half": 0.5282045454006552,
+    "wall_margin": 10.0,
+    "tear_inheritance": 1.2,
+    "fire_ticks": 11,
+    "command_delay_ticks": 1,
+    "eye_offset": 3.7506103515625,
+    "wall_update_order": 4,
+    "wall_rebound": 0.1,
+    "wall_bias": 0.1,
+    "wall_correction_max": 2.0
+  },
+  "live_validated": false,
+  "baseline": {
+    "life1-sparse": {
+      "life1": {
+        "seed": 910002,
+        "budget": 1,
+        "episodes": 1024,
+        "cells": [
+          {
+            "scene": {
+              "chasers": 0,
+              "shooters": 1,
+              "chaser_hp": 4,
+              "shooter_hp": 12,
+              "attacks": true
+            },
+            "name": "0P_1T_p4_t12_a1",
+            "clear_rate": 0.99609375,
+            "nohit_rate": 0.99609375,
+            "damage_events": 0.00390625,
+            "timeout_rate": 0.0,
+            "hp_fraction": 0.9967448115348816,
+            "decisions": 78.1171875,
+            "shots": 21.5625
+          },
+          {
+            "scene": {
+              "chasers": 0,
+              "shooters": 2,
+              "chaser_hp": 4,
+              "shooter_hp": 12,
+              "attacks": true
+            },
+            "name": "0P_2T_p4_t12_a1",
+            "clear_rate": 0.69140625,
+            "nohit_rate": 0.69140625,
+            "damage_events": 0.3046875,
+            "timeout_rate": 0.00390625,
+            "hp_fraction": 0.7618815898895264,
+            "decisions": 155.44140625,
+            "shots": 42.62890625
+          },
+          {
+            "scene": {
+              "chasers": 1,
+              "shooters": 1,
+              "chaser_hp": 4,
+              "shooter_hp": 12,
+              "attacks": true
+            },
+            "name": "1P_1T_p4_t12_a1",
+            "clear_rate": 0.0703125,
+            "nohit_rate": 0.0703125,
+            "damage_events": 0.9296875,
+            "timeout_rate": 0.0,
+            "hp_fraction": 0.200927734375,
+            "decisions": 25.51953125,
+            "shots": 7.1875
+          },
+          {
+            "scene": {
+              "chasers": 0,
+              "shooters": 1,
+              "chaser_hp": 4,
+              "shooter_hp": 2,
+              "attacks": false
+            },
+            "name": "0P_1T_p4_t2_a0",
+            "clear_rate": 1.0,
+            "nohit_rate": 1.0,
+            "damage_events": 0.0,
+            "timeout_rate": 0.0,
+            "hp_fraction": 1.0,
+            "decisions": 11.91015625,
+            "shots": 3.40234375
+          }
+        ],
+        "families": {
+          "0P_1T": {
+            "clear_rate": 0.998046875,
+            "nohit_rate": 0.998046875,
+            "damage_events": 0.001953125,
+            "timeout_rate": 0.0,
+            "hp_fraction": 0.9983724057674408,
+            "decisions": 45.013671875,
+            "shots": 12.482421875
+          },
+          "0P_2T": {
+            "clear_rate": 0.69140625,
+            "nohit_rate": 0.69140625,
+            "damage_events": 0.3046875,
+            "timeout_rate": 0.00390625,
+            "hp_fraction": 0.7618815898895264,
+            "decisions": 155.44140625,
+            "shots": 42.62890625
+          },
+          "1P_1T": {
+            "clear_rate": 0.0703125,
+            "nohit_rate": 0.0703125,
+            "damage_events": 0.9296875,
+            "timeout_rate": 0.0,
+            "hp_fraction": 0.200927734375,
+            "decisions": 25.51953125,
+            "shots": 7.1875
+          }
+        },
+        "macro": {
+          "clear_rate": 0.5865885416666666,
+          "nohit_rate": 0.5865885416666666,
+          "damage_events": 0.412109375,
+          "timeout_rate": 0.0013020833333333333,
+          "hp_fraction": 0.653727243343989,
+          "decisions": 75.32486979166667,
+          "shots": 20.766276041666668
+        }
+      },
+      "life3": {
+        "seed": 910004,
+        "budget": 3,
+        "episodes": 1024,
+        "cells": [
+          {
+            "scene": {
+              "chasers": 0,
+              "shooters": 1,
+              "chaser_hp": 4,
+              "shooter_hp": 12,
+              "attacks": true
+            },
+            "name": "0P_1T_p4_t12_a1",
+            "clear_rate": 1.0,
+            "nohit_rate": 0.9921875,
+            "damage_events": 0.0078125,
+            "timeout_rate": 0.0,
+            "hp_fraction": 1.0,
+            "decisions": 80.17578125,
+            "shots": 22.10546875
+          },
+          {
+            "scene": {
+              "chasers": 0,
+              "shooters": 2,
+              "chaser_hp": 4,
+              "shooter_hp": 12,
+              "attacks": true
+            },
+            "name": "0P_2T_p4_t12_a1",
+            "clear_rate": 0.9296875,
+            "nohit_rate": 0.71875,
+            "damage_events": 0.4609375,
+            "timeout_rate": 0.0078125,
+            "hp_fraction": 0.9601236581802368,
+            "decisions": 206.828125,
+            "shots": 56.63671875
+          },
+          {
+            "scene": {
+              "chasers": 1,
+              "shooters": 1,
+              "chaser_hp": 4,
+              "shooter_hp": 12,
+              "attacks": true
+            },
+            "name": "1P_1T_p4_t12_a1",
+            "clear_rate": 0.70703125,
+            "nohit_rate": 0.046875,
+            "damage_events": 1.8203125,
+            "timeout_rate": 0.0,
+            "hp_fraction": 0.78955078125,
+            "decisions": 87.64453125,
+            "shots": 24.25
+          },
+          {
+            "scene": {
+              "chasers": 0,
+              "shooters": 1,
+              "chaser_hp": 4,
+              "shooter_hp": 2,
+              "attacks": false
+            },
+            "name": "0P_1T_p4_t2_a0",
+            "clear_rate": 1.0,
+            "nohit_rate": 1.0,
+            "damage_events": 0.0,
+            "timeout_rate": 0.0,
+            "hp_fraction": 1.0,
+            "decisions": 11.421875,
+            "shots": 3.23046875
+          }
+        ],
+        "families": {
+          "0P_1T": {
+            "clear_rate": 1.0,
+            "nohit_rate": 0.99609375,
+            "damage_events": 0.00390625,
+            "timeout_rate": 0.0,
+            "hp_fraction": 1.0,
+            "decisions": 45.798828125,
+            "shots": 12.66796875
+          },
+          "0P_2T": {
+            "clear_rate": 0.9296875,
+            "nohit_rate": 0.71875,
+            "damage_events": 0.4609375,
+            "timeout_rate": 0.0078125,
+            "hp_fraction": 0.9601236581802368,
+            "decisions": 206.828125,
+            "shots": 56.63671875
+          },
+          "1P_1T": {
+            "clear_rate": 0.70703125,
+            "nohit_rate": 0.046875,
+            "damage_events": 1.8203125,
+            "timeout_rate": 0.0,
+            "hp_fraction": 0.78955078125,
+            "decisions": 87.64453125,
+            "shots": 24.25
+          }
+        },
+        "macro": {
+          "clear_rate": 0.87890625,
+          "nohit_rate": 0.5872395833333334,
+          "damage_events": 0.76171875,
+          "timeout_rate": 0.0026041666666666665,
+          "hp_fraction": 0.9165581464767456,
+          "decisions": 113.423828125,
+          "shots": 31.184895833333332
+        }
+      }
+    },
+    "life1-potential": {
+      "life1": {
+        "seed": 910002,
+        "budget": 1,
+        "episodes": 1024,
+        "cells": [
+          {
+            "scene": {
+              "chasers": 0,
+              "shooters": 1,
+              "chaser_hp": 4,
+              "shooter_hp": 12,
+              "attacks": true
+            },
+            "name": "0P_1T_p4_t12_a1",
+            "clear_rate": 0.99609375,
+            "nohit_rate": 0.99609375,
+            "damage_events": 0.00390625,
+            "timeout_rate": 0.0,
+            "hp_fraction": 0.9967448115348816,
+            "decisions": 78.1171875,
+            "shots": 21.5625
+          },
+          {
+            "scene": {
+              "chasers": 0,
+              "shooters": 2,
+              "chaser_hp": 4,
+              "shooter_hp": 12,
+              "attacks": true
+            },
+            "name": "0P_2T_p4_t12_a1",
+            "clear_rate": 0.69140625,
+            "nohit_rate": 0.69140625,
+            "damage_events": 0.3046875,
+            "timeout_rate": 0.00390625,
+            "hp_fraction": 0.7618815898895264,
+            "decisions": 155.44140625,
+            "shots": 42.62890625
+          },
+          {
+            "scene": {
+              "chasers": 1,
+              "shooters": 1,
+              "chaser_hp": 4,
+              "shooter_hp": 12,
+              "attacks": true
+            },
+            "name": "1P_1T_p4_t12_a1",
+            "clear_rate": 0.0703125,
+            "nohit_rate": 0.0703125,
+            "damage_events": 0.9296875,
+            "timeout_rate": 0.0,
+            "hp_fraction": 0.200927734375,
+            "decisions": 25.51953125,
+            "shots": 7.1875
+          },
+          {
+            "scene": {
+              "chasers": 0,
+              "shooters": 1,
+              "chaser_hp": 4,
+              "shooter_hp": 2,
+              "attacks": false
+            },
+            "name": "0P_1T_p4_t2_a0",
+            "clear_rate": 1.0,
+            "nohit_rate": 1.0,
+            "damage_events": 0.0,
+            "timeout_rate": 0.0,
+            "hp_fraction": 1.0,
+            "decisions": 11.91015625,
+            "shots": 3.40234375
+          }
+        ],
+        "families": {
+          "0P_1T": {
+            "clear_rate": 0.998046875,
+            "nohit_rate": 0.998046875,
+            "damage_events": 0.001953125,
+            "timeout_rate": 0.0,
+            "hp_fraction": 0.9983724057674408,
+            "decisions": 45.013671875,
+            "shots": 12.482421875
+          },
+          "0P_2T": {
+            "clear_rate": 0.69140625,
+            "nohit_rate": 0.69140625,
+            "damage_events": 0.3046875,
+            "timeout_rate": 0.00390625,
+            "hp_fraction": 0.7618815898895264,
+            "decisions": 155.44140625,
+            "shots": 42.62890625
+          },
+          "1P_1T": {
+            "clear_rate": 0.0703125,
+            "nohit_rate": 0.0703125,
+            "damage_events": 0.9296875,
+            "timeout_rate": 0.0,
+            "hp_fraction": 0.200927734375,
+            "decisions": 25.51953125,
+            "shots": 7.1875
+          }
+        },
+        "macro": {
+          "clear_rate": 0.5865885416666666,
+          "nohit_rate": 0.5865885416666666,
+          "damage_events": 0.412109375,
+          "timeout_rate": 0.0013020833333333333,
+          "hp_fraction": 0.653727243343989,
+          "decisions": 75.32486979166667,
+          "shots": 20.766276041666668
+        }
+      },
+      "life3": {
+        "seed": 910004,
+        "budget": 3,
+        "episodes": 1024,
+        "cells": [
+          {
+            "scene": {
+              "chasers": 0,
+              "shooters": 1,
+              "chaser_hp": 4,
+              "shooter_hp": 12,
+              "attacks": true
+            },
+            "name": "0P_1T_p4_t12_a1",
+            "clear_rate": 1.0,
+            "nohit_rate": 0.9921875,
+            "damage_events": 0.0078125,
+            "timeout_rate": 0.0,
+            "hp_fraction": 1.0,
+            "decisions": 80.17578125,
+            "shots": 22.10546875
+          },
+          {
+            "scene": {
+              "chasers": 0,
+              "shooters": 2,
+              "chaser_hp": 4,
+              "shooter_hp": 12,
+              "attacks": true
+            },
+            "name": "0P_2T_p4_t12_a1",
+            "clear_rate": 0.9296875,
+            "nohit_rate": 0.71875,
+            "damage_events": 0.4609375,
+            "timeout_rate": 0.0078125,
+            "hp_fraction": 0.9601236581802368,
+            "decisions": 206.828125,
+            "shots": 56.63671875
+          },
+          {
+            "scene": {
+              "chasers": 1,
+              "shooters": 1,
+              "chaser_hp": 4,
+              "shooter_hp": 12,
+              "attacks": true
+            },
+            "name": "1P_1T_p4_t12_a1",
+            "clear_rate": 0.70703125,
+            "nohit_rate": 0.046875,
+            "damage_events": 1.8203125,
+            "timeout_rate": 0.0,
+            "hp_fraction": 0.78955078125,
+            "decisions": 87.64453125,
+            "shots": 24.25
+          },
+          {
+            "scene": {
+              "chasers": 0,
+              "shooters": 1,
+              "chaser_hp": 4,
+              "shooter_hp": 2,
+              "attacks": false
+            },
+            "name": "0P_1T_p4_t2_a0",
+            "clear_rate": 1.0,
+            "nohit_rate": 1.0,
+            "damage_events": 0.0,
+            "timeout_rate": 0.0,
+            "hp_fraction": 1.0,
+            "decisions": 11.421875,
+            "shots": 3.23046875
+          }
+        ],
+        "families": {
+          "0P_1T": {
+            "clear_rate": 1.0,
+            "nohit_rate": 0.99609375,
+            "damage_events": 0.00390625,
+            "timeout_rate": 0.0,
+            "hp_fraction": 1.0,
+            "decisions": 45.798828125,
+            "shots": 12.66796875
+          },
+          "0P_2T": {
+            "clear_rate": 0.9296875,
+            "nohit_rate": 0.71875,
+            "damage_events": 0.4609375,
+            "timeout_rate": 0.0078125,
+            "hp_fraction": 0.9601236581802368,
+            "decisions": 206.828125,
+            "shots": 56.63671875
+          },
+          "1P_1T": {
+            "clear_rate": 0.70703125,
+            "nohit_rate": 0.046875,
+            "damage_events": 1.8203125,
+            "timeout_rate": 0.0,
+            "hp_fraction": 0.78955078125,
+            "decisions": 87.64453125,
+            "shots": 24.25
+          }
+        },
+        "macro": {
+          "clear_rate": 0.87890625,
+          "nohit_rate": 0.5872395833333334,
+          "damage_events": 0.76171875,
+          "timeout_rate": 0.0026041666666666665,
+          "hp_fraction": 0.9165581464767456,
+          "decisions": 113.423828125,
+          "shots": 31.184895833333332
+        }
+      }
+    }
+  },
+  "checks": [
+    {
+      "phase": "two-t12",
+      "updates": 100,
+      "seconds": 76.35805459995754,
+      "scores": {
+        "life1-sparse": {
+          "life1": {
+            "seed": 910002,
+            "budget": 1,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 0.9921875,
+                "nohit_rate": 0.9921875,
+                "damage_events": 0.0078125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.9964193105697632,
+                "decisions": 76.5625,
+                "shots": 21.12109375
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.75390625,
+                "nohit_rate": 0.75390625,
+                "damage_events": 0.23828125,
+                "timeout_rate": 0.0078125,
+                "hp_fraction": 0.8193359375,
+                "decisions": 165.1171875,
+                "shots": 44.91015625
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.09375,
+                "nohit_rate": 0.09375,
+                "damage_events": 0.90625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.22314453125,
+                "decisions": 27.34765625,
+                "shots": 7.66796875
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 0.98828125,
+                "nohit_rate": 0.98828125,
+                "damage_events": 0.0,
+                "timeout_rate": 0.01171875,
+                "hp_fraction": 0.990234375,
+                "decisions": 17.40234375,
+                "shots": 4.8359375
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 0.990234375,
+                "nohit_rate": 0.990234375,
+                "damage_events": 0.00390625,
+                "timeout_rate": 0.005859375,
+                "hp_fraction": 0.9933268427848816,
+                "decisions": 46.982421875,
+                "shots": 12.978515625
+              },
+              "0P_2T": {
+                "clear_rate": 0.75390625,
+                "nohit_rate": 0.75390625,
+                "damage_events": 0.23828125,
+                "timeout_rate": 0.0078125,
+                "hp_fraction": 0.8193359375,
+                "decisions": 165.1171875,
+                "shots": 44.91015625
+              },
+              "1P_1T": {
+                "clear_rate": 0.09375,
+                "nohit_rate": 0.09375,
+                "damage_events": 0.90625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.22314453125,
+                "decisions": 27.34765625,
+                "shots": 7.66796875
+              }
+            },
+            "macro": {
+              "clear_rate": 0.6126302083333334,
+              "nohit_rate": 0.6126302083333334,
+              "damage_events": 0.3828125,
+              "timeout_rate": 0.004557291666666667,
+              "hp_fraction": 0.6786024371782938,
+              "decisions": 79.81575520833333,
+              "shots": 21.852213541666668
+            }
+          },
+          "life3": {
+            "seed": 910004,
+            "budget": 3,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 77.14453125,
+                "shots": 21.26953125
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.953125,
+                "nohit_rate": 0.75390625,
+                "damage_events": 0.33203125,
+                "timeout_rate": 0.015625,
+                "hp_fraction": 0.9809569716453552,
+                "decisions": 203.53125,
+                "shots": 55.296875
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.765625,
+                "nohit_rate": 0.09765625,
+                "damage_events": 1.66796875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.831787109375,
+                "decisions": 89.2265625,
+                "shots": 24.59765625
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 0.984375,
+                "nohit_rate": 0.984375,
+                "damage_events": 0.0,
+                "timeout_rate": 0.015625,
+                "hp_fraction": 0.984375,
+                "decisions": 17.96484375,
+                "shots": 4.96875
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 0.9921875,
+                "nohit_rate": 0.9921875,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0078125,
+                "hp_fraction": 0.9921875,
+                "decisions": 47.5546875,
+                "shots": 13.119140625
+              },
+              "0P_2T": {
+                "clear_rate": 0.953125,
+                "nohit_rate": 0.75390625,
+                "damage_events": 0.33203125,
+                "timeout_rate": 0.015625,
+                "hp_fraction": 0.9809569716453552,
+                "decisions": 203.53125,
+                "shots": 55.296875
+              },
+              "1P_1T": {
+                "clear_rate": 0.765625,
+                "nohit_rate": 0.09765625,
+                "damage_events": 1.66796875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.831787109375,
+                "decisions": 89.2265625,
+                "shots": 24.59765625
+              }
+            },
+            "macro": {
+              "clear_rate": 0.9036458333333334,
+              "nohit_rate": 0.6145833333333334,
+              "damage_events": 0.6666666666666666,
+              "timeout_rate": 0.0078125,
+              "hp_fraction": 0.9349771936734518,
+              "decisions": 113.4375,
+              "shots": 31.004557291666668
+            }
+          }
+        },
+        "life1-potential": {
+          "life1": {
+            "seed": 910002,
+            "budget": 1,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 0.9921875,
+                "nohit_rate": 0.9921875,
+                "damage_events": 0.0078125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.9964192509651184,
+                "decisions": 74.26953125,
+                "shots": 20.44140625
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.77734375,
+                "nohit_rate": 0.77734375,
+                "damage_events": 0.22265625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.8291015625,
+                "decisions": 162.640625,
+                "shots": 44.52734375
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.1015625,
+                "nohit_rate": 0.1015625,
+                "damage_events": 0.8984375,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.232421875,
+                "decisions": 28.49609375,
+                "shots": 8.00390625
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 12.22265625,
+                "shots": 3.41796875
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 0.99609375,
+                "nohit_rate": 0.99609375,
+                "damage_events": 0.00390625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.9982096254825592,
+                "decisions": 43.24609375,
+                "shots": 11.9296875
+              },
+              "0P_2T": {
+                "clear_rate": 0.77734375,
+                "nohit_rate": 0.77734375,
+                "damage_events": 0.22265625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.8291015625,
+                "decisions": 162.640625,
+                "shots": 44.52734375
+              },
+              "1P_1T": {
+                "clear_rate": 0.1015625,
+                "nohit_rate": 0.1015625,
+                "damage_events": 0.8984375,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.232421875,
+                "decisions": 28.49609375,
+                "shots": 8.00390625
+              }
+            },
+            "macro": {
+              "clear_rate": 0.625,
+              "nohit_rate": 0.625,
+              "damage_events": 0.375,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.686577687660853,
+              "decisions": 78.12760416666667,
+              "shots": 21.486979166666668
+            }
+          },
+          "life3": {
+            "seed": 910004,
+            "budget": 3,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 1.0,
+                "nohit_rate": 0.9921875,
+                "damage_events": 0.01171875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 76.23046875,
+                "shots": 20.953125
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.97265625,
+                "nohit_rate": 0.7890625,
+                "damage_events": 0.28125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.9853515625,
+                "decisions": 197.79296875,
+                "shots": 54.1015625
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.76171875,
+                "nohit_rate": 0.0703125,
+                "damage_events": 1.75,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.828125,
+                "decisions": 89.37109375,
+                "shots": 24.671875
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 12.29296875,
+                "shots": 3.3828125
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 1.0,
+                "nohit_rate": 0.99609375,
+                "damage_events": 0.005859375,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 44.26171875,
+                "shots": 12.16796875
+              },
+              "0P_2T": {
+                "clear_rate": 0.97265625,
+                "nohit_rate": 0.7890625,
+                "damage_events": 0.28125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.9853515625,
+                "decisions": 197.79296875,
+                "shots": 54.1015625
+              },
+              "1P_1T": {
+                "clear_rate": 0.76171875,
+                "nohit_rate": 0.0703125,
+                "damage_events": 1.75,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.828125,
+                "decisions": 89.37109375,
+                "shots": 24.671875
+              }
+            },
+            "macro": {
+              "clear_rate": 0.9114583333333334,
+              "nohit_rate": 0.6184895833333334,
+              "damage_events": 0.6790364583333334,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.9378255208333334,
+              "decisions": 110.47526041666667,
+              "shots": 30.313802083333332
+            }
+          }
+        }
+      },
+      "training": {
+        "life1-sparse": {
+          "collection_seconds": 0.06965960003435612,
+          "optimization_seconds": 0.26411230000667274,
+          "optimizer_steps": 16,
+          "max_kl": 0.008227754384279251,
+          "entropy": 1.032384343445301,
+          "clip_fraction": 0.04547119140625
+        },
+        "life1-potential": {
+          "collection_seconds": 0.07595260010566562,
+          "optimization_seconds": 0.26764179999008775,
+          "optimizer_steps": 16,
+          "max_kl": 0.005493924021720886,
+          "entropy": 1.0163820013403893,
+          "clip_fraction": 0.0318756103515625
+        }
+      }
+    },
+    {
+      "phase": "two-t12",
+      "updates": 200,
+      "seconds": 153.0388062999118,
+      "scores": {
+        "life1-sparse": {
+          "life1": {
+            "seed": 910002,
+            "budget": 1,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 74.28515625,
+                "shots": 20.5078125
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.80859375,
+                "nohit_rate": 0.80859375,
+                "damage_events": 0.19140625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.84326171875,
+                "decisions": 160.91015625,
+                "shots": 44.02734375
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.109375,
+                "nohit_rate": 0.109375,
+                "damage_events": 0.890625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.234375,
+                "decisions": 29.48046875,
+                "shots": 8.2578125
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 0.984375,
+                "nohit_rate": 0.984375,
+                "damage_events": 0.0,
+                "timeout_rate": 0.015625,
+                "hp_fraction": 0.98828125,
+                "decisions": 25.31640625,
+                "shots": 7.01953125
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 0.9921875,
+                "nohit_rate": 0.9921875,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0078125,
+                "hp_fraction": 0.994140625,
+                "decisions": 49.80078125,
+                "shots": 13.763671875
+              },
+              "0P_2T": {
+                "clear_rate": 0.80859375,
+                "nohit_rate": 0.80859375,
+                "damage_events": 0.19140625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.84326171875,
+                "decisions": 160.91015625,
+                "shots": 44.02734375
+              },
+              "1P_1T": {
+                "clear_rate": 0.109375,
+                "nohit_rate": 0.109375,
+                "damage_events": 0.890625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.234375,
+                "decisions": 29.48046875,
+                "shots": 8.2578125
+              }
+            },
+            "macro": {
+              "clear_rate": 0.63671875,
+              "nohit_rate": 0.63671875,
+              "damage_events": 0.3606770833333333,
+              "timeout_rate": 0.0026041666666666665,
+              "hp_fraction": 0.6905924479166666,
+              "decisions": 80.06380208333333,
+              "shots": 22.016276041666668
+            }
+          },
+          "life3": {
+            "seed": 910004,
+            "budget": 3,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 74.7734375,
+                "shots": 20.63671875
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.98046875,
+                "nohit_rate": 0.80859375,
+                "damage_events": 0.2734375,
+                "timeout_rate": 0.00390625,
+                "hp_fraction": 0.9913737177848816,
+                "decisions": 201.66015625,
+                "shots": 55.046875
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.79296875,
+                "nohit_rate": 0.0703125,
+                "damage_events": 1.640625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.84716796875,
+                "decisions": 90.81640625,
+                "shots": 25.05859375
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 0.98046875,
+                "nohit_rate": 0.98046875,
+                "damage_events": 0.0,
+                "timeout_rate": 0.01953125,
+                "hp_fraction": 0.984375,
+                "decisions": 22.2421875,
+                "shots": 6.16015625
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 0.990234375,
+                "nohit_rate": 0.990234375,
+                "damage_events": 0.0,
+                "timeout_rate": 0.009765625,
+                "hp_fraction": 0.9921875,
+                "decisions": 48.5078125,
+                "shots": 13.3984375
+              },
+              "0P_2T": {
+                "clear_rate": 0.98046875,
+                "nohit_rate": 0.80859375,
+                "damage_events": 0.2734375,
+                "timeout_rate": 0.00390625,
+                "hp_fraction": 0.9913737177848816,
+                "decisions": 201.66015625,
+                "shots": 55.046875
+              },
+              "1P_1T": {
+                "clear_rate": 0.79296875,
+                "nohit_rate": 0.0703125,
+                "damage_events": 1.640625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.84716796875,
+                "decisions": 90.81640625,
+                "shots": 25.05859375
+              }
+            },
+            "macro": {
+              "clear_rate": 0.9212239583333334,
+              "nohit_rate": 0.623046875,
+              "damage_events": 0.6380208333333334,
+              "timeout_rate": 0.004557291666666667,
+              "hp_fraction": 0.9435763955116272,
+              "decisions": 113.66145833333333,
+              "shots": 31.16796875
+            }
+          }
+        },
+        "life1-potential": {
+          "life1": {
+            "seed": 910002,
+            "budget": 1,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 0.99609375,
+                "nohit_rate": 0.99609375,
+                "damage_events": 0.00390625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.9993489384651184,
+                "decisions": 76.68359375,
+                "shots": 21.08984375
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.78515625,
+                "nohit_rate": 0.78515625,
+                "damage_events": 0.2109375,
+                "timeout_rate": 0.00390625,
+                "hp_fraction": 0.8369140625,
+                "decisions": 161.4375,
+                "shots": 43.94921875
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.08984375,
+                "nohit_rate": 0.08984375,
+                "damage_events": 0.91015625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.220947265625,
+                "decisions": 27.46484375,
+                "shots": 7.72265625
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 13.2734375,
+                "shots": 3.5859375
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 0.998046875,
+                "nohit_rate": 0.998046875,
+                "damage_events": 0.001953125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.9996744692325592,
+                "decisions": 44.978515625,
+                "shots": 12.337890625
+              },
+              "0P_2T": {
+                "clear_rate": 0.78515625,
+                "nohit_rate": 0.78515625,
+                "damage_events": 0.2109375,
+                "timeout_rate": 0.00390625,
+                "hp_fraction": 0.8369140625,
+                "decisions": 161.4375,
+                "shots": 43.94921875
+              },
+              "1P_1T": {
+                "clear_rate": 0.08984375,
+                "nohit_rate": 0.08984375,
+                "damage_events": 0.91015625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.220947265625,
+                "decisions": 27.46484375,
+                "shots": 7.72265625
+              }
+            },
+            "macro": {
+              "clear_rate": 0.6243489583333334,
+              "nohit_rate": 0.6243489583333334,
+              "damage_events": 0.3743489583333333,
+              "timeout_rate": 0.0013020833333333333,
+              "hp_fraction": 0.685845265785853,
+              "decisions": 77.96028645833333,
+              "shots": 21.336588541666668
+            }
+          },
+          "life3": {
+            "seed": 910004,
+            "budget": 3,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 1.0,
+                "nohit_rate": 0.99609375,
+                "damage_events": 0.0078125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 77.5390625,
+                "shots": 21.2578125
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.96875,
+                "nohit_rate": 0.84375,
+                "damage_events": 0.22265625,
+                "timeout_rate": 0.00390625,
+                "hp_fraction": 0.98779296875,
+                "decisions": 198.43359375,
+                "shots": 53.91796875
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.74609375,
+                "nohit_rate": 0.07421875,
+                "damage_events": 1.76953125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.818359375,
+                "decisions": 87.10546875,
+                "shots": 24.00390625
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 11.9921875,
+                "shots": 3.20703125
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 1.0,
+                "nohit_rate": 0.998046875,
+                "damage_events": 0.00390625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 44.765625,
+                "shots": 12.232421875
+              },
+              "0P_2T": {
+                "clear_rate": 0.96875,
+                "nohit_rate": 0.84375,
+                "damage_events": 0.22265625,
+                "timeout_rate": 0.00390625,
+                "hp_fraction": 0.98779296875,
+                "decisions": 198.43359375,
+                "shots": 53.91796875
+              },
+              "1P_1T": {
+                "clear_rate": 0.74609375,
+                "nohit_rate": 0.07421875,
+                "damage_events": 1.76953125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.818359375,
+                "decisions": 87.10546875,
+                "shots": 24.00390625
+              }
+            },
+            "macro": {
+              "clear_rate": 0.9049479166666666,
+              "nohit_rate": 0.638671875,
+              "damage_events": 0.6653645833333334,
+              "timeout_rate": 0.0013020833333333333,
+              "hp_fraction": 0.9353841145833334,
+              "decisions": 110.1015625,
+              "shots": 30.051432291666668
+            }
+          }
+        }
+      },
+      "training": {
+        "life1-sparse": {
+          "collection_seconds": 0.06036860006861389,
+          "optimization_seconds": 0.2631620999891311,
+          "optimizer_steps": 16,
+          "max_kl": 0.005260091740638018,
+          "entropy": 0.9581736251711845,
+          "clip_fraction": 0.0304107666015625
+        },
+        "life1-potential": {
+          "collection_seconds": 0.07089889992494136,
+          "optimization_seconds": 0.23525290004909039,
+          "optimizer_steps": 16,
+          "max_kl": 0.004898621700704098,
+          "entropy": 0.9502186924219131,
+          "clip_fraction": 0.035369873046875
+        }
+      }
+    },
+    {
+      "phase": "two-t12",
+      "updates": 300,
+      "seconds": 228.7203749999171,
+      "scores": {
+        "life1-sparse": {
+          "life1": {
+            "seed": 910002,
+            "budget": 1,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 76.6875,
+                "shots": 21.16015625
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.8125,
+                "nohit_rate": 0.8125,
+                "damage_events": 0.1875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.8453775644302368,
+                "decisions": 166.671875,
+                "shots": 45.7265625
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.13671875,
+                "nohit_rate": 0.13671875,
+                "damage_events": 0.86328125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.25244140625,
+                "decisions": 30.6953125,
+                "shots": 8.625
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 15.34765625,
+                "shots": 4.2578125
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 46.017578125,
+                "shots": 12.708984375
+              },
+              "0P_2T": {
+                "clear_rate": 0.8125,
+                "nohit_rate": 0.8125,
+                "damage_events": 0.1875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.8453775644302368,
+                "decisions": 166.671875,
+                "shots": 45.7265625
+              },
+              "1P_1T": {
+                "clear_rate": 0.13671875,
+                "nohit_rate": 0.13671875,
+                "damage_events": 0.86328125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.25244140625,
+                "decisions": 30.6953125,
+                "shots": 8.625
+              }
+            },
+            "macro": {
+              "clear_rate": 0.6497395833333334,
+              "nohit_rate": 0.6497395833333334,
+              "damage_events": 0.3502604166666667,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.6992729902267456,
+              "decisions": 81.12825520833333,
+              "shots": 22.353515625
+            }
+          },
+          "life3": {
+            "seed": 910004,
+            "budget": 3,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 1.0,
+                "nohit_rate": 0.99609375,
+                "damage_events": 0.00390625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 76.35546875,
+                "shots": 21.03125
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.96875,
+                "nohit_rate": 0.8046875,
+                "damage_events": 0.2421875,
+                "timeout_rate": 0.01171875,
+                "hp_fraction": 0.98876953125,
+                "decisions": 204.52734375,
+                "shots": 55.97265625
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.82421875,
+                "nohit_rate": 0.11328125,
+                "damage_events": 1.546875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.8701171875,
+                "decisions": 93.453125,
+                "shots": 25.77734375
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 13.3359375,
+                "shots": 3.6640625
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 1.0,
+                "nohit_rate": 0.998046875,
+                "damage_events": 0.001953125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 44.845703125,
+                "shots": 12.34765625
+              },
+              "0P_2T": {
+                "clear_rate": 0.96875,
+                "nohit_rate": 0.8046875,
+                "damage_events": 0.2421875,
+                "timeout_rate": 0.01171875,
+                "hp_fraction": 0.98876953125,
+                "decisions": 204.52734375,
+                "shots": 55.97265625
+              },
+              "1P_1T": {
+                "clear_rate": 0.82421875,
+                "nohit_rate": 0.11328125,
+                "damage_events": 1.546875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.8701171875,
+                "decisions": 93.453125,
+                "shots": 25.77734375
+              }
+            },
+            "macro": {
+              "clear_rate": 0.9309895833333334,
+              "nohit_rate": 0.638671875,
+              "damage_events": 0.5970052083333334,
+              "timeout_rate": 0.00390625,
+              "hp_fraction": 0.9529622395833334,
+              "decisions": 114.275390625,
+              "shots": 31.365885416666668
+            }
+          }
+        },
+        "life1-potential": {
+          "life1": {
+            "seed": 910002,
+            "budget": 1,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 0.99609375,
+                "nohit_rate": 0.99609375,
+                "damage_events": 0.00390625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.9977213144302368,
+                "decisions": 73.91015625,
+                "shots": 20.3828125
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.80078125,
+                "nohit_rate": 0.80078125,
+                "damage_events": 0.18359375,
+                "timeout_rate": 0.015625,
+                "hp_fraction": 0.857421875,
+                "decisions": 163.74609375,
+                "shots": 44.78515625
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.11328125,
+                "nohit_rate": 0.11328125,
+                "damage_events": 0.88671875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.237060546875,
+                "decisions": 28.31640625,
+                "shots": 7.9765625
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 18.20703125,
+                "shots": 5.12890625
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 0.998046875,
+                "nohit_rate": 0.998046875,
+                "damage_events": 0.001953125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.9988606572151184,
+                "decisions": 46.05859375,
+                "shots": 12.755859375
+              },
+              "0P_2T": {
+                "clear_rate": 0.80078125,
+                "nohit_rate": 0.80078125,
+                "damage_events": 0.18359375,
+                "timeout_rate": 0.015625,
+                "hp_fraction": 0.857421875,
+                "decisions": 163.74609375,
+                "shots": 44.78515625
+              },
+              "1P_1T": {
+                "clear_rate": 0.11328125,
+                "nohit_rate": 0.11328125,
+                "damage_events": 0.88671875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.237060546875,
+                "decisions": 28.31640625,
+                "shots": 7.9765625
+              }
+            },
+            "macro": {
+              "clear_rate": 0.6373697916666666,
+              "nohit_rate": 0.6373697916666666,
+              "damage_events": 0.357421875,
+              "timeout_rate": 0.005208333333333333,
+              "hp_fraction": 0.6977810263633728,
+              "decisions": 79.37369791666667,
+              "shots": 21.839192708333332
+            }
+          },
+          "life3": {
+            "seed": 910004,
+            "budget": 3,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 1.0,
+                "nohit_rate": 0.98828125,
+                "damage_events": 0.015625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 72.75,
+                "shots": 20.0625
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.9765625,
+                "nohit_rate": 0.83203125,
+                "damage_events": 0.2265625,
+                "timeout_rate": 0.00390625,
+                "hp_fraction": 0.9918619990348816,
+                "decisions": 194.02734375,
+                "shots": 53.02734375
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.83203125,
+                "nohit_rate": 0.1015625,
+                "damage_events": 1.55078125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.88134765625,
+                "decisions": 90.08203125,
+                "shots": 24.86328125
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 12.94140625,
+                "shots": 3.578125
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 1.0,
+                "nohit_rate": 0.994140625,
+                "damage_events": 0.0078125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 42.845703125,
+                "shots": 11.8203125
+              },
+              "0P_2T": {
+                "clear_rate": 0.9765625,
+                "nohit_rate": 0.83203125,
+                "damage_events": 0.2265625,
+                "timeout_rate": 0.00390625,
+                "hp_fraction": 0.9918619990348816,
+                "decisions": 194.02734375,
+                "shots": 53.02734375
+              },
+              "1P_1T": {
+                "clear_rate": 0.83203125,
+                "nohit_rate": 0.1015625,
+                "damage_events": 1.55078125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.88134765625,
+                "decisions": 90.08203125,
+                "shots": 24.86328125
+              }
+            },
+            "macro": {
+              "clear_rate": 0.9361979166666666,
+              "nohit_rate": 0.642578125,
+              "damage_events": 0.5950520833333334,
+              "timeout_rate": 0.0013020833333333333,
+              "hp_fraction": 0.9577365517616272,
+              "decisions": 108.98502604166667,
+              "shots": 29.903645833333332
+            }
+          }
+        }
+      },
+      "training": {
+        "life1-sparse": {
+          "collection_seconds": 0.08411110006272793,
+          "optimization_seconds": 0.26731209992431104,
+          "optimizer_steps": 16,
+          "max_kl": 0.005734337493777275,
+          "entropy": 0.950739212334156,
+          "clip_fraction": 0.0383453369140625
+        },
+        "life1-potential": {
+          "collection_seconds": 0.08456360001582652,
+          "optimization_seconds": 0.25488259992562234,
+          "optimizer_steps": 16,
+          "max_kl": 0.007702774368226528,
+          "entropy": 0.9680510945618153,
+          "clip_fraction": 0.0488739013671875
+        }
+      }
+    },
+    {
+      "phase": "two-t12",
+      "updates": 400,
+      "seconds": 304.19450409989804,
+      "scores": {
+        "life1-sparse": {
+          "life1": {
+            "seed": 910002,
+            "budget": 1,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 73.82421875,
+                "shots": 20.32421875
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.81640625,
+                "nohit_rate": 0.81640625,
+                "damage_events": 0.16796875,
+                "timeout_rate": 0.015625,
+                "hp_fraction": 0.8660482168197632,
+                "decisions": 169.55859375,
+                "shots": 45.33203125
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.12109375,
+                "nohit_rate": 0.12109375,
+                "damage_events": 0.87890625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.235107421875,
+                "decisions": 28.96875,
+                "shots": 8.0
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 14.1171875,
+                "shots": 3.97265625
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 43.970703125,
+                "shots": 12.1484375
+              },
+              "0P_2T": {
+                "clear_rate": 0.81640625,
+                "nohit_rate": 0.81640625,
+                "damage_events": 0.16796875,
+                "timeout_rate": 0.015625,
+                "hp_fraction": 0.8660482168197632,
+                "decisions": 169.55859375,
+                "shots": 45.33203125
+              },
+              "1P_1T": {
+                "clear_rate": 0.12109375,
+                "nohit_rate": 0.12109375,
+                "damage_events": 0.87890625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.235107421875,
+                "decisions": 28.96875,
+                "shots": 8.0
+              }
+            },
+            "macro": {
+              "clear_rate": 0.6458333333333334,
+              "nohit_rate": 0.6458333333333334,
+              "damage_events": 0.3489583333333333,
+              "timeout_rate": 0.005208333333333333,
+              "hp_fraction": 0.7003852128982544,
+              "decisions": 80.83268229166667,
+              "shots": 21.826822916666668
+            }
+          },
+          "life3": {
+            "seed": 910004,
+            "budget": 3,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 1.0,
+                "nohit_rate": 0.99609375,
+                "damage_events": 0.00390625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 75.25,
+                "shots": 20.66015625
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.9609375,
+                "nohit_rate": 0.8203125,
+                "damage_events": 0.28515625,
+                "timeout_rate": 0.00390625,
+                "hp_fraction": 0.9832356572151184,
+                "decisions": 197.2890625,
+                "shots": 52.76953125
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.796875,
+                "nohit_rate": 0.10546875,
+                "damage_events": 1.59765625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.8544921875,
+                "decisions": 90.6328125,
+                "shots": 24.71875
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 12.9921875,
+                "shots": 3.640625
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 1.0,
+                "nohit_rate": 0.998046875,
+                "damage_events": 0.001953125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 44.12109375,
+                "shots": 12.150390625
+              },
+              "0P_2T": {
+                "clear_rate": 0.9609375,
+                "nohit_rate": 0.8203125,
+                "damage_events": 0.28515625,
+                "timeout_rate": 0.00390625,
+                "hp_fraction": 0.9832356572151184,
+                "decisions": 197.2890625,
+                "shots": 52.76953125
+              },
+              "1P_1T": {
+                "clear_rate": 0.796875,
+                "nohit_rate": 0.10546875,
+                "damage_events": 1.59765625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.8544921875,
+                "decisions": 90.6328125,
+                "shots": 24.71875
+              }
+            },
+            "macro": {
+              "clear_rate": 0.9192708333333334,
+              "nohit_rate": 0.6412760416666666,
+              "damage_events": 0.6282552083333334,
+              "timeout_rate": 0.0013020833333333333,
+              "hp_fraction": 0.9459092815717062,
+              "decisions": 110.68098958333333,
+              "shots": 29.879557291666668
+            }
+          }
+        },
+        "life1-potential": {
+          "life1": {
+            "seed": 910002,
+            "budget": 1,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 0.98046875,
+                "nohit_rate": 0.98046875,
+                "damage_events": 0.01953125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.9856770634651184,
+                "decisions": 70.921875,
+                "shots": 19.5546875
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.828125,
+                "nohit_rate": 0.828125,
+                "damage_events": 0.171875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.8580729365348816,
+                "decisions": 159.265625,
+                "shots": 43.53125
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.13671875,
+                "nohit_rate": 0.13671875,
+                "damage_events": 0.86328125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.2529296875,
+                "decisions": 29.23828125,
+                "shots": 8.17578125
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 12.75390625,
+                "shots": 3.5546875
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 0.990234375,
+                "nohit_rate": 0.990234375,
+                "damage_events": 0.009765625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.9928385317325592,
+                "decisions": 41.837890625,
+                "shots": 11.5546875
+              },
+              "0P_2T": {
+                "clear_rate": 0.828125,
+                "nohit_rate": 0.828125,
+                "damage_events": 0.171875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.8580729365348816,
+                "decisions": 159.265625,
+                "shots": 43.53125
+              },
+              "1P_1T": {
+                "clear_rate": 0.13671875,
+                "nohit_rate": 0.13671875,
+                "damage_events": 0.86328125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.2529296875,
+                "decisions": 29.23828125,
+                "shots": 8.17578125
+              }
+            },
+            "macro": {
+              "clear_rate": 0.6516927083333334,
+              "nohit_rate": 0.6516927083333334,
+              "damage_events": 0.3483072916666667,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.7012803852558136,
+              "decisions": 76.78059895833333,
+              "shots": 21.087239583333332
+            }
+          },
+          "life3": {
+            "seed": 910004,
+            "budget": 3,
+            "episodes": 1024,
+            "cells": [
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_1T_p4_t12_a1",
+                "clear_rate": 1.0,
+                "nohit_rate": 0.97265625,
+                "damage_events": 0.03515625,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 71.859375,
+                "shots": 19.7109375
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 2,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "0P_2T_p4_t12_a1",
+                "clear_rate": 0.984375,
+                "nohit_rate": 0.83203125,
+                "damage_events": 0.23046875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.9881184697151184,
+                "decisions": 189.27734375,
+                "shots": 51.68359375
+              },
+              {
+                "scene": {
+                  "chasers": 1,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 12,
+                  "attacks": true
+                },
+                "name": "1P_1T_p4_t12_a1",
+                "clear_rate": 0.83203125,
+                "nohit_rate": 0.109375,
+                "damage_events": 1.54296875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.882080078125,
+                "decisions": 89.42578125,
+                "shots": 24.67578125
+              },
+              {
+                "scene": {
+                  "chasers": 0,
+                  "shooters": 1,
+                  "chaser_hp": 4,
+                  "shooter_hp": 2,
+                  "attacks": false
+                },
+                "name": "0P_1T_p4_t2_a0",
+                "clear_rate": 1.0,
+                "nohit_rate": 1.0,
+                "damage_events": 0.0,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 11.765625,
+                "shots": 3.20703125
+              }
+            ],
+            "families": {
+              "0P_1T": {
+                "clear_rate": 1.0,
+                "nohit_rate": 0.986328125,
+                "damage_events": 0.017578125,
+                "timeout_rate": 0.0,
+                "hp_fraction": 1.0,
+                "decisions": 41.8125,
+                "shots": 11.458984375
+              },
+              "0P_2T": {
+                "clear_rate": 0.984375,
+                "nohit_rate": 0.83203125,
+                "damage_events": 0.23046875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.9881184697151184,
+                "decisions": 189.27734375,
+                "shots": 51.68359375
+              },
+              "1P_1T": {
+                "clear_rate": 0.83203125,
+                "nohit_rate": 0.109375,
+                "damage_events": 1.54296875,
+                "timeout_rate": 0.0,
+                "hp_fraction": 0.882080078125,
+                "decisions": 89.42578125,
+                "shots": 24.67578125
+              }
+            },
+            "macro": {
+              "clear_rate": 0.9388020833333334,
+              "nohit_rate": 0.642578125,
+              "damage_events": 0.5970052083333334,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.9567328492800394,
+              "decisions": 106.83854166666667,
+              "shots": 29.272786458333332
+            }
+          }
+        }
+      },
+      "training": {
+        "life1-sparse": {
+          "collection_seconds": 0.09979930007830262,
+          "optimization_seconds": 0.2822992999572307,
+          "optimizer_steps": 16,
+          "max_kl": 0.006913394201546907,
+          "entropy": 1.0310506895184517,
+          "clip_fraction": 0.0355224609375
+        },
+        "life1-potential": {
+          "collection_seconds": 0.08556940010748804,
+          "optimization_seconds": 0.2764933999860659,
+          "optimizer_steps": 16,
+          "max_kl": 0.005415717139840126,
+          "entropy": 0.971137847751379,
+          "clip_fraction": 0.0263824462890625
+        }
+      }
+    }
+  ],
+  "phases": [
+    {
+      "name": "two-t12",
+      "start_seconds": 11.733020299929194,
+      "updates": 400
+    }
+  ],
+  "final": {
+    "life1-sparse": {
+      "updates": 400,
+      "selected_updates": 400,
+      "dev": {
+        "life1": {
+          "seed": 910002,
+          "budget": 1,
+          "episodes": 1024,
+          "cells": [
+            {
+              "scene": {
+                "chasers": 0,
+                "shooters": 1,
+                "chaser_hp": 4,
+                "shooter_hp": 12,
+                "attacks": true
+              },
+              "name": "0P_1T_p4_t12_a1",
+              "clear_rate": 1.0,
+              "nohit_rate": 1.0,
+              "damage_events": 0.0,
+              "timeout_rate": 0.0,
+              "hp_fraction": 1.0,
+              "decisions": 73.82421875,
+              "shots": 20.32421875
+            },
+            {
+              "scene": {
+                "chasers": 0,
+                "shooters": 2,
+                "chaser_hp": 4,
+                "shooter_hp": 12,
+                "attacks": true
+              },
+              "name": "0P_2T_p4_t12_a1",
+              "clear_rate": 0.81640625,
+              "nohit_rate": 0.81640625,
+              "damage_events": 0.16796875,
+              "timeout_rate": 0.015625,
+              "hp_fraction": 0.8660482168197632,
+              "decisions": 169.55859375,
+              "shots": 45.33203125
+            },
+            {
+              "scene": {
+                "chasers": 1,
+                "shooters": 1,
+                "chaser_hp": 4,
+                "shooter_hp": 12,
+                "attacks": true
+              },
+              "name": "1P_1T_p4_t12_a1",
+              "clear_rate": 0.12109375,
+              "nohit_rate": 0.12109375,
+              "damage_events": 0.87890625,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.235107421875,
+              "decisions": 28.96875,
+              "shots": 8.0
+            },
+            {
+              "scene": {
+                "chasers": 0,
+                "shooters": 1,
+                "chaser_hp": 4,
+                "shooter_hp": 2,
+                "attacks": false
+              },
+              "name": "0P_1T_p4_t2_a0",
+              "clear_rate": 1.0,
+              "nohit_rate": 1.0,
+              "damage_events": 0.0,
+              "timeout_rate": 0.0,
+              "hp_fraction": 1.0,
+              "decisions": 14.1171875,
+              "shots": 3.97265625
+            }
+          ],
+          "families": {
+            "0P_1T": {
+              "clear_rate": 1.0,
+              "nohit_rate": 1.0,
+              "damage_events": 0.0,
+              "timeout_rate": 0.0,
+              "hp_fraction": 1.0,
+              "decisions": 43.970703125,
+              "shots": 12.1484375
+            },
+            "0P_2T": {
+              "clear_rate": 0.81640625,
+              "nohit_rate": 0.81640625,
+              "damage_events": 0.16796875,
+              "timeout_rate": 0.015625,
+              "hp_fraction": 0.8660482168197632,
+              "decisions": 169.55859375,
+              "shots": 45.33203125
+            },
+            "1P_1T": {
+              "clear_rate": 0.12109375,
+              "nohit_rate": 0.12109375,
+              "damage_events": 0.87890625,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.235107421875,
+              "decisions": 28.96875,
+              "shots": 8.0
+            }
+          },
+          "macro": {
+            "clear_rate": 0.6458333333333334,
+            "nohit_rate": 0.6458333333333334,
+            "damage_events": 0.3489583333333333,
+            "timeout_rate": 0.005208333333333333,
+            "hp_fraction": 0.7003852128982544,
+            "decisions": 80.83268229166667,
+            "shots": 21.826822916666668
+          }
+        },
+        "life3": {
+          "seed": 910004,
+          "budget": 3,
+          "episodes": 1024,
+          "cells": [
+            {
+              "scene": {
+                "chasers": 0,
+                "shooters": 1,
+                "chaser_hp": 4,
+                "shooter_hp": 12,
+                "attacks": true
+              },
+              "name": "0P_1T_p4_t12_a1",
+              "clear_rate": 1.0,
+              "nohit_rate": 0.99609375,
+              "damage_events": 0.00390625,
+              "timeout_rate": 0.0,
+              "hp_fraction": 1.0,
+              "decisions": 75.25,
+              "shots": 20.66015625
+            },
+            {
+              "scene": {
+                "chasers": 0,
+                "shooters": 2,
+                "chaser_hp": 4,
+                "shooter_hp": 12,
+                "attacks": true
+              },
+              "name": "0P_2T_p4_t12_a1",
+              "clear_rate": 0.9609375,
+              "nohit_rate": 0.8203125,
+              "damage_events": 0.28515625,
+              "timeout_rate": 0.00390625,
+              "hp_fraction": 0.9832356572151184,
+              "decisions": 197.2890625,
+              "shots": 52.76953125
+            },
+            {
+              "scene": {
+                "chasers": 1,
+                "shooters": 1,
+                "chaser_hp": 4,
+                "shooter_hp": 12,
+                "attacks": true
+              },
+              "name": "1P_1T_p4_t12_a1",
+              "clear_rate": 0.796875,
+              "nohit_rate": 0.10546875,
+              "damage_events": 1.59765625,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.8544921875,
+              "decisions": 90.6328125,
+              "shots": 24.71875
+            },
+            {
+              "scene": {
+                "chasers": 0,
+                "shooters": 1,
+                "chaser_hp": 4,
+                "shooter_hp": 2,
+                "attacks": false
+              },
+              "name": "0P_1T_p4_t2_a0",
+              "clear_rate": 1.0,
+              "nohit_rate": 1.0,
+              "damage_events": 0.0,
+              "timeout_rate": 0.0,
+              "hp_fraction": 1.0,
+              "decisions": 12.9921875,
+              "shots": 3.640625
+            }
+          ],
+          "families": {
+            "0P_1T": {
+              "clear_rate": 1.0,
+              "nohit_rate": 0.998046875,
+              "damage_events": 0.001953125,
+              "timeout_rate": 0.0,
+              "hp_fraction": 1.0,
+              "decisions": 44.12109375,
+              "shots": 12.150390625
+            },
+            "0P_2T": {
+              "clear_rate": 0.9609375,
+              "nohit_rate": 0.8203125,
+              "damage_events": 0.28515625,
+              "timeout_rate": 0.00390625,
+              "hp_fraction": 0.9832356572151184,
+              "decisions": 197.2890625,
+              "shots": 52.76953125
+            },
+            "1P_1T": {
+              "clear_rate": 0.796875,
+              "nohit_rate": 0.10546875,
+              "damage_events": 1.59765625,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.8544921875,
+              "decisions": 90.6328125,
+              "shots": 24.71875
+            }
+          },
+          "macro": {
+            "clear_rate": 0.9192708333333334,
+            "nohit_rate": 0.6412760416666666,
+            "damage_events": 0.6282552083333334,
+            "timeout_rate": 0.0013020833333333333,
+            "hp_fraction": 0.9459092815717062,
+            "decisions": 110.68098958333333,
+            "shots": 29.879557291666668
+          }
+        }
+      },
+      "totals": [
+        98988.0,
+        80251.0,
+        18233.0,
+        1481248.0,
+        183222.69873571396,
+        0.0,
+        -26214.401245117188,
+        3521002.0
+      ]
+    },
+    "life1-potential": {
+      "updates": 400,
+      "selected_updates": 400,
+      "dev": {
+        "life1": {
+          "seed": 910002,
+          "budget": 1,
+          "episodes": 1024,
+          "cells": [
+            {
+              "scene": {
+                "chasers": 0,
+                "shooters": 1,
+                "chaser_hp": 4,
+                "shooter_hp": 12,
+                "attacks": true
+              },
+              "name": "0P_1T_p4_t12_a1",
+              "clear_rate": 0.98046875,
+              "nohit_rate": 0.98046875,
+              "damage_events": 0.01953125,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.9856770634651184,
+              "decisions": 70.921875,
+              "shots": 19.5546875
+            },
+            {
+              "scene": {
+                "chasers": 0,
+                "shooters": 2,
+                "chaser_hp": 4,
+                "shooter_hp": 12,
+                "attacks": true
+              },
+              "name": "0P_2T_p4_t12_a1",
+              "clear_rate": 0.828125,
+              "nohit_rate": 0.828125,
+              "damage_events": 0.171875,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.8580729365348816,
+              "decisions": 159.265625,
+              "shots": 43.53125
+            },
+            {
+              "scene": {
+                "chasers": 1,
+                "shooters": 1,
+                "chaser_hp": 4,
+                "shooter_hp": 12,
+                "attacks": true
+              },
+              "name": "1P_1T_p4_t12_a1",
+              "clear_rate": 0.13671875,
+              "nohit_rate": 0.13671875,
+              "damage_events": 0.86328125,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.2529296875,
+              "decisions": 29.23828125,
+              "shots": 8.17578125
+            },
+            {
+              "scene": {
+                "chasers": 0,
+                "shooters": 1,
+                "chaser_hp": 4,
+                "shooter_hp": 2,
+                "attacks": false
+              },
+              "name": "0P_1T_p4_t2_a0",
+              "clear_rate": 1.0,
+              "nohit_rate": 1.0,
+              "damage_events": 0.0,
+              "timeout_rate": 0.0,
+              "hp_fraction": 1.0,
+              "decisions": 12.75390625,
+              "shots": 3.5546875
+            }
+          ],
+          "families": {
+            "0P_1T": {
+              "clear_rate": 0.990234375,
+              "nohit_rate": 0.990234375,
+              "damage_events": 0.009765625,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.9928385317325592,
+              "decisions": 41.837890625,
+              "shots": 11.5546875
+            },
+            "0P_2T": {
+              "clear_rate": 0.828125,
+              "nohit_rate": 0.828125,
+              "damage_events": 0.171875,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.8580729365348816,
+              "decisions": 159.265625,
+              "shots": 43.53125
+            },
+            "1P_1T": {
+              "clear_rate": 0.13671875,
+              "nohit_rate": 0.13671875,
+              "damage_events": 0.86328125,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.2529296875,
+              "decisions": 29.23828125,
+              "shots": 8.17578125
+            }
+          },
+          "macro": {
+            "clear_rate": 0.6516927083333334,
+            "nohit_rate": 0.6516927083333334,
+            "damage_events": 0.3483072916666667,
+            "timeout_rate": 0.0,
+            "hp_fraction": 0.7012803852558136,
+            "decisions": 76.78059895833333,
+            "shots": 21.087239583333332
+          }
+        },
+        "life3": {
+          "seed": 910004,
+          "budget": 3,
+          "episodes": 1024,
+          "cells": [
+            {
+              "scene": {
+                "chasers": 0,
+                "shooters": 1,
+                "chaser_hp": 4,
+                "shooter_hp": 12,
+                "attacks": true
+              },
+              "name": "0P_1T_p4_t12_a1",
+              "clear_rate": 1.0,
+              "nohit_rate": 0.97265625,
+              "damage_events": 0.03515625,
+              "timeout_rate": 0.0,
+              "hp_fraction": 1.0,
+              "decisions": 71.859375,
+              "shots": 19.7109375
+            },
+            {
+              "scene": {
+                "chasers": 0,
+                "shooters": 2,
+                "chaser_hp": 4,
+                "shooter_hp": 12,
+                "attacks": true
+              },
+              "name": "0P_2T_p4_t12_a1",
+              "clear_rate": 0.984375,
+              "nohit_rate": 0.83203125,
+              "damage_events": 0.23046875,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.9881184697151184,
+              "decisions": 189.27734375,
+              "shots": 51.68359375
+            },
+            {
+              "scene": {
+                "chasers": 1,
+                "shooters": 1,
+                "chaser_hp": 4,
+                "shooter_hp": 12,
+                "attacks": true
+              },
+              "name": "1P_1T_p4_t12_a1",
+              "clear_rate": 0.83203125,
+              "nohit_rate": 0.109375,
+              "damage_events": 1.54296875,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.882080078125,
+              "decisions": 89.42578125,
+              "shots": 24.67578125
+            },
+            {
+              "scene": {
+                "chasers": 0,
+                "shooters": 1,
+                "chaser_hp": 4,
+                "shooter_hp": 2,
+                "attacks": false
+              },
+              "name": "0P_1T_p4_t2_a0",
+              "clear_rate": 1.0,
+              "nohit_rate": 1.0,
+              "damage_events": 0.0,
+              "timeout_rate": 0.0,
+              "hp_fraction": 1.0,
+              "decisions": 11.765625,
+              "shots": 3.20703125
+            }
+          ],
+          "families": {
+            "0P_1T": {
+              "clear_rate": 1.0,
+              "nohit_rate": 0.986328125,
+              "damage_events": 0.017578125,
+              "timeout_rate": 0.0,
+              "hp_fraction": 1.0,
+              "decisions": 41.8125,
+              "shots": 11.458984375
+            },
+            "0P_2T": {
+              "clear_rate": 0.984375,
+              "nohit_rate": 0.83203125,
+              "damage_events": 0.23046875,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.9881184697151184,
+              "decisions": 189.27734375,
+              "shots": 51.68359375
+            },
+            "1P_1T": {
+              "clear_rate": 0.83203125,
+              "nohit_rate": 0.109375,
+              "damage_events": 1.54296875,
+              "timeout_rate": 0.0,
+              "hp_fraction": 0.882080078125,
+              "decisions": 89.42578125,
+              "shots": 24.67578125
+            }
+          },
+          "macro": {
+            "clear_rate": 0.9388020833333334,
+            "nohit_rate": 0.642578125,
+            "damage_events": 0.5970052083333334,
+            "timeout_rate": 0.0,
+            "hp_fraction": 0.9567328492800394,
+            "decisions": 106.83854166666667,
+            "shots": 29.272786458333332
+          }
+        }
+      },
+      "totals": [
+        101672.0,
+        83007.0,
+        18456.0,
+        1528205.0,
+        191389.39876890182,
+        -42473.9488279894,
+        -26214.401245117188,
+        3502756.0
+      ]
+    }
+  },
+  "wandb": {
+    "mode": "offline",
+    "id": "hp4r1jpd",
+    "dir": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-generalization\\replication-seed242579\\reward\\wandb\\offline-run-20261108_211149-hp4r1jpd\\files"
+  },
+  "planned_schedule": [
+    {
+      "name": "two-t12",
+      "scenes": [
+        {
+          "chasers": 0,
+          "shooters": 2,
+          "chaser_hp": 4,
+          "shooter_hp": 12,
+          "attacks": true
+        },
+        {
+          "chasers": 0,
+          "shooters": 2,
+          "chaser_hp": 4,
+          "shooter_hp": 12,
+          "attacks": true
+        },
+        {
+          "chasers": 0,
+          "shooters": 2,
+          "chaser_hp": 4,
+          "shooter_hp": 12,
+          "attacks": true
+        },
+        {
+          "chasers": 0,
+          "shooters": 2,
+          "chaser_hp": 4,
+          "shooter_hp": 12,
+          "attacks": true
+        },
+        {
+          "chasers": 0,
+          "shooters": 2,
+          "chaser_hp": 4,
+          "shooter_hp": 12,
+          "attacks": true
+        },
+        {
+          "chasers": 0,
+          "shooters": 2,
+          "chaser_hp": 4,
+          "shooter_hp": 12,
+          "attacks": true
+        },
+        {
+          "chasers": 0,
+          "shooters": 2,
+          "chaser_hp": 4,
+          "shooter_hp": 12,
+          "attacks": true
+        },
+        {
+          "chasers": 0,
+          "shooters": 2,
+          "chaser_hp": 4,
+          "shooter_hp": 12,
+          "attacks": true
+        },
+        {
+          "chasers": 0,
+          "shooters": 1,
+          "chaser_hp": 4,
+          "shooter_hp": 12,
+          "attacks": true
+        },
+        {
+          "chasers": 0,
+          "shooters": 1,
+          "chaser_hp": 4,
+          "shooter_hp": 12,
+          "attacks": true
+        },
+        {
+          "chasers": 0,
+          "shooters": 2,
+          "chaser_hp": 4,
+          "shooter_hp": 4,
+          "attacks": true
+        }
+      ],
+      "updates": 400
+    }
+  ],
+  "elapsed_seconds": 312.1153354999842,
+  "stop": "bounded_budget",
+  "training_decisions": {
+    "life1-sparse": 13107200,
+    "life1-potential": 13107200
+  }
+}

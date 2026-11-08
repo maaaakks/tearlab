@@ -1,0 +1,16 @@
+{
+  "run": "mixed",
+  "learner": "life1-sparse",
+  "label": "best",
+  "metric": [
+    1.0,
+    0.7317708333333334,
+    0.7317708333333334,
+    -116.44921875
+  ],
+  "updates": 500,
+  "decisions": 16384000,
+  "sha256": "c1545c27e393550e4c5bdf206257b6523981f9cc051ae412f8135ef84e0ed92f",
+  "live_validated": false,
+  "wandb_artifact_reference": "offline:s86lnz9c/mixed-life1-sparse-best"
+}
