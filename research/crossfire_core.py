@@ -35,7 +35,7 @@ def closest_passage(obs):
 class CrossPolicy(c.Policy):
     def __init__(self,variant='pool'):
         super().__init__();self.variant=variant
-        if variant=='risk':
+        if variant in ('risk','capacity'):
             self.extra=nn.Sequential(nn.Linear(8,32),nn.Tanh(),nn.Linear(32,32),nn.Tanh())
             self.residual=nn.Linear(64,128)
         elif variant=='attention':
@@ -53,8 +53,9 @@ class CrossPolicy(c.Policy):
         features=torch.cat((obs[:,:48],self.pool(self.enemy,enemies,enemies[:,:,5]>0),
                             self.pool(self.projectile,bullets,bullets[:,:,4]>0),prev,obs[:,236:]),1)
         state=self.body(features)
-        if self.variant=='risk':
-            extra=torch.cat((bullets,closest_passage(obs)),dim=-1)
+        if self.variant in ('risk','capacity'):
+            derived=closest_passage(obs) if self.variant=='risk' else torch.zeros_like(bullets[:,:,:3])
+            extra=torch.cat((bullets,derived),dim=-1)
             state=state+self.residual(self.pool(self.extra,extra,bullets[:,:,4]>0))
         elif self.variant=='attention':
             q=self.query(torch.cat((obs[:,:8],prev),-1))

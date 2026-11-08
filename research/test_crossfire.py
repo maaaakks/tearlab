@@ -49,7 +49,7 @@ class CrossContracts(unittest.TestCase):
         torch.manual_seed(91);base=c.Policy()
         env=self.env([CrossScene(0,4),CrossScene(0,2)])
         obs=env.obs();previous=torch.tensor([45,9])
-        for variant in ('pool','risk','attention'):
+        for variant in ('pool','risk','attention','capacity'):
             policy=CrossPolicy(variant);policy.load_state_dict(base.state_dict(),strict=False)
             a,v=policy(obs,previous);x,y=base(obs,previous)
             torch.testing.assert_close(a,x,rtol=0,atol=0);torch.testing.assert_close(v,y,rtol=0,atol=0)
@@ -75,7 +75,7 @@ class CrossContracts(unittest.TestCase):
         env=self.env([CrossScene(0,3)]);obs=env.obs()
         obs[:,76:236]=torch.randn(1,160);obs[:,76:236].reshape(1,32,5)[:,:,4]=1
         perm=torch.randperm(32);changed=obs.clone();changed[:,76:236]=obs[:,76:236].reshape(1,32,5)[:,perm].flatten(1)
-        for variant in ('risk','attention'):
+        for variant in ('risk','attention','capacity'):
             policy=CrossPolicy(variant);torch.nn.init.normal_(policy.residual.weight,std=.1)
             a,v=policy(obs,torch.tensor([45]));x,y=policy(changed,torch.tensor([45]))
             torch.testing.assert_close(a,x,atol=1e-5,rtol=1e-5);torch.testing.assert_close(v,y,atol=1e-5,rtol=1e-5)
@@ -85,6 +85,16 @@ class CrossContracts(unittest.TestCase):
             scenes=schedule(count,hp)
             self.assertFalse(any(s.synchronized or s.arrangement=='grouped' for s in scenes))
             self.assertFalse({(s.chasers,s.shooters) for s in scenes}&c.HOLDOUT)
+
+    def test_synchronized_exam_repeats_joint_attacks(self):
+        env=self.env([CrossScene(0,4,synchronized=True)]*8)
+        env.prepare();env.keep_terminal=True
+        emitted=0
+        for _ in range(50):
+            _,_,_,info=env.step(torch.zeros(8,dtype=torch.long))
+            self.assertTrue(((info['attacks']%4)==0).all())
+            emitted+=int(info['attacks'].sum())
+        self.assertGreater(emitted,100)
 
 
 @unittest.skipUnless(os.environ.get('RUN_ISAAC_GPU_TESTS')=='1','Explicit GPU test opt-in')
@@ -109,7 +119,7 @@ class CrossGPU(unittest.TestCase):
 
     def test_each_representation_trains_and_checks_capture_state(self):
         torch.set_num_threads(1);cache=Path(os.environ['ISAAC_NATIVE_CACHE']);native=NativePhysics.load(ROOT/'data/physics_v2/calibration_r5.json')
-        for variant in ('pool','risk','attention'):
+        for variant in ('pool','risk','attention','capacity'):
             learner=CrossLearner(CrossPolicy(variant).cuda(),c.balance(schedule(3,4),128),71,native,cache)
             for _ in range(2):self.assertGreater(learner.update()['optimizer_steps'],0)
             self.assertTrue(all(torch.isfinite(p).all() for p in learner.policy.parameters()))
