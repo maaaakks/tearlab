@@ -29,3 +29,22 @@ MLP de capacité comparable, sans calcul cinématique ni attention. Le contrôle
 des features de rapprochement. Mêmes initialisations, exposition et scènes.
 Cela permettra de distinguer l'effet des features de l'ajout de paramètres. Le
 contrôle est adaptatif et ses coûts seront conservés. Aucun test final consulté.
+
+## Après la première graine, avant fin de la seconde et avant tout audit final
+
+Pooling gagne sur le développement : cible moyenne 62,6 %, contre cinématique
+58,0 % et attention 58,9 %. Le contrôle de capacité n'est donc pas déclenché sur
+cette première graine. Quatre tireurs 12 PV restent à environ 30–44 % selon le
+placement malgré la progression ; ce palier n'est pas maîtrisé.
+
+Décision bornée : terminer d'abord la comparaison égale sur la seconde graine.
+Si une branche supplémentaire gagne sur l'une des graines, exécuter le contrôle
+de capacité manquant sur les deux avant de choisir la recette. Choix global sur
+les deux développements uniquement. Puis, si la moyenne 4T12 est sous 70 % sur
+au moins une graine, prolonger cette seule recette sur 4T12, mêmes quatre
+placements et six tâches de rétention, 1200 updates/graine, checks tous les 200.
+Budget additionnel 39 321 600 transitions/graine. Adam à nouveau neuf comme dans
+le lanceur ; comparaison d'architectures inchangée, cette prolongation est
+rapportée séparément. Garder le parent si le meilleur développement prolongé
+ne l'améliore pas. Aucun changement de reward, scène réservée ni seuil pour
+obtenir artificiellement une promotion. Tests finaux encore fermés.

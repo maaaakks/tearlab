@@ -1,0 +1,86 @@
+{
+  "cpu_only": true,
+  "passed": true,
+  "rows": [
+    {
+      "arrangement": "ring",
+      "placement": "center",
+      "episodes": 2048,
+      "positions": 8192,
+      "fallback_positions": 0,
+      "fallback_fraction": 0.0,
+      "minimum_player_distance": 90.00083923339844,
+      "minimum_enemy_spacing": 35.00041961669922
+    },
+    {
+      "arrangement": "ring",
+      "placement": "free",
+      "episodes": 2048,
+      "positions": 8192,
+      "fallback_positions": 2,
+      "fallback_fraction": 0.000244140625,
+      "minimum_player_distance": 90.00083923339844,
+      "minimum_enemy_spacing": 35.036380767822266
+    },
+    {
+      "arrangement": "ring",
+      "placement": "edge",
+      "episodes": 2048,
+      "positions": 8192,
+      "fallback_positions": 61,
+      "fallback_fraction": 0.0074462890625,
+      "minimum_player_distance": 90.00083923339844,
+      "minimum_enemy_spacing": 35.01021194458008
+    },
+    {
+      "arrangement": "ring",
+      "placement": "corner",
+      "episodes": 2048,
+      "positions": 8192,
+      "fallback_positions": 430,
+      "fallback_fraction": 0.052490234375,
+      "minimum_player_distance": 90.00457000732422,
+      "minimum_enemy_spacing": 35.00031661987305
+    },
+    {
+      "arrangement": "grouped",
+      "placement": "center",
+      "episodes": 2048,
+      "positions": 8192,
+      "fallback_positions": 0,
+      "fallback_fraction": 0.0,
+      "minimum_player_distance": 90.00337982177734,
+      "minimum_enemy_spacing": 35.00914001464844
+    },
+    {
+      "arrangement": "grouped",
+      "placement": "free",
+      "episodes": 2048,
+      "positions": 8192,
+      "fallback_positions": 0,
+      "fallback_fraction": 0.0,
+      "minimum_player_distance": 90.00336456298828,
+      "minimum_enemy_spacing": 35.00505065917969
+    },
+    {
+      "arrangement": "grouped",
+      "placement": "edge",
+      "episodes": 2048,
+      "positions": 8192,
+      "fallback_positions": 0,
+      "fallback_fraction": 0.0,
+      "minimum_player_distance": 90.00337982177734,
+      "minimum_enemy_spacing": 35.00507354736328
+    },
+    {
+      "arrangement": "grouped",
+      "placement": "corner",
+      "episodes": 2048,
+      "positions": 8192,
+      "fallback_positions": 0,
+      "fallback_fraction": 0.0,
+      "minimum_player_distance": 90.00335693359375,
+      "minimum_enemy_spacing": 35.00507736206055
+    }
+  ]
+}

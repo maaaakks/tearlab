@@ -8,6 +8,7 @@ import sys
 ROOT=Path(r'C:\Users\maxbr\Desktop\game\IsaacRL\binding-of-ai')
 sys.path[:0]=[str(ROOT),str(ROOT/'python')]
 import torch
+import numpy as np
 try:
     from research.crossfire_core import *
     from research.diagnose_crossfire import load_policy,suites
@@ -26,15 +27,18 @@ def main():
     torch.set_num_threads(1);torch.backends.cuda.matmul.allow_tf32=False
     native=NativePhysics.load(ROOT/'data/physics_v2/calibration_r5.json')
     report=dict(complete=False,selection_sha256=hashlib.sha256(args.selection.read_bytes()).hexdigest(),
-                seeds=[970101,970201],per_cell=args.per_cell,models={})
+                seeds=[970101,970201],per_cell=args.per_cell,models={},
+                audit_source_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
     for key,model in selection['models'].items():
         path=Path(model['checkpoint']);assert hashlib.sha256(path.read_bytes()).hexdigest()==model['sha256']
         policy=load_policy(path);row=dict(checkpoint=str(path),sha256=model['sha256'],suites={});report['models'][key]=row
+        episode_arrays={}
         for offset,(label,(scenes,width,height)) in enumerate(suites(final=True).items()):
             row['suites'][label]=[]
             for seed in (970101,970201):
                 examiner=CrossExaminer(policy,scenes,args.per_cell,seed+offset*10,native,args.cache,width=width,height=height)
                 result=examiner.run();row['suites'][label].append(result)
+                episode_arrays[f'{label}-{seed}']=examiner.stats.cpu().numpy().copy()
                 print('FINAL',key,label,seed,result['macro']['clear_rate'],flush=True)
                 (args.output/'report.json').write_text(json.dumps(report,indent=2))
                 del examiner;gc.collect()
@@ -42,6 +46,7 @@ def main():
         scenes=[c.Scene(0,3),c.Scene(0,4)]+c.holdout_cells()
         examiner=c.Examiner(policy,scenes,args.per_cell,970301,native,args.cache,budget=1)
         row['historical']=examiner.run();del examiner
+        np.savez_compressed(args.output/(key+'-episodes.npz'),**episode_arrays)
         del policy;gc.collect();torch.cuda.empty_cache()
     report['complete']=True;(args.output/'report.json').write_text(json.dumps(report,indent=2))
 
