@@ -82,7 +82,7 @@
 - [x] Six optimisations indépendantes, fusions tick/décision et variante par groupe de threads.
 - [x] Contrôles CPU : 34 configurations, événements et RNG identiques, tolérances flottantes déclarées.
 - [x] Compilation CPU/PTX/CUBIN hors ligne, ressources statiques et banc de 18 variantes.
-- [ ] Qualification CUDA et comparaison des performances, après disponibilité du GPU.
+- [x] Qualification CUDA : 144 cas réussis ; comparaison par proposition et confirmation entrelacée réalisées. Voir [les résultats](docs/GPU_ABLATION_RESULTS.md).
 - [ ] Choisir les optimisations à promouvoir et mesurer la boucle d'apprentissage complète.
 
 Voir [le protocole et les commandes](docs/GPU_ABLATION_PLAN.md). Aucun test GPU lancé pendant cette passe.

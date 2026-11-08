@@ -184,3 +184,12 @@ This file captures durable lessons from training runs so we can reuse what we le
 - CPU/PTX/CUBIN compilés hors ligne ; aucune exécution GPU, aucun entraînement ni changement de checkpoint. La compilation indique 64 registres pour la décision par thread, 113 par groupe ; ce n'est pas une mesure de vitesse.
 - Confiance : contrats CPU vérifiés, fonctionnement et gains CUDA encore à qualifier. Prochaine étape : court diagnostic GPU puis matrice complète autorisée, pas de long entraînement avant ces mesures.
 - Sources et preuves : `docs/GPU_ABLATION_PLAN.md`, `docs/evidence/gpu-native-v2/`, `research/gpu_ablation.py`.
+
+# 2026-11-08 — Qualification GPU des noyaux natifs terminée
+
+- 144 cas d'ablation réussis sur RTX 4070 : six propositions isolées et retirées une par une, fusions tick/décision, deux répartitions, deux scénarios, deux tailles de lot et deux modes de reset. 20 054 016 décisions de salle comparées hors chronométrage.
+- Confirmation entrelacée, autre graine, sept séries de 128 décisions : à 8 192 salles, tireurs 2,5160 → 0,3640 ms (×6,91) ; mixtes 3,3011 → 0,4618 ms (×7,15), contre le graphe V1. À 512 salles mixtes, groupe de threads préférable : ×10,21.
+- Sur cette couverture, écart mesuré nul sur les états physiques, récompenses et diagnostics ; écart observation maximal 5,96e-8. Terminaisons et RNG identiques. Les tolérances n'ont pas été relevées.
+- Le profilage passe de 1 230/1 450 noyaux par décision à 54/64. Projectiles, tirs ennemis et resets sont les contributions majeures dans le mélange. Aucun entraînement ni checkpoint modifié.
+- Confiance : remplacement du simulateur qualifié sur ces scénarios, gain local de simulation ; ne prouve ni un gain équivalent sur l'apprentissage complet ni une fidélité accrue au vrai jeu. Les lanceurs restent inchangés.
+- Preuves et reproduction : `docs/GPU_ABLATION_RESULTS.md`, `docs/evidence/gpu-native-v3/`, `research/confirm_gpu_simulator.py`.

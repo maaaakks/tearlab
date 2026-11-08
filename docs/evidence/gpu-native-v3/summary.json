@@ -1,0 +1,4036 @@
+{
+  "status": "GPU qualification and measurement completed",
+  "gpu": "NVIDIA GeForce RTX 4070",
+  "matrix_cases": 144,
+  "failed_cases": 0,
+  "qualified_lane_decisions": 20054016,
+  "max_abs_by_category": {
+    "state.": 0.0,
+    "output.0": 5.960464477539063e-08,
+    "output.1": 0.0,
+    "info.": 0.0
+  },
+  "source_sha256": {
+    "research\\gpu_ablation.py": "5e76748a200172bd3deac6ac4920af88599335fc07e7450147079d4e55c3382a",
+    "research\\native_runtime.py": "965da0925fef81c124dda7ab38558b6102a9380c263b428d469d01cbc457c5de",
+    "research\\staged_simulator.py": "c20142000ed2da11979ee322feaee31727f6443d35d5698735628af82cdfd073",
+    "research\\gpu_simulator.py": "6c02697fa1435a43e987c639606dfa398fcd323ab6ed31bb52f27a3db233e2f5",
+    "research\\rapid_physics.py": "7354bc47a9a9339e11b61256634481141dcfb5dcc5f9163a2f52d263fb4a93d6",
+    "python\\physics_v2.py": "099df91816bdca3eaa7352763ae9d0552b3ad223fee6f87b023fb5cb841e2b18",
+    "python\\shooter_lab.py": "05fad1add8ab0c2fcfc9218a317b506f3b013e44bae17411aef6b7879977a1f7",
+    "python\\combat_suite.py": "d0227bf43f4ff51579457535de41199cbe2a8b60d81b497efa6d8935575eab67",
+    "python\\multi_combat_lab.py": "a3b25fe001dea77896ed9a880bf254c5d931792d4c4f54e99ed604661d07d426",
+    "python\\alignment_lab.py": "5c93f3950a6d9d18d8e87586847552c3c61ea93cd5c487832a4b8a403bd28539"
+  },
+  "native_source_sha256": "f2a68f0e9c2161dd14d534d63fffc240141e6736419f1249c1d4849d80431eb4",
+  "confirmation": [
+    {
+      "scenario": "shooters",
+      "lanes": 512,
+      "status": "passed",
+      "qualification": {
+        "graph_v1": {
+          "status": "passed",
+          "decisions": 32768,
+          "max_abs_by_field": {
+            "output.0": 0.0,
+            "output.1": 0.0,
+            "info.damage": 0.0,
+            "info.kills": 0.0,
+            "info.attacks": 0.0,
+            "info.fired": 0.0,
+            "state.native_velocity": 0.0,
+            "state.eye": 0.0,
+            "state.hostile_pos": 0.0,
+            "state.hostile_vel": 0.0,
+            "state.hostile_life": 0.0,
+            "state.attack_speed": 0.0,
+            "state.move": 0.0,
+            "state.pos": 0.0,
+            "state.vel": 0.0,
+            "state.targets": 0.0,
+            "state.target_vel": 0.0,
+            "state.speed": 0.0,
+            "state.bpos": 0.0,
+            "state.bvel": 0.0,
+            "state.life": 0.0,
+            "state.cooldown": 0.0
+          },
+          "max_abs": 0.0,
+          "discrete_exact": true,
+          "rng_exact": true
+        },
+        "fused_decision": {
+          "status": "passed",
+          "decisions": 32768,
+          "max_abs_by_field": {
+            "output.0": 5.960464477539063e-08,
+            "output.1": 0.0,
+            "info.damage": 0.0,
+            "info.kills": 0.0,
+            "info.attacks": 0.0,
+            "info.fired": 0.0,
+            "state.native_velocity": 0.0,
+            "state.eye": 0.0,
+            "state.hostile_pos": 0.0,
+            "state.hostile_vel": 0.0,
+            "state.hostile_life": 0.0,
+            "state.attack_speed": 0.0,
+            "state.move": 0.0,
+            "state.pos": 0.0,
+            "state.vel": 0.0,
+            "state.targets": 0.0,
+            "state.target_vel": 0.0,
+            "state.speed": 0.0,
+            "state.bpos": 0.0,
+            "state.bvel": 0.0,
+            "state.life": 0.0,
+            "state.cooldown": 0.0
+          },
+          "max_abs": 5.960464477539063e-08,
+          "discrete_exact": true,
+          "rng_exact": true
+        },
+        "fused_decision_warp": {
+          "status": "passed",
+          "decisions": 32768,
+          "max_abs_by_field": {
+            "output.0": 5.960464477539063e-08,
+            "output.1": 0.0,
+            "info.damage": 0.0,
+            "info.kills": 0.0,
+            "info.attacks": 0.0,
+            "info.fired": 0.0,
+            "state.native_velocity": 0.0,
+            "state.eye": 0.0,
+            "state.hostile_pos": 0.0,
+            "state.hostile_vel": 0.0,
+            "state.hostile_life": 0.0,
+            "state.attack_speed": 0.0,
+            "state.move": 0.0,
+            "state.pos": 0.0,
+            "state.vel": 0.0,
+            "state.targets": 0.0,
+            "state.target_vel": 0.0,
+            "state.speed": 0.0,
+            "state.bpos": 0.0,
+            "state.bvel": 0.0,
+            "state.life": 0.0,
+            "state.cooldown": 0.0
+          },
+          "max_abs": 5.960464477539063e-08,
+          "discrete_exact": true,
+          "rng_exact": true
+        }
+      },
+      "variants": {
+        "graph_v1": {
+          "wall_samples_ms": [
+            1.9651859374789638,
+            1.6217671873164363,
+            1.6785960933702881,
+            1.6159789056473528,
+            1.611510937436833,
+            1.6279820310955984,
+            1.6305148437822936
+          ],
+          "cuda_samples_ms": [
+            1.965080976486206,
+            1.6216182708740234,
+            1.6785242557525635,
+            1.6158779859542847,
+            1.6114346981048584,
+            1.6278917789459229,
+            1.6304270029067993
+          ],
+          "done_counts": [
+            7501,
+            7531,
+            7515,
+            7503,
+            7520,
+            7501,
+            7487
+          ],
+          "wall_ms_median": 1.6279820310955984,
+          "wall_ms_p95": 1.9651859374789638,
+          "decisions_s": 314499.7857595729,
+          "issued_ticks_s": 943499.3572787186,
+          "speedup_vs_graph_v1": 1.0
+        },
+        "fused_decision": {
+          "wall_samples_ms": [
+            0.18612499934533844,
+            0.18557968724053353,
+            0.19949687521148007,
+            0.1888554688775912,
+            0.18843906309484737,
+            0.18952812570205424,
+            0.18991796878253808
+          ],
+          "cuda_samples_ms": [
+            0.18607500195503235,
+            0.18550924956798553,
+            0.19934749603271484,
+            0.18878549337387085,
+            0.18838174641132355,
+            0.18946175277233124,
+            0.1898290067911148
+          ],
+          "done_counts": [
+            7501,
+            7531,
+            7515,
+            7503,
+            7520,
+            7501,
+            7487
+          ],
+          "wall_ms_median": 0.1888554688775912,
+          "wall_ms_p95": 0.19949687521148007,
+          "decisions_s": 2711067.9031056208,
+          "issued_ticks_s": 8133203.709316863,
+          "speedup_vs_graph_v1": 8.620253576828073
+        },
+        "fused_decision_warp": {
+          "wall_samples_ms": [
+            0.1724085932437447,
+            0.1939382809723611,
+            0.19237031210650457,
+            0.18102656213159207,
+            0.18076406286127167,
+            0.17734375069267116,
+            0.17748281243257225
+          ],
+          "cuda_samples_ms": [
+            0.17235924303531647,
+            0.19372950494289398,
+            0.19216600060462952,
+            0.18082450330257416,
+            0.18060150742530823,
+            0.1771485060453415,
+            0.17727500200271606
+          ],
+          "done_counts": [
+            7501,
+            7531,
+            7515,
+            7503,
+            7520,
+            7501,
+            7487
+          ],
+          "wall_ms_median": 0.18076406286127167,
+          "wall_ms_p95": 0.1939382809723611,
+          "decisions_s": 2832421.400004364,
+          "issued_ticks_s": 8497264.200013092,
+          "speedup_vs_graph_v1": 9.006115515034654
+        }
+      },
+      "completed_rounds": 7,
+      "discrete_and_rng_exact": true,
+      "max_abs_by_field": {
+        "output.0": 5.960464477539063e-08,
+        "output.1": 0.0,
+        "info.damage": 0.0,
+        "info.kills": 0.0,
+        "info.attacks": 0.0,
+        "info.fired": 0.0,
+        "state._spawn_extent": 0.0,
+        "state.native_velocity": 0.0,
+        "state.eye": 0.0,
+        "state.hostile_pos": 0.0,
+        "state.hostile_vel": 0.0,
+        "state.hostile_life": 0.0,
+        "state.attack_speed": 0.0,
+        "state.move": 0.0,
+        "state.pos": 0.0,
+        "state.vel": 0.0,
+        "state.targets": 0.0,
+        "state.target_vel": 0.0,
+        "state.speed": 0.0,
+        "state.bpos": 0.0,
+        "state.bvel": 0.0,
+        "state.life": 0.0,
+        "state.cooldown": 0.0
+      },
+      "long_trajectory_decisions_per_lane": 904
+    },
+    {
+      "scenario": "shooters",
+      "lanes": 8192,
+      "status": "passed",
+      "qualification": {
+        "graph_v1": {
+          "status": "passed",
+          "decisions": 524288,
+          "max_abs_by_field": {
+            "output.0": 0.0,
+            "output.1": 0.0,
+            "info.damage": 0.0,
+            "info.kills": 0.0,
+            "info.attacks": 0.0,
+            "info.fired": 0.0,
+            "state.native_velocity": 0.0,
+            "state.eye": 0.0,
+            "state.hostile_pos": 0.0,
+            "state.hostile_vel": 0.0,
+            "state.hostile_life": 0.0,
+            "state.attack_speed": 0.0,
+            "state.move": 0.0,
+            "state.pos": 0.0,
+            "state.vel": 0.0,
+            "state.targets": 0.0,
+            "state.target_vel": 0.0,
+            "state.speed": 0.0,
+            "state.bpos": 0.0,
+            "state.bvel": 0.0,
+            "state.life": 0.0,
+            "state.cooldown": 0.0
+          },
+          "max_abs": 0.0,
+          "discrete_exact": true,
+          "rng_exact": true
+        },
+        "fused_decision": {
+          "status": "passed",
+          "decisions": 524288,
+          "max_abs_by_field": {
+            "output.0": 5.960464477539063e-08,
+            "output.1": 0.0,
+            "info.damage": 0.0,
+            "info.kills": 0.0,
+            "info.attacks": 0.0,
+            "info.fired": 0.0,
+            "state.native_velocity": 0.0,
+            "state.eye": 0.0,
+            "state.hostile_pos": 0.0,
+            "state.hostile_vel": 0.0,
+            "state.hostile_life": 0.0,
+            "state.attack_speed": 0.0,
+            "state.move": 0.0,
+            "state.pos": 0.0,
+            "state.vel": 0.0,
+            "state.targets": 0.0,
+            "state.target_vel": 0.0,
+            "state.speed": 0.0,
+            "state.bpos": 0.0,
+            "state.bvel": 0.0,
+            "state.life": 0.0,
+            "state.cooldown": 0.0
+          },
+          "max_abs": 5.960464477539063e-08,
+          "discrete_exact": true,
+          "rng_exact": true
+        },
+        "fused_decision_warp": {
+          "status": "passed",
+          "decisions": 524288,
+          "max_abs_by_field": {
+            "output.0": 5.960464477539063e-08,
+            "output.1": 0.0,
+            "info.damage": 0.0,
+            "info.kills": 0.0,
+            "info.attacks": 0.0,
+            "info.fired": 0.0,
+            "state.native_velocity": 0.0,
+            "state.eye": 0.0,
+            "state.hostile_pos": 0.0,
+            "state.hostile_vel": 0.0,
+            "state.hostile_life": 0.0,
+            "state.attack_speed": 0.0,
+            "state.move": 0.0,
+            "state.pos": 0.0,
+            "state.vel": 0.0,
+            "state.targets": 0.0,
+            "state.target_vel": 0.0,
+            "state.speed": 0.0,
+            "state.bpos": 0.0,
+            "state.bvel": 0.0,
+            "state.life": 0.0,
+            "state.cooldown": 0.0
+          },
+          "max_abs": 5.960464477539063e-08,
+          "discrete_exact": true,
+          "rng_exact": true
+        }
+      },
+      "variants": {
+        "graph_v1": {
+          "wall_samples_ms": [
+            2.804211719194427,
+            2.512855468012276,
+            2.5159929691653815,
+            2.5137585935226525,
+            2.5168203119392274,
+            2.5138382816294325,
+            2.517479688322055
+          ],
+          "cuda_samples_ms": [
+            2.8041067123413086,
+            2.51265811920166,
+            2.516078233718872,
+            2.5136823654174805,
+            2.51669979095459,
+            2.513732433319092,
+            2.5172817707061768
+          ],
+          "done_counts": [
+            120316,
+            120100,
+            119825,
+            119951,
+            120069,
+            119930,
+            120030
+          ],
+          "wall_ms_median": 2.5159929691653815,
+          "wall_ms_p95": 2.804211719194427,
+          "decisions_s": 3255970.942843093,
+          "issued_ticks_s": 9767912.82852928,
+          "speedup_vs_graph_v1": 1.0
+        },
+        "fused_decision": {
+          "wall_samples_ms": [
+            0.36540937526297057,
+            0.3650359367384226,
+            0.3626617190093384,
+            0.36180781262373785,
+            0.36393359368958045,
+            0.36396796895132866,
+            0.36488437490334036
+          ],
+          "cuda_samples_ms": [
+            0.36510324478149414,
+            0.36479800939559937,
+            0.36246323585510254,
+            0.3615039885044098,
+            0.3636854887008667,
+            0.3637385070323944,
+            0.3645627498626709
+          ],
+          "done_counts": [
+            120316,
+            120100,
+            119825,
+            119951,
+            120069,
+            119930,
+            120030
+          ],
+          "wall_ms_median": 0.36396796895132866,
+          "wall_ms_p95": 0.36540937526297057,
+          "decisions_s": 22507475.104479507,
+          "issued_ticks_s": 67522425.31343852,
+          "speedup_vs_graph_v1": 6.912676894108313
+        },
+        "fused_decision_warp": {
+          "wall_samples_ms": [
+            0.8247992182077724,
+            0.3680632817122387,
+            0.36834531238127965,
+            0.3729148438651464,
+            0.3687015623654588,
+            0.3670429687190335,
+            0.3676046871987637
+          ],
+          "cuda_samples_ms": [
+            0.8245220184326172,
+            0.3678467571735382,
+            0.36804425716400146,
+            0.3726162612438202,
+            0.3684627413749695,
+            0.36680498719215393,
+            0.36740025877952576
+          ],
+          "done_counts": [
+            120316,
+            120100,
+            119825,
+            119951,
+            120069,
+            119930,
+            120030
+          ],
+          "wall_ms_median": 0.36834531238127965,
+          "wall_ms_p95": 0.8247992182077724,
+          "decisions_s": 22240000.68587907,
+          "issued_ticks_s": 66720002.057637215,
+          "speedup_vs_graph_v1": 6.830527998035278
+        }
+      },
+      "completed_rounds": 7,
+      "discrete_and_rng_exact": true,
+      "max_abs_by_field": {
+        "output.0": 5.960464477539063e-08,
+        "output.1": 0.0,
+        "info.damage": 0.0,
+        "info.kills": 0.0,
+        "info.attacks": 0.0,
+        "info.fired": 0.0,
+        "state._spawn_extent": 0.0,
+        "state.native_velocity": 0.0,
+        "state.eye": 0.0,
+        "state.hostile_pos": 0.0,
+        "state.hostile_vel": 0.0,
+        "state.hostile_life": 0.0,
+        "state.attack_speed": 0.0,
+        "state.move": 0.0,
+        "state.pos": 0.0,
+        "state.vel": 0.0,
+        "state.targets": 0.0,
+        "state.target_vel": 0.0,
+        "state.speed": 0.0,
+        "state.bpos": 0.0,
+        "state.bvel": 0.0,
+        "state.life": 0.0,
+        "state.cooldown": 0.0
+      },
+      "long_trajectory_decisions_per_lane": 904
+    },
+    {
+      "scenario": "mixed",
+      "lanes": 512,
+      "status": "passed",
+      "qualification": {
+        "graph_v1": {
+          "status": "passed",
+          "decisions": 32768,
+          "max_abs_by_field": {
+            "output.0": 0.0,
+            "output.1": 0.0,
+            "info.damage": 0.0,
+            "info.kills": 0.0,
+            "info.attacks": 0.0,
+            "info.fired": 0.0,
+            "state.native_velocity": 0.0,
+            "state.eye": 0.0,
+            "state.hostile_pos": 0.0,
+            "state.hostile_vel": 0.0,
+            "state.hostile_life": 0.0,
+            "state.attack_speed": 0.0,
+            "state.move": 0.0,
+            "state.pos": 0.0,
+            "state.vel": 0.0,
+            "state.targets": 0.0,
+            "state.target_vel": 0.0,
+            "state.speed": 0.0,
+            "state.bpos": 0.0,
+            "state.bvel": 0.0,
+            "state.life": 0.0,
+            "state.cooldown": 0.0
+          },
+          "max_abs": 0.0,
+          "discrete_exact": true,
+          "rng_exact": true
+        },
+        "fused_decision": {
+          "status": "passed",
+          "decisions": 32768,
+          "max_abs_by_field": {
+            "output.0": 5.960464477539063e-08,
+            "output.1": 0.0,
+            "info.damage": 0.0,
+            "info.kills": 0.0,
+            "info.attacks": 0.0,
+            "info.fired": 0.0,
+            "state.native_velocity": 0.0,
+            "state.eye": 0.0,
+            "state.hostile_pos": 0.0,
+            "state.hostile_vel": 0.0,
+            "state.hostile_life": 0.0,
+            "state.attack_speed": 0.0,
+            "state.move": 0.0,
+            "state.pos": 0.0,
+            "state.vel": 0.0,
+            "state.targets": 0.0,
+            "state.target_vel": 0.0,
+            "state.speed": 0.0,
+            "state.bpos": 0.0,
+            "state.bvel": 0.0,
+            "state.life": 0.0,
+            "state.cooldown": 0.0
+          },
+          "max_abs": 5.960464477539063e-08,
+          "discrete_exact": true,
+          "rng_exact": true
+        },
+        "fused_decision_warp": {
+          "status": "passed",
+          "decisions": 32768,
+          "max_abs_by_field": {
+            "output.0": 5.960464477539063e-08,
+            "output.1": 0.0,
+            "info.damage": 0.0,
+            "info.kills": 0.0,
+            "info.attacks": 0.0,
+            "info.fired": 0.0,
+            "state.native_velocity": 0.0,
+            "state.eye": 0.0,
+            "state.hostile_pos": 0.0,
+            "state.hostile_vel": 0.0,
+            "state.hostile_life": 0.0,
+            "state.attack_speed": 0.0,
+            "state.move": 0.0,
+            "state.pos": 0.0,
+            "state.vel": 0.0,
+            "state.targets": 0.0,
+            "state.target_vel": 0.0,
+            "state.speed": 0.0,
+            "state.bpos": 0.0,
+            "state.bvel": 0.0,
+            "state.life": 0.0,
+            "state.cooldown": 0.0
+          },
+          "max_abs": 5.960464477539063e-08,
+          "discrete_exact": true,
+          "rng_exact": true
+        }
+      },
+      "variants": {
+        "graph_v1": {
+          "wall_samples_ms": [
+            2.649697656124772,
+            1.9463375001578243,
+            1.9414062498981366,
+            1.9461203119135462,
+            1.933538281264191,
+            1.9990054688605596,
+            1.94159687453066
+          ],
+          "cuda_samples_ms": [
+            2.6496639251708984,
+            1.9461697340011597,
+            1.94124174118042,
+            1.9459174871444702,
+            1.9333237409591675,
+            1.9988431930541992,
+            1.9414092302322388
+          ],
+          "done_counts": [
+            8374,
+            8405,
+            8429,
+            8409,
+            8410,
+            8396,
+            8421
+          ],
+          "wall_ms_median": 1.9461203119135462,
+          "wall_ms_p95": 2.649697656124772,
+          "decisions_s": 263087.53722249053,
+          "issued_ticks_s": 789262.6116674716,
+          "speedup_vs_graph_v1": 1.0
+        },
+        "fused_decision": {
+          "wall_samples_ms": [
+            0.25010781246237457,
+            0.2521804690331919,
+            0.2530460942580248,
+            0.2533757806304493,
+            0.25706718679430196,
+            0.25559218738635536,
+            0.25229062521248125
+          ],
+          "cuda_samples_ms": [
+            0.2499455064535141,
+            0.2520042359828949,
+            0.25298425555229187,
+            0.2532919943332672,
+            0.256828248500824,
+            0.25540825724601746,
+            0.2522137463092804
+          ],
+          "done_counts": [
+            8374,
+            8405,
+            8429,
+            8409,
+            8410,
+            8396,
+            8421
+          ],
+          "wall_ms_median": 0.2530460942580248,
+          "wall_ms_p95": 0.25706718679430196,
+          "decisions_s": 2023346.7799662077,
+          "issued_ticks_s": 6070040.3398986235,
+          "speedup_vs_graph_v1": 7.690773958080284
+        },
+        "fused_decision_warp": {
+          "wall_samples_ms": [
+            0.48811640590429306,
+            0.19160937517881393,
+            0.1876976566563826,
+            0.1867132814368233,
+            0.19066875029238872,
+            0.18462265597918304,
+            0.20559296899591573
+          ],
+          "cuda_samples_ms": [
+            0.48784175515174866,
+            0.19156475365161896,
+            0.1876482516527176,
+            0.18666525185108185,
+            0.19062750041484833,
+            0.18457375466823578,
+            0.2055472433567047
+          ],
+          "done_counts": [
+            8374,
+            8405,
+            8429,
+            8409,
+            8410,
+            8396,
+            8421
+          ],
+          "wall_ms_median": 0.19066875029238872,
+          "wall_ms_p95": 0.48811640590429306,
+          "decisions_s": 2685285.3402293394,
+          "issued_ticks_s": 8055856.020688018,
+          "speedup_vs_graph_v1": 10.20681317168749
+        }
+      },
+      "completed_rounds": 7,
+      "discrete_and_rng_exact": true,
+      "max_abs_by_field": {
+        "output.0": 5.960464477539063e-08,
+        "output.1": 0.0,
+        "info.damage": 0.0,
+        "info.kills": 0.0,
+        "info.attacks": 0.0,
+        "info.fired": 0.0,
+        "state._spawn_extent": 0.0,
+        "state.native_velocity": 0.0,
+        "state.eye": 0.0,
+        "state.hostile_pos": 0.0,
+        "state.hostile_vel": 0.0,
+        "state.hostile_life": 0.0,
+        "state.attack_speed": 0.0,
+        "state.move": 0.0,
+        "state.pos": 0.0,
+        "state.vel": 0.0,
+        "state.targets": 0.0,
+        "state.target_vel": 0.0,
+        "state.speed": 0.0,
+        "state.bpos": 0.0,
+        "state.bvel": 0.0,
+        "state.life": 0.0,
+        "state.cooldown": 0.0
+      },
+      "long_trajectory_decisions_per_lane": 904
+    },
+    {
+      "scenario": "mixed",
+      "lanes": 8192,
+      "status": "passed",
+      "qualification": {
+        "graph_v1": {
+          "status": "passed",
+          "decisions": 524288,
+          "max_abs_by_field": {
+            "output.0": 0.0,
+            "output.1": 0.0,
+            "info.damage": 0.0,
+            "info.kills": 0.0,
+            "info.attacks": 0.0,
+            "info.fired": 0.0,
+            "state.native_velocity": 0.0,
+            "state.eye": 0.0,
+            "state.hostile_pos": 0.0,
+            "state.hostile_vel": 0.0,
+            "state.hostile_life": 0.0,
+            "state.attack_speed": 0.0,
+            "state.move": 0.0,
+            "state.pos": 0.0,
+            "state.vel": 0.0,
+            "state.targets": 0.0,
+            "state.target_vel": 0.0,
+            "state.speed": 0.0,
+            "state.bpos": 0.0,
+            "state.bvel": 0.0,
+            "state.life": 0.0,
+            "state.cooldown": 0.0
+          },
+          "max_abs": 0.0,
+          "discrete_exact": true,
+          "rng_exact": true
+        },
+        "fused_decision": {
+          "status": "passed",
+          "decisions": 524288,
+          "max_abs_by_field": {
+            "output.0": 5.960464477539063e-08,
+            "output.1": 0.0,
+            "info.damage": 0.0,
+            "info.kills": 0.0,
+            "info.attacks": 0.0,
+            "info.fired": 0.0,
+            "state.native_velocity": 0.0,
+            "state.eye": 0.0,
+            "state.hostile_pos": 0.0,
+            "state.hostile_vel": 0.0,
+            "state.hostile_life": 0.0,
+            "state.attack_speed": 0.0,
+            "state.move": 0.0,
+            "state.pos": 0.0,
+            "state.vel": 0.0,
+            "state.targets": 0.0,
+            "state.target_vel": 0.0,
+            "state.speed": 0.0,
+            "state.bpos": 0.0,
+            "state.bvel": 0.0,
+            "state.life": 0.0,
+            "state.cooldown": 0.0
+          },
+          "max_abs": 5.960464477539063e-08,
+          "discrete_exact": true,
+          "rng_exact": true
+        },
+        "fused_decision_warp": {
+          "status": "passed",
+          "decisions": 524288,
+          "max_abs_by_field": {
+            "output.0": 5.960464477539063e-08,
+            "output.1": 0.0,
+            "info.damage": 0.0,
+            "info.kills": 0.0,
+            "info.attacks": 0.0,
+            "info.fired": 0.0,
+            "state.native_velocity": 0.0,
+            "state.eye": 0.0,
+            "state.hostile_pos": 0.0,
+            "state.hostile_vel": 0.0,
+            "state.hostile_life": 0.0,
+            "state.attack_speed": 0.0,
+            "state.move": 0.0,
+            "state.pos": 0.0,
+            "state.vel": 0.0,
+            "state.targets": 0.0,
+            "state.target_vel": 0.0,
+            "state.speed": 0.0,
+            "state.bpos": 0.0,
+            "state.bvel": 0.0,
+            "state.life": 0.0,
+            "state.cooldown": 0.0
+          },
+          "max_abs": 5.960464477539063e-08,
+          "discrete_exact": true,
+          "rng_exact": true
+        }
+      },
+      "variants": {
+        "graph_v1": {
+          "wall_samples_ms": [
+            3.343704687722493,
+            3.298766406260256,
+            3.2974851565086283,
+            3.2992960932460846,
+            3.30385625056806,
+            3.309206250378338,
+            3.3010789065883728
+          ],
+          "cuda_samples_ms": [
+            3.343517780303955,
+            3.2986018657684326,
+            3.2972898483276367,
+            3.2990524768829346,
+            3.3037264347076416,
+            3.3090837001800537,
+            3.3007349967956543
+          ],
+          "done_counts": [
+            134199,
+            134485,
+            134366,
+            134577,
+            134431,
+            134211,
+            134347
+          ],
+          "wall_ms_median": 3.3010789065883728,
+          "wall_ms_p95": 3.343704687722493,
+          "decisions_s": 2481612.900452094,
+          "issued_ticks_s": 7444838.701356282,
+          "speedup_vs_graph_v1": 1.0
+        },
+        "fused_decision": {
+          "wall_samples_ms": [
+            0.4629429686247022,
+            0.4573335936584044,
+            0.458923437690828,
+            0.45974218755873153,
+            0.46180390563677065,
+            0.4622242186087533,
+            0.4629265622497769
+          ],
+          "cuda_samples_ms": [
+            0.46266400814056396,
+            0.4571389853954315,
+            0.4586247503757477,
+            0.45947250723838806,
+            0.46152976155281067,
+            0.4619797468185425,
+            0.46264374256134033
+          ],
+          "done_counts": [
+            134199,
+            134485,
+            134366,
+            134577,
+            134431,
+            134211,
+            134347
+          ],
+          "wall_ms_median": 0.46180390563677065,
+          "wall_ms_p95": 0.4629429686247022,
+          "decisions_s": 17739131.04676809,
+          "issued_ticks_s": 53217393.140304275,
+          "speedup_vs_graph_v1": 7.14822647945472
+        },
+        "fused_decision_warp": {
+          "wall_samples_ms": [
+            1.059504686963919,
+            0.5066078128947993,
+            0.5077414070910891,
+            0.5026218750572298,
+            0.5078656249679625,
+            0.5062992186140036,
+            0.5054476559962495
+          ],
+          "cuda_samples_ms": [
+            1.0592600107192993,
+            0.5063155293464661,
+            0.5074527263641357,
+            0.502395510673523,
+            0.5075985193252563,
+            0.5060575008392334,
+            0.5051702260971069
+          ],
+          "done_counts": [
+            134199,
+            134485,
+            134366,
+            134577,
+            134431,
+            134211,
+            134347
+          ],
+          "wall_ms_median": 0.5066078128947993,
+          "wall_ms_p95": 1.059504686963919,
+          "decisions_s": 16170299.374560036,
+          "issued_ticks_s": 48510898.12368011,
+          "speedup_vs_graph_v1": 6.516044211252354
+        }
+      },
+      "completed_rounds": 7,
+      "discrete_and_rng_exact": true,
+      "max_abs_by_field": {
+        "output.0": 5.960464477539063e-08,
+        "output.1": 0.0,
+        "info.damage": 0.0,
+        "info.kills": 0.0,
+        "info.attacks": 0.0,
+        "info.fired": 0.0,
+        "state._spawn_extent": 0.0,
+        "state.native_velocity": 0.0,
+        "state.eye": 0.0,
+        "state.hostile_pos": 0.0,
+        "state.hostile_vel": 0.0,
+        "state.hostile_life": 0.0,
+        "state.attack_speed": 0.0,
+        "state.move": 0.0,
+        "state.pos": 0.0,
+        "state.vel": 0.0,
+        "state.targets": 0.0,
+        "state.target_vel": 0.0,
+        "state.speed": 0.0,
+        "state.bpos": 0.0,
+        "state.bvel": 0.0,
+        "state.life": 0.0,
+        "state.cooldown": 0.0
+      },
+      "long_trajectory_decisions_per_lane": 904
+    }
+  ],
+  "comparisons": [
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "staged_control",
+      "speedup": 1.028844787328015
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "movement",
+      "speedup": 1.123834904421523
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "attacks",
+      "speedup": 1.2688444007540884
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "projectiles",
+      "speedup": 1.5273286974258418
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "terminal_mask",
+      "speedup": 0.9570842527784785
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "sparse_reset",
+      "speedup": 0.9242518122178953
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "direct_observation",
+      "speedup": 0.9666500412363774
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "unfused_all",
+      "speedup": 5.487452584962743
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_movement",
+      "speedup": 3.853670583079274
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_attacks",
+      "speedup": 2.511910044237177
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_projectiles",
+      "speedup": 1.8544241939638846
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_terminal_mask",
+      "speedup": 4.724391410047774
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_sparse_reset",
+      "speedup": 5.3399460754569015
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_direct_observation",
+      "speedup": 5.507464727092356
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_tick",
+      "speedup": 5.268763354715545
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision",
+      "speedup": 5.449786479427969
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision_warp",
+      "speedup": 5.6654812893450925
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "movement",
+      "speedup": 1.0923269654115704
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "attacks",
+      "speedup": 1.2332709621335303
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "projectiles",
+      "speedup": 1.4845083692287793
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "terminal_mask",
+      "speedup": 0.9302513504141827
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "sparse_reset",
+      "speedup": 0.8983394031846579
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "direct_observation",
+      "speedup": 0.939548951544808
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_movement",
+      "candidate": "unfused_all",
+      "speedup": 1.4239547638184469
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_attacks",
+      "candidate": "unfused_all",
+      "speedup": 2.184573686287873
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_projectiles",
+      "candidate": "unfused_all",
+      "speedup": 2.9591139949663607
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_terminal_mask",
+      "candidate": "unfused_all",
+      "speedup": 1.1615152320555198
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_sparse_reset",
+      "candidate": "unfused_all",
+      "speedup": 1.0276232208006373
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_direct_observation",
+      "candidate": "unfused_all",
+      "speedup": 0.9963663603633867
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "tick_fusion",
+      "baseline": "unfused_all",
+      "candidate": "fused_tick",
+      "speedup": 0.9601474041258283
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "decision_fusion",
+      "baseline": "fused_tick",
+      "candidate": "fused_decision",
+      "speedup": 1.0343578013520778
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "mapping",
+      "baseline": "fused_decision",
+      "candidate": "fused_decision_warp",
+      "speedup": 1.039578579955625
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "staged_control",
+      "speedup": 0.9737776695544692
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "movement",
+      "speedup": 1.0702445954565671
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "attacks",
+      "speedup": 1.190014478235855
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "projectiles",
+      "speedup": 1.6293068427374575
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "terminal_mask",
+      "speedup": 1.0335657855331837
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "sparse_reset",
+      "speedup": 0.9920819153494416
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "direct_observation",
+      "speedup": 0.9970190152104668
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "unfused_all",
+      "speedup": 6.265868131606858
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_movement",
+      "speedup": 3.904502449152446
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_attacks",
+      "speedup": 2.65998987438326
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_projectiles",
+      "speedup": 1.664798242449583
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_terminal_mask",
+      "speedup": 4.111528447103954
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_sparse_reset",
+      "speedup": 5.4183281279944735
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_direct_observation",
+      "speedup": 4.718472658196376
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_tick",
+      "speedup": 6.547176446183286
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision",
+      "speedup": 6.902616519877258
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision_warp",
+      "speedup": 6.486605728678259
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "movement",
+      "speedup": 1.0990646314021908
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "attacks",
+      "speedup": 1.222059732362029
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "projectiles",
+      "speedup": 1.6731815625664443
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "terminal_mask",
+      "speedup": 1.061398117710041
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "sparse_reset",
+      "speedup": 1.0187971508972342
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "direct_observation",
+      "speedup": 1.0238671992413126
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_movement",
+      "candidate": "unfused_all",
+      "speedup": 1.6047801770407382
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_attacks",
+      "candidate": "unfused_all",
+      "speedup": 2.3555984900354745
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_projectiles",
+      "candidate": "unfused_all",
+      "speedup": 3.7637402370074966
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_terminal_mask",
+      "candidate": "unfused_all",
+      "speedup": 1.5239753809852297
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_sparse_reset",
+      "candidate": "unfused_all",
+      "speedup": 1.1564209445407083
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_direct_observation",
+      "candidate": "unfused_all",
+      "speedup": 1.3279441432647763
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "tick_fusion",
+      "baseline": "unfused_all",
+      "candidate": "fused_tick",
+      "speedup": 1.0448953454920997
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "decision_fusion",
+      "baseline": "fused_tick",
+      "candidate": "fused_decision",
+      "speedup": 1.0542890628678838
+    },
+    {
+      "case": [
+        "shooters",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "mapping",
+      "baseline": "fused_decision",
+      "candidate": "fused_decision_warp",
+      "speedup": 0.9397314351737454
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "staged_control",
+      "speedup": 0.9527201162940571
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "movement",
+      "speedup": 1.0620774492585645
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "attacks",
+      "speedup": 1.3180961373195885
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "projectiles",
+      "speedup": 1.4629473890872775
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "terminal_mask",
+      "speedup": 1.037302165982789
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "sparse_reset",
+      "speedup": 1.0054227262128965
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "direct_observation",
+      "speedup": 1.0085802642235138
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "unfused_all",
+      "speedup": 4.827153286386839
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_movement",
+      "speedup": 3.7241759404730166
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_attacks",
+      "speedup": 2.4302541371913224
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_projectiles",
+      "speedup": 1.8221321924288714
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_terminal_mask",
+      "speedup": 4.130705010146925
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_sparse_reset",
+      "speedup": 4.532540628567654
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_direct_observation",
+      "speedup": 4.775703827188953
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_tick",
+      "speedup": 5.278452514386462
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision",
+      "speedup": 5.47103172316636
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision_warp",
+      "speedup": 5.2119756945228986
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "movement",
+      "speedup": 1.1147843223777951
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "attacks",
+      "speedup": 1.3835082463114048
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "projectiles",
+      "speedup": 1.5355479159797008
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "terminal_mask",
+      "speedup": 1.0887795358176584
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "sparse_reset",
+      "speedup": 1.0553180404375684
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "direct_observation",
+      "speedup": 1.058632275076488
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_movement",
+      "candidate": "unfused_all",
+      "speedup": 1.2961668201351761
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_attacks",
+      "candidate": "unfused_all",
+      "speedup": 1.9862751028851842
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_projectiles",
+      "candidate": "unfused_all",
+      "speedup": 2.6491784220947907
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_terminal_mask",
+      "candidate": "unfused_all",
+      "speedup": 1.1686027626105264
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_sparse_reset",
+      "candidate": "unfused_all",
+      "speedup": 1.0649994521752995
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_direct_observation",
+      "candidate": "unfused_all",
+      "speedup": 1.0107731679056342
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "tick_fusion",
+      "baseline": "unfused_all",
+      "candidate": "fused_tick",
+      "speedup": 1.093491795521046
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "decision_fusion",
+      "baseline": "fused_tick",
+      "candidate": "fused_decision",
+      "speedup": 1.0364840278954903
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "mapping",
+      "baseline": "fused_decision",
+      "candidate": "fused_decision_warp",
+      "speedup": 0.9526495107775518
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "staged_control",
+      "speedup": 0.9794807384985655
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "movement",
+      "speedup": 1.074527623915342
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "attacks",
+      "speedup": 1.1672259072768032
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "projectiles",
+      "speedup": 1.5680904730170413
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "terminal_mask",
+      "speedup": 1.0291425206609888
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "sparse_reset",
+      "speedup": 0.9743207168470527
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "direct_observation",
+      "speedup": 1.0021077310127096
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "unfused_all",
+      "speedup": 6.311636871202702
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_movement",
+      "speedup": 3.8932117008201548
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_attacks",
+      "speedup": 2.6301466194774843
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_projectiles",
+      "speedup": 1.6402428706542889
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_terminal_mask",
+      "speedup": 4.144716051141314
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_sparse_reset",
+      "speedup": 4.763515034169536
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_direct_observation",
+      "speedup": 5.064584476135736
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_tick",
+      "speedup": 6.675129022774816
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision",
+      "speedup": 6.1333827709609405
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision_warp",
+      "speedup": 6.370871237936577
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "movement",
+      "speedup": 1.097038034216449
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "attacks",
+      "speedup": 1.1916782652265627
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "projectiles",
+      "speedup": 1.6009405916656907
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "terminal_mask",
+      "speedup": 1.0507021528963898
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "sparse_reset",
+      "speedup": 0.9947318804253132
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "direct_observation",
+      "speedup": 1.023101008141139
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_movement",
+      "candidate": "unfused_all",
+      "speedup": 1.6211902553033721
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_attacks",
+      "candidate": "unfused_all",
+      "speedup": 2.3997281461276856
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_projectiles",
+      "candidate": "unfused_all",
+      "speedup": 3.847989211917748
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_terminal_mask",
+      "candidate": "unfused_all",
+      "speedup": 1.5228152648634858
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_sparse_reset",
+      "candidate": "unfused_all",
+      "speedup": 1.3249956861536523
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_direct_observation",
+      "candidate": "unfused_all",
+      "speedup": 1.246229952514972
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "tick_fusion",
+      "baseline": "unfused_all",
+      "candidate": "fused_tick",
+      "speedup": 1.057590789677805
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "decision_fusion",
+      "baseline": "fused_tick",
+      "candidate": "fused_decision",
+      "speedup": 0.9188410815782743
+    },
+    {
+      "case": [
+        "shooters",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "mapping",
+      "baseline": "fused_decision",
+      "candidate": "fused_decision_warp",
+      "speedup": 1.03872063359555
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "staged_control",
+      "speedup": 1.0077647267052434
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "movement",
+      "speedup": 1.0871167285170522
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "attacks",
+      "speedup": 1.239028583551181
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "projectiles",
+      "speedup": 1.4228890244618475
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "terminal_mask",
+      "speedup": 1.0044624248968008
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "sparse_reset",
+      "speedup": 1.0811654626781386
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "direct_observation",
+      "speedup": 0.9777853629345462
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "unfused_all",
+      "speedup": 7.156552772730917
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_movement",
+      "speedup": 3.7766988993955355
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_attacks",
+      "speedup": 2.4425018183535596
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_projectiles",
+      "speedup": 2.169641761066848
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_terminal_mask",
+      "speedup": 4.224830275416022
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_sparse_reset",
+      "speedup": 4.218793127799329
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_direct_observation",
+      "speedup": 6.066242178011337
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_tick",
+      "speedup": 6.15840353871281
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision",
+      "speedup": 5.4912334414390465
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision_warp",
+      "speedup": 11.74201169974777
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "movement",
+      "speedup": 1.0787406025523831
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "attacks",
+      "speedup": 1.2294819918950972
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "projectiles",
+      "speedup": 1.4119258064467082
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "terminal_mask",
+      "speedup": 0.9967231420976214
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "sparse_reset",
+      "speedup": 1.0728351906231817
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "direct_observation",
+      "speedup": 0.9702516242370272
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_movement",
+      "candidate": "unfused_all",
+      "speedup": 1.8949227786934062
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_attacks",
+      "candidate": "unfused_all",
+      "speedup": 2.9300091893298985
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_projectiles",
+      "candidate": "unfused_all",
+      "speedup": 3.2984951253943064
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_terminal_mask",
+      "candidate": "unfused_all",
+      "speedup": 1.6939266920080491
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_sparse_reset",
+      "candidate": "unfused_all",
+      "speedup": 1.6963507230476662
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_direct_observation",
+      "candidate": "unfused_all",
+      "speedup": 1.1797341027154657
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "tick_fusion",
+      "baseline": "unfused_all",
+      "candidate": "fused_tick",
+      "speedup": 0.8605265320167246
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "decision_fusion",
+      "baseline": "fused_tick",
+      "candidate": "fused_decision",
+      "speedup": 0.8916650893239109
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        512,
+        481
+      ],
+      "kind": "mapping",
+      "baseline": "fused_decision",
+      "candidate": "fused_decision_warp",
+      "speedup": 2.13831952783829
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "staged_control",
+      "speedup": 0.9696988119825555
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "movement",
+      "speedup": 1.0471750186783855
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "attacks",
+      "speedup": 1.1880386370285243
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "projectiles",
+      "speedup": 1.406779788346495
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "terminal_mask",
+      "speedup": 1.0158138047929244
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "sparse_reset",
+      "speedup": 1.1260924116237283
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "direct_observation",
+      "speedup": 1.0011160441993445
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "unfused_all",
+      "speedup": 6.657007341478117
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_movement",
+      "speedup": 4.354412672872715
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_attacks",
+      "speedup": 2.794038397140572
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_projectiles",
+      "speedup": 1.8780259995040862
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_terminal_mask",
+      "speedup": 4.452532215238192
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_sparse_reset",
+      "speedup": 2.895387521698746
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_direct_observation",
+      "speedup": 5.492634077783167
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_tick",
+      "speedup": 6.451252832783317
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision",
+      "speedup": 7.185324709363118
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision_warp",
+      "speedup": 6.112572979608026
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "movement",
+      "speedup": 1.079897186361845
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "attacks",
+      "speedup": 1.2251625168020694
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "projectiles",
+      "speedup": 1.4507389005358526
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "terminal_mask",
+      "speedup": 1.0475559959861007
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "sparse_reset",
+      "speedup": 1.1612805932198937
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "direct_observation",
+      "speedup": 1.032398959170174
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_movement",
+      "candidate": "unfused_all",
+      "speedup": 1.5287956933779365
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_attacks",
+      "candidate": "unfused_all",
+      "speedup": 2.3825754679287585
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_projectiles",
+      "candidate": "unfused_all",
+      "speedup": 3.5446832702188225
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_terminal_mask",
+      "candidate": "unfused_all",
+      "speedup": 1.4951059351564946
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_sparse_reset",
+      "candidate": "unfused_all",
+      "speedup": 2.2991766358005163
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_direct_observation",
+      "candidate": "unfused_all",
+      "speedup": 1.2119881366946788
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "tick_fusion",
+      "baseline": "unfused_all",
+      "candidate": "fused_tick",
+      "speedup": 0.969092041192024
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "decision_fusion",
+      "baseline": "fused_tick",
+      "candidate": "fused_decision",
+      "speedup": 1.1137874914542907
+    },
+    {
+      "case": [
+        "mixed",
+        "natural",
+        8192,
+        481
+      ],
+      "kind": "mapping",
+      "baseline": "fused_decision",
+      "candidate": "fused_decision_warp",
+      "speedup": 0.8507024006365084
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "staged_control",
+      "speedup": 0.9676552856905591
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "movement",
+      "speedup": 1.0393524331725787
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "attacks",
+      "speedup": 0.7880788285479223
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "projectiles",
+      "speedup": 1.3549584157981296
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "terminal_mask",
+      "speedup": 1.026685300493553
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "sparse_reset",
+      "speedup": 1.085606515601951
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "direct_observation",
+      "speedup": 0.8700056851804944
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "unfused_all",
+      "speedup": 5.722944262220908
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_movement",
+      "speedup": 1.9098678582552955
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_attacks",
+      "speedup": 1.1585637386056764
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_projectiles",
+      "speedup": 1.948586330844628
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_terminal_mask",
+      "speedup": 5.113115431856864
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_sparse_reset",
+      "speedup": 4.2318511799379115
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_direct_observation",
+      "speedup": 3.1450668650476934
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_tick",
+      "speedup": 4.160199688340633
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision",
+      "speedup": 4.307606930974178
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision_warp",
+      "speedup": 6.324667502131135
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "movement",
+      "speedup": 1.0740936866074715
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "attacks",
+      "speedup": 0.8144210445618725
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "projectiles",
+      "speedup": 1.4002490719938296
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "terminal_mask",
+      "speedup": 1.0610031440699128
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "sparse_reset",
+      "speedup": 1.1218938517213979
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "direct_observation",
+      "speedup": 0.8990863771902223
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_movement",
+      "candidate": "unfused_all",
+      "speedup": 2.996513207698536
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_attacks",
+      "candidate": "unfused_all",
+      "speedup": 4.939688746955288
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_projectiles",
+      "candidate": "unfused_all",
+      "speedup": 2.9369723946181328
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_terminal_mask",
+      "candidate": "unfused_all",
+      "speedup": 1.1192675656341637
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_sparse_reset",
+      "candidate": "unfused_all",
+      "speedup": 1.3523500753882545
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_direct_observation",
+      "candidate": "unfused_all",
+      "speedup": 1.8196574215391517
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "tick_fusion",
+      "baseline": "unfused_all",
+      "candidate": "fused_tick",
+      "speedup": 0.7269334625192
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "decision_fusion",
+      "baseline": "fused_tick",
+      "candidate": "fused_decision",
+      "speedup": 1.035432732483171
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        512,
+        481
+      ],
+      "kind": "mapping",
+      "baseline": "fused_decision",
+      "candidate": "fused_decision_warp",
+      "speedup": 1.468255484652773
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "staged_control",
+      "speedup": 0.8668345142098194
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "movement",
+      "speedup": 1.150902052287747
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "attacks",
+      "speedup": 1.002773243766459
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "projectiles",
+      "speedup": 1.1393211965954861
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "terminal_mask",
+      "speedup": 1.076739191123466
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "sparse_reset",
+      "speedup": 1.2037496795339084
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "direct_observation",
+      "speedup": 0.939403959129407
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "unfused_all",
+      "speedup": 3.753739012119889
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_movement",
+      "speedup": 2.9418526819469215
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_attacks",
+      "speedup": 2.004600812846175
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_projectiles",
+      "speedup": 1.363998317028895
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_terminal_mask",
+      "speedup": 2.459131662988586
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_sparse_reset",
+      "speedup": 2.3457247906188834
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "without_direct_observation",
+      "speedup": 2.689552651636711
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_tick",
+      "speedup": 3.598696509730482
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision",
+      "speedup": 3.51869622464172
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "end_to_end",
+      "baseline": "graph_v1",
+      "candidate": "fused_decision_warp",
+      "speedup": 3.790800161521478
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "movement",
+      "speedup": 1.327706769194435
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "attacks",
+      "speedup": 1.1568220085013081
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "projectiles",
+      "speedup": 1.3143468308181725
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "terminal_mask",
+      "speedup": 1.2421508067257676
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "sparse_reset",
+      "speedup": 1.3886729932889335
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_add",
+      "baseline": "staged_control",
+      "candidate": "direct_observation",
+      "speedup": 1.0837177612681237
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_movement",
+      "candidate": "unfused_all",
+      "speedup": 1.275977901665579
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_attacks",
+      "candidate": "unfused_all",
+      "speedup": 1.872561852746258
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_projectiles",
+      "candidate": "unfused_all",
+      "speedup": 2.752011468970434
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_terminal_mask",
+      "candidate": "unfused_all",
+      "speedup": 1.5264489773426628
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_sparse_reset",
+      "candidate": "unfused_all",
+      "speedup": 1.600246980008905
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "single_remove",
+      "baseline": "without_direct_observation",
+      "candidate": "unfused_all",
+      "speedup": 1.3956741132528392
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "tick_fusion",
+      "baseline": "unfused_all",
+      "candidate": "fused_tick",
+      "speedup": 0.9586965151576033
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "decision_fusion",
+      "baseline": "fused_tick",
+      "candidate": "fused_decision",
+      "speedup": 0.9777696494070979
+    },
+    {
+      "case": [
+        "mixed",
+        "frequent",
+        8192,
+        481
+      ],
+      "kind": "mapping",
+      "baseline": "fused_decision",
+      "candidate": "fused_decision_warp",
+      "speedup": 1.0773308974426925
+    }
+  ],
+  "artifacts_sha256": {
+    "ablation.json": "900bf371b8d37d8c95f87c72d518892284a0a073c7bc4ccd3d4ab8abb014605e",
+    "confirmation.json": "76fbaf1b23de6586cea93b8cb37d749353518b7a116b433f26a5bd1b4c11ec3c",
+    "kernel-summary.json": "39d38a482fa12805fe93fb2c67a6fbd431d47dc79e6c371e84be57864afa8350",
+    "confirmation.py": "2e5eadd5d3451eea40c611e226dc446660ed042c2193ef60dd5e8ba8ab10b62f"
+  }
+}
