@@ -117,3 +117,10 @@ Protocole : [PARALLEL_PPO_PROTOCOL.md](docs/PARALLEL_PPO_PROTOCOL.md).
 - [x] Audits réservés sur deux apprentissages indépendants : compositions 48,5 % / 42,7 % sans dégât, contre ancien 4,4 % ; 3 PV 80,8 % / 72,2 %, contre 8,0 %. Limites et coûts consignés.
 
 Protocole figé avant expériences : docs/GENERALIZATION_PROTOCOL.md.
+
+
+## Tirs croisés — 2026-11-09
+
+- [ ] Diagnostiquer les morts et séparer difficulté des tirs / distribution des placements.
+- [ ] Comparer curriculum 3/4 tireurs et représentations pooling/cinématique/attention à exposition égale, rétention sur deux cohortes.
+- [ ] Auditer les poids figés sur nouveaux facteurs réservés, rapporter coût et limites ; aucun vrai jeu dans ce périmètre.
