@@ -1,0 +1,98 @@
+{
+  "envs": 1024,
+  "rollout": 32,
+  "epochs": 2,
+  "models": "disposable fresh clones",
+  "measurements": {
+    "reference_eager": {
+      "samples": [
+        {
+          "collection_seconds": 1.8800919000059366,
+          "optimization_seconds": 0.16922179993707687,
+          "optimizer_steps": 16,
+          "max_kl": 0.0003926288918592036,
+          "entropy": 3.805837720632553,
+          "clip_fraction": 0.0
+        },
+        {
+          "collection_seconds": 1.8936769000720233,
+          "optimization_seconds": 0.36545629997272044,
+          "optimizer_steps": 16,
+          "max_kl": 0.00029986765002831817,
+          "entropy": 3.8048352152109146,
+          "clip_fraction": 0.0
+        },
+        {
+          "collection_seconds": 1.9066332000074908,
+          "optimization_seconds": 0.1685055000707507,
+          "optimizer_steps": 16,
+          "max_kl": 0.0002843552501872182,
+          "entropy": 3.803725913167,
+          "clip_fraction": 0.0
+        }
+      ],
+      "median_update_seconds": 2.0751387000782415,
+      "decisions_s": 15790.751721205193
+    },
+    "previous_graph": {
+      "samples": [
+        {
+          "collection_seconds": 0.16597380000166595,
+          "optimization_seconds": 0.18048430001363158,
+          "optimizer_steps": 16,
+          "max_kl": 0.0003926288918592036,
+          "entropy": 3.805837720632553,
+          "clip_fraction": 0.0
+        },
+        {
+          "collection_seconds": 0.16163380001671612,
+          "optimization_seconds": 0.15156669996213168,
+          "optimizer_steps": 16,
+          "max_kl": 0.00029986765002831817,
+          "entropy": 3.8048352152109146,
+          "clip_fraction": 0.0
+        },
+        {
+          "collection_seconds": 0.17887669999618083,
+          "optimization_seconds": 0.16151050000917166,
+          "optimizer_steps": 16,
+          "max_kl": 0.0002843552501872182,
+          "entropy": 3.803725913167,
+          "clip_fraction": 0.0
+        }
+      ],
+      "median_update_seconds": 0.3403872000053525,
+      "decisions_s": 96266.83964463038
+    },
+    "native_graph": {
+      "samples": [
+        {
+          "collection_seconds": 0.14954460004810244,
+          "optimization_seconds": 0.16771549999248236,
+          "optimizer_steps": 16,
+          "max_kl": 0.00039262883365154266,
+          "entropy": 3.8058377504348755,
+          "clip_fraction": 0.0
+        },
+        {
+          "collection_seconds": 0.1487064000684768,
+          "optimization_seconds": 0.14148130000103265,
+          "optimizer_steps": 16,
+          "max_kl": 0.00029986759182065725,
+          "entropy": 3.804835230112076,
+          "clip_fraction": 0.0
+        },
+        {
+          "collection_seconds": 0.1423814999870956,
+          "optimization_seconds": 0.14554559998214245,
+          "optimizer_steps": 16,
+          "max_kl": 0.00028435533749870956,
+          "entropy": 3.8037258833646774,
+          "clip_fraction": 0.0
+        }
+      ],
+      "median_update_seconds": 0.29018770006950945,
+      "decisions_s": 112920.01691371134
+    }
+  }
+}

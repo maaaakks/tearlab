@@ -1,0 +1,30 @@
+[
+  {
+    "file": "bounded_damage_best.pt",
+    "sha256": "cb238a50b85f4c5c6444187c56409c29d4f67c6d579afc76828c0fc7c6b81ad6",
+    "finite": true,
+    "updates": 585,
+    "offline_artifact": "offline:q4v8fyh5/run-bounded_damage-best"
+  },
+  {
+    "file": "bounded_damage_latest.pt",
+    "sha256": "7a621cd1b4bc91718f7e66d15906af5a174bab134c89b85d4fd91b573a209c2e",
+    "finite": true,
+    "updates": 951,
+    "offline_artifact": "offline:q4v8fyh5/run-bounded_damage-latest"
+  },
+  {
+    "file": "task_only_best.pt",
+    "sha256": "f01a0dc0560d47bc5aebab97053e6ebcec88cdb132668522657cb97105a5fdba",
+    "finite": true,
+    "updates": 490,
+    "offline_artifact": "offline:q4v8fyh5/run-task_only-best"
+  },
+  {
+    "file": "task_only_latest.pt",
+    "sha256": "5145dcb613f797cc7eff6ed7bba920debb14d3e4cbf55ea1d72df2f7c29cea85",
+    "finite": true,
+    "updates": 951,
+    "offline_artifact": "offline:q4v8fyh5/run-task_only-latest"
+  }
+]

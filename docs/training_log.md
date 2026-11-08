@@ -193,3 +193,12 @@ This file captures durable lessons from training runs so we can reuse what we le
 - Le profilage passe de 1 230/1 450 noyaux par décision à 54/64. Projectiles, tirs ennemis et resets sont les contributions majeures dans le mélange. Aucun entraînement ni checkpoint modifié.
 - Confiance : remplacement du simulateur qualifié sur ces scénarios, gain local de simulation ; ne prouve ni un gain équivalent sur l'apprentissage complet ni une fidélité accrue au vrai jeu. Les lanceurs restent inchangés.
 - Preuves et reproduction : `docs/GPU_ABLATION_RESULTS.md`, `docs/evidence/gpu-native-v3/`, `research/confirm_gpu_simulator.py`.
+
+# 2026-11-08 — Pilote PPO natif partagé : progrès réel, généralisation limitée
+
+- 568 s pour deux agents neufs, PPO identique, 31 162 368 transitions chacun. 25 cellules, 11 familles, 1 à 4 ennemis. Les compositions réservées, HP12 et grande salle ne sélectionnent pas les checkpoints.
+- Audit ID : 1,5 % initial → 31,2 % tâche seule / 34,2 % bonus de dégâts borné à 0,1 par épisode. Compositions inédites : 0 → 7,9 % / 4,2 %. HP12 : 23,8 % / 22,6 %. Pas de supériorité globale du bonus sur cette unique graine.
+- Les poursuivants progressent ; les familles de deux à quatre tireurs seuls restent à 0 %. Le critère sans dégât peut favoriser l'évitement : environ 21–24 % de timeouts ID. Les meilleurs checkpoints précèdent la fin du run (updates 490/585 sur 951).
+- Le gain simulation ne se multiplie pas intégralement dans le training : diagnostic complet 2,0751 s par update tensorielle, 0,3404 s avec le premier graphe, 0,2902 s avec les noyaux natifs, soit ×7,15 et ×1,17 respectivement. Inférence et gradients dominent désormais.
+- Confiance : pilote d'une graine, observations instrumentées, vraie physique de jeu non requalifiée. Scénarios et entrée changés par rapport aux anciens runs : pas une preuve que leur seul manque était le temps. Aucun checkpoint historique remplacé, aucun Isaac lancé. Artefacts W&B uniquement hors ligne.
+- Preuves : `docs/PPO_GPU_10M_PROTOCOL.md`, `docs/PPO_GPU_10M_RESULTS.md`, `docs/evidence/ppo-gpu-10m/`. Prochaine étape : isoler l'efficacité offensive multi-tireurs et réexaminer l'objectif sans dégât, plutôt que prolonger aveuglément.

@@ -1,0 +1,256 @@
+{
+  "complete": true,
+  "elapsed_seconds": 568.0449706000509,
+  "train_decisions_per_arm": {
+    "task_only": 31162368,
+    "bounded_damage": 31162368
+  },
+  "preflight_backend_gate": {
+    "passed": true,
+    "max_abs": 5.960464477539063e-08,
+    "rng_exact": true
+  },
+  "native_sha256": "f2a68f0e9c2161dd14d534d63fffc240141e6736419f1249c1d4849d80431eb4",
+  "source_sha256": {
+    "research/pilot_10m.py": "9d92ecd680c646cae7a8b7cd8ead0f668139d15b93bfe8c0569f2b6b87371744",
+    "research/staged_simulator.py": "c20142000ed2da11979ee322feaee31727f6443d35d5698735628af82cdfd073",
+    "research/native_runtime.py": "965da0925fef81c124dda7ab38558b6102a9380c263b428d469d01cbc457c5de",
+    "research/gpu_simulator.py": "6c02697fa1435a43e987c639606dfa398fcd323ab6ed31bb52f27a3db233e2f5",
+    "research/rapid_physics.py": "7354bc47a9a9339e11b61256634481141dcfb5dcc5f9163a2f52d263fb4a93d6",
+    "research/native/isaac_kernels.h": "05221ccf8be9a46e46f69cd73115fce61e2f4ca3d180ac180e7ad476259603cc",
+    "research/native/isaac_kernels.cu": "96bf2c690929fdb588fab8f31f2b19875faf19eb77d90893d34c872a9f1f4767",
+    "python/physics_v2.py": "099df91816bdca3eaa7352763ae9d0552b3ad223fee6f87b023fb5cb841e2b18",
+    "python/shooter_lab.py": "05fad1add8ab0c2fcfc9218a317b506f3b013e44bae17411aef6b7879977a1f7",
+    "python/combat_suite.py": "d0227bf43f4ff51579457535de41199cbe2a8b60d81b497efa6d8935575eab67",
+    "python/multi_combat_lab.py": "a3b25fe001dea77896ed9a880bf254c5d931792d4c4f54e99ed604661d07d426",
+    "python/alignment_lab.py": "5c93f3950a6d9d18d8e87586847552c3c61ea93cd5c487832a4b8a403bd28539",
+    "python/combat_ppo.py": "5ee5cf7b13a923ddd053e52b6495725bff8f43675064e5d2f84b1be2ffe1013a"
+  },
+  "one_training_seed": true,
+  "from_scratch": true,
+  "live_validated": false,
+  "baseline": {
+    "id_audit": {
+      "clear_rate": 0.01515151560306549,
+      "contact_rate": 0.9848484884608876,
+      "timeout_rate": 0.0,
+      "hp_fraction": 0.07836304605007172
+    },
+    "composition": {
+      "clear_rate": 0.0,
+      "contact_rate": 1.0,
+      "timeout_rate": 0.0,
+      "hp_fraction": 0.02401618483579821
+    },
+    "hp12": {
+      "clear_rate": 0.0,
+      "contact_rate": 1.0,
+      "timeout_rate": 0.0,
+      "hp_fraction": 0.03505291297499623
+    },
+    "geometry": {
+      "clear_rate": 0.015151515377290321,
+      "contact_rate": 0.9848484866546862,
+      "timeout_rate": 0.0,
+      "hp_fraction": 0.07678508061464086
+    }
+  },
+  "final": {
+    "task_only": {
+      "best_update": 490,
+      "updates": 951,
+      "metrics": {
+        "id_audit": {
+          "clear_rate": 0.31186869875951245,
+          "contact_rate": 0.45202021899096895,
+          "timeout_rate": 0.23611111837354573,
+          "hp_fraction": 0.5253734588623047
+        },
+        "composition": {
+          "clear_rate": 0.07870370563533571,
+          "contact_rate": 0.6296296483940549,
+          "timeout_rate": 0.29166667660077417,
+          "hp_fraction": 0.3239870220422745
+        },
+        "hp12": {
+          "clear_rate": 0.23809524519102915,
+          "contact_rate": 0.47023811510631014,
+          "timeout_rate": 0.29166667801993235,
+          "hp_fraction": 0.4791253294263567
+        },
+        "geometry": {
+          "clear_rate": 0.3030303107066588,
+          "contact_rate": 0.351010111245242,
+          "timeout_rate": 0.3459596083019719,
+          "hp_fraction": 0.5412058721889149
+        }
+      },
+      "improved_id_families": [
+        "1P_0T",
+        "0P_1T",
+        "2P_0T",
+        "1P_1T",
+        "3P_0T",
+        "4P_0T",
+        "3P_1T"
+      ],
+      "prespecified_progress_signal": true,
+      "latest_id": {
+        "clear_rate": 0.29292929827263864,
+        "contact_rate": 0.4444444529486425,
+        "timeout_rate": 0.26262627135623584,
+        "hp_fraction": 0.49706446424578177
+      },
+      "training_seconds": 262.0593546994496,
+      "collection_seconds": 129.33717759896535,
+      "optimization_seconds": 132.72217710048426
+    },
+    "bounded_damage": {
+      "best_update": 585,
+      "updates": 951,
+      "metrics": {
+        "id_audit": {
+          "clear_rate": 0.3421717268047911,
+          "contact_rate": 0.44570707800713455,
+          "timeout_rate": 0.2121212160722776,
+          "hp_fraction": 0.5149251306147287
+        },
+        "composition": {
+          "clear_rate": 0.0416666679084301,
+          "contact_rate": 0.5879629817273881,
+          "timeout_rate": 0.37037038140826756,
+          "hp_fraction": 0.32613974147372776
+        },
+        "hp12": {
+          "clear_rate": 0.226190485060215,
+          "contact_rate": 0.39880953303405214,
+          "timeout_rate": 0.37500000638621195,
+          "hp_fraction": 0.46300431873117176
+        },
+        "geometry": {
+          "clear_rate": 0.31060606783086603,
+          "contact_rate": 0.37626263747612637,
+          "timeout_rate": 0.313131323140679,
+          "hp_fraction": 0.5285220552574504
+        }
+      },
+      "improved_id_families": [
+        "1P_0T",
+        "0P_1T",
+        "2P_0T",
+        "1P_1T",
+        "3P_0T",
+        "4P_0T",
+        "3P_1T"
+      ],
+      "prespecified_progress_signal": true,
+      "latest_id": {
+        "clear_rate": 0.2803030359474095,
+        "contact_rate": 0.4343434470621022,
+        "timeout_rate": 0.2853535409226562,
+        "hp_fraction": 0.4602579618945266
+      },
+      "training_seconds": 263.292248697835,
+      "collection_seconds": 130.00529599830043,
+      "optimization_seconds": 133.2869526995346
+    }
+  },
+  "backend_timing": {
+    "envs": 1024,
+    "rollout": 32,
+    "epochs": 2,
+    "models": "disposable fresh clones",
+    "measurements": {
+      "reference_eager": {
+        "samples": [
+          {
+            "collection_seconds": 1.8800919000059366,
+            "optimization_seconds": 0.16922179993707687,
+            "optimizer_steps": 16,
+            "max_kl": 0.0003926288918592036,
+            "entropy": 3.805837720632553,
+            "clip_fraction": 0.0
+          },
+          {
+            "collection_seconds": 1.8936769000720233,
+            "optimization_seconds": 0.36545629997272044,
+            "optimizer_steps": 16,
+            "max_kl": 0.00029986765002831817,
+            "entropy": 3.8048352152109146,
+            "clip_fraction": 0.0
+          },
+          {
+            "collection_seconds": 1.9066332000074908,
+            "optimization_seconds": 0.1685055000707507,
+            "optimizer_steps": 16,
+            "max_kl": 0.0002843552501872182,
+            "entropy": 3.803725913167,
+            "clip_fraction": 0.0
+          }
+        ],
+        "median_update_seconds": 2.0751387000782415,
+        "decisions_s": 15790.751721205193
+      },
+      "previous_graph": {
+        "samples": [
+          {
+            "collection_seconds": 0.16597380000166595,
+            "optimization_seconds": 0.18048430001363158,
+            "optimizer_steps": 16,
+            "max_kl": 0.0003926288918592036,
+            "entropy": 3.805837720632553,
+            "clip_fraction": 0.0
+          },
+          {
+            "collection_seconds": 0.16163380001671612,
+            "optimization_seconds": 0.15156669996213168,
+            "optimizer_steps": 16,
+            "max_kl": 0.00029986765002831817,
+            "entropy": 3.8048352152109146,
+            "clip_fraction": 0.0
+          },
+          {
+            "collection_seconds": 0.17887669999618083,
+            "optimization_seconds": 0.16151050000917166,
+            "optimizer_steps": 16,
+            "max_kl": 0.0002843552501872182,
+            "entropy": 3.803725913167,
+            "clip_fraction": 0.0
+          }
+        ],
+        "median_update_seconds": 0.3403872000053525,
+        "decisions_s": 96266.83964463038
+      },
+      "native_graph": {
+        "samples": [
+          {
+            "collection_seconds": 0.14954460004810244,
+            "optimization_seconds": 0.16771549999248236,
+            "optimizer_steps": 16,
+            "max_kl": 0.00039262883365154266,
+            "entropy": 3.8058377504348755,
+            "clip_fraction": 0.0
+          },
+          {
+            "collection_seconds": 0.1487064000684768,
+            "optimization_seconds": 0.14148130000103265,
+            "optimizer_steps": 16,
+            "max_kl": 0.00029986759182065725,
+            "entropy": 3.804835230112076,
+            "clip_fraction": 0.0
+          },
+          {
+            "collection_seconds": 0.1423814999870956,
+            "optimization_seconds": 0.14554559998214245,
+            "optimizer_steps": 16,
+            "max_kl": 0.00028435533749870956,
+            "entropy": 3.8037258833646774,
+            "clip_fraction": 0.0
+          }
+        ],
+        "median_update_seconds": 0.29018770006950945,
+        "decisions_s": 112920.01691371134
+      }
+    }
+  }
+}

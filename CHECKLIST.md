@@ -83,6 +83,17 @@
 - [x] Contrôles CPU : 34 configurations, événements et RNG identiques, tolérances flottantes déclarées.
 - [x] Compilation CPU/PTX/CUBIN hors ligne, ressources statiques et banc de 18 variantes.
 - [x] Qualification CUDA : 144 cas réussis ; comparaison par proposition et confirmation entrelacée réalisées. Voir [les résultats](docs/GPU_ABLATION_RESULTS.md).
-- [ ] Choisir les optimisations à promouvoir et mesurer la boucle d'apprentissage complète.
+- [x] Backend natif choisi pour le pilote et boucle d'apprentissage complète mesurée ; voir les résultats PPO ci-dessous.
 
 Voir [le protocole et les commandes](docs/GPU_ABLATION_PLAN.md). Aucun test GPU lancé pendant cette passe.
+
+## Pilote PPO natif de dix minutes — 8 novembre 2026
+
+- [x] Backend natif branché sur PPO ; contexte de commande et bootstrap des timeouts vérifiés.
+- [x] Deux récompenses comparées à poids neufs sur 25 cellules et 11 familles, avec compositions/PV/géométrie réservés.
+- [x] Budget partagé : 568 s, 31 162 368 transitions par bras ; audits indépendants et meilleurs checkpoints conservés.
+- [x] Boucle complète mesurée : ×7,15 contre le tensoriel initial, ×1,17 contre le premier graphe, sur ce diagnostic.
+- [ ] Résoudre les échecs face à plusieurs tireurs et répliquer sur plusieurs graines avant promotion.
+- [ ] Valider dans Isaac ; ce pilote est uniquement simulé et instrumenté.
+
+Résultats et limites : [PPO_GPU_10M_RESULTS.md](docs/PPO_GPU_10M_RESULTS.md).
