@@ -233,19 +233,19 @@ def evaluate(policy,scenes,per_cell,seed,native,cache,width=520,height=280):
                 incomplete=int(active.sum()),width=width,height=height,seed=seed,episodes=len(expanded))
 
 
-def sources(folder):
+def sources(folder, extra=()):
     files=['research/pilot_10m.py','research/staged_simulator.py','research/native_runtime.py','research/gpu_simulator.py',
            'research/rapid_physics.py','research/native/isaac_kernels.h','research/native/isaac_kernels.cu',
            'python/physics_v2.py','python/shooter_lab.py','python/combat_suite.py','python/multi_combat_lab.py',
            'python/alignment_lab.py','python/combat_ppo.py']
     hashes={}
-    for name in files:
+    for name in [*files, *extra]:
         src=ROOT/name;dst=folder/'sources'/name;dst.parent.mkdir(parents=True,exist_ok=True)
         shutil.copyfile(src,dst);hashes[name]=hashlib.sha256(src.read_bytes()).hexdigest()
     return hashes
 
 
-def main():
+def main(arm_factory=None, backend_config=None, extra_sources=()):
     ap=argparse.ArgumentParser()
     ap.add_argument('--output',type=Path,required=True)
     ap.add_argument('--cache',type=Path)
@@ -254,13 +254,14 @@ def main():
     ap.add_argument('--seed',type=int,default=104729)
     ap.add_argument('--smoke',action='store_true')
     args=ap.parse_args()
+    arm_factory=arm_factory or Arm
     torch.set_num_threads(1);torch.manual_seed(args.seed)
     torch.backends.cuda.matmul.allow_tf32=False
     native=NativePhysics.load(ROOT/'data/physics_v2/calibration_r5.json')
     folder=args.output;folder.mkdir(parents=True,exist_ok=False)
     report=dict(config={k:str(v) if isinstance(v,Path) else v for k,v in vars(args).items()},
                 protocol='PPO paired rewards, one fresh training seed, no live game',
-                from_scratch=True,algorithm='PPO',native=asdict(native),source_sha256=sources(folder),native_source_sha256=source_digest(),
+                from_scratch=True,algorithm='PPO',training_backend=backend_config or dict(name='native-graph-reference'),native=asdict(native),source_sha256=sources(folder,extra_sources),native_source_sha256=source_digest(),
                 train_cells=[asdict(s) for s in cells()],holdout_cells=[asdict(s) for s in cells(True)],
                 reward={'task_only':'success - contact - .001','bounded_damage':'task_only + .1 * actual HP removed / initial total HP'},
                 reward_audit='No wall, aiming, distance or kill bonus. Progress bonus at most .1 per episode; all failures remain negative at the full timeout.',
@@ -286,7 +287,7 @@ def main():
     del fast,fe,reference,re
     performance={}
     for use_reference in (True,False):
-        arm=Arm(initial,balanced_training(args.envs),args.seed,native,'cuda',args.cache,True,use_reference)
+        arm=arm_factory(initial,balanced_training(args.envs),args.seed,native,'cuda',args.cache,True,use_reference)
         arm.update()
         samples=[arm.update() for _ in range(3)]
         performance['reference_eager' if use_reference else 'native_graph']=dict(samples=samples,
@@ -296,7 +297,7 @@ def main():
     report['end_to_end_preflight']=performance;write()
     if args.smoke:
         report['complete']=True;report['smoke_only']=True;write();print(json.dumps(report['end_to_end_preflight']),flush=True);return
-    arms=[Arm(initial,balanced_training(args.envs),args.seed,native,'cuda',args.cache,dense) for dense in (False,True)]
+    arms=[arm_factory(initial,balanced_training(args.envs),args.seed,native,'cuda',args.cache,dense) for dense in (False,True)]
     # Entire pilot clock includes baseline evaluation, periodic checks and final audits.
     started=time.perf_counter();train_end=started+max(1,args.seconds-45)
     eval_cells=cells()
@@ -323,8 +324,8 @@ def main():
     for key,name in [('WANDB_CONFIG_DIR','wandb_config'),('WANDB_CACHE_DIR','wandb_cache'),('WANDB_DATA_DIR','wandb_data')]:
         os.environ[key]=str(folder/name)
     import wandb
-    logger=wandb.init(project='IsaacRL',name='gpu10m-paired-'+folder.name,mode='offline',dir=str(folder),
-                      tags=['combat','ppo','native-cuda','reward-ablation','synthetic','fresh-seed'],
+    logger=wandb.init(project='IsaacRL',name=('parallel-' if backend_config else '')+'gpu10m-paired-'+folder.name,mode='offline',dir=str(folder),
+                      tags=['combat','ppo','native-cuda','reward-ablation','synthetic','fresh-seed']+(['parallel-ppo'] if backend_config else []),
                       config=dict(seconds=args.seconds,envs=args.envs,seed=args.seed,gamma=GAMMA,gae_lambda=LAMBDA))
     report['wandb']=dict(mode='offline',run_id=logger.id,run_dir=logger.dir)
     next_check=time.perf_counter()+60;write();print(json.dumps(dict(started=str(folder),baseline=report['initial']['id']['macro'])),flush=True)

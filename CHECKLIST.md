@@ -97,3 +97,13 @@ Voir [le protocole et les commandes](docs/GPU_ABLATION_PLAN.md). Aucun test GPU 
 - [ ] Valider dans Isaac ; ce pilote est uniquement simulé et instrumenté.
 
 Résultats et limites : [PPO_GPU_10M_RESULTS.md](docs/PPO_GPU_10M_RESULTS.md).
+
+## PPO parallèle complet — 8 novembre 2026
+
+- [x] Capture de la collecte réseau/action/simulation/buffers sur GPU, sans changer la tâche.
+- [x] Graphe forward/backward du réseau PPO et Adam fusionné, options indépendantes.
+- [x] Contrats GPU : RNG/états préservés, timeouts, trois updates, arrêt KL et guards.
+- [x] Lanceur optionnel `research.train_parallel` ; backend original conservé.
+- [ ] Qualifier les gains complets et l'effet du nombre de salles ; aucun gain de qualité RL présumé.
+
+Protocole : [PARALLEL_PPO_PROTOCOL.md](docs/PARALLEL_PPO_PROTOCOL.md).
