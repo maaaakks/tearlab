@@ -23,14 +23,14 @@ from physics_v2 import NativePhysics
 
 
 def snapshot(folder):
-    hashes={}
+    hashes=p.sources(folder)
     candidates=[ROOT/'research'/n for n in ['pilot_10m.py','parallel_ppo.py','gpu_simulator.py',
                  'staged_simulator.py','native_runtime.py','native/isaac_kernels.h','native/isaac_kernels.cu']]
     candidates += [Path(__file__).parent/n for n in ['campaign_core.py','run_campaign.py','test_campaign.py']]
     for source in candidates:
         rel=source.relative_to(ROOT) if source.is_relative_to(ROOT) else Path('research')/source.name
         target=folder/'sources'/rel;target.parent.mkdir(parents=True,exist_ok=True)
-        shutil.copyfile(source,target);hashes[str(rel)]=hashlib.sha256(source.read_bytes()).hexdigest()
+        shutil.copyfile(source,target);hashes[rel.as_posix()]=hashlib.sha256(source.read_bytes()).hexdigest()
     return hashes
 
 
@@ -50,7 +50,7 @@ def main():
     parser.add_argument('--lr',type=float,default=.0003)
     parser.add_argument('--gamma',type=float,default=.995)
     parser.add_argument('--audit',action='store_true')
-    parser.add_argument('--phase',choices=['two4','two12','mixed'],default='two4')
+    parser.add_argument('--phase',choices=['two4','two12','chasers','chasers-focus','mixed'],default='two4')
     args=parser.parse_args()
     args.output=args.output.resolve()
     args.cache=args.cache.resolve()
@@ -97,8 +97,12 @@ def main():
         stage_scenes={
             'two4':[Scene(0,2,shooter_hp=4)]*6+[Scene(0,1)]*2+[Scene(shooter_hp=2,attacks=False)],
             'two12':[Scene(0,2)]*8+[Scene(0,1)]*2+[Scene(0,2,shooter_hp=4)],
+            'chasers':[Scene(1,0,2)]*2+[Scene(2,0,4)]*2+[Scene(3,0,4)]+[Scene(4,0,4)]+
+                       [Scene(0,1)]*2+[Scene(0,2)]*2,
+            'chasers-focus':[Scene(4,0,4)]*5+[Scene(3,0,4),Scene(2,0,4),Scene(1,0,2),Scene(0,1),Scene(0,2)],
             'mixed':[Scene(1,1,4)]*3+[Scene(1,2,4)]*3+[Scene(3,1,4)]*3+
-                    [Scene(0,2)]*2+[Scene(0,1)]*2+[Scene(2,0,4)]*2}
+                    [Scene(0,2)]*2+[Scene(0,1)]*2+[Scene(2,0,4)]*2+
+                    [Scene(1,0,2),Scene(3,0,4),Scene(4,0,4)]}
         schedules=[(args.phase,stage_scenes[args.phase],args.updates)]
     for _,scenes,_ in schedules:
         assert not {(s.chasers,s.shooters) for s in scenes}&HOLDOUT
@@ -130,7 +134,7 @@ def main():
             learners[learner.name]=learner
             scenes=([Scene(shooter_hp=2,attacks=False)] if args.mode=='aim' else
                     [Scene(),Scene(0,2),Scene(1,1,4),Scene(shooter_hp=2,attacks=False)])
-            if args.mode=='curriculum':scenes += [Scene(0,2,shooter_hp=4),Scene(1,2,4),Scene(3,1,4),Scene(2,0,4)]
+            if args.mode=='curriculum':scenes += [Scene(0,2,shooter_hp=4),Scene(1,2,4),Scene(3,1,4),Scene(2,0,4),Scene(1,0,2),Scene(3,0,4),Scene(4,0,4)]
             examiners[learner.name]={f'life{b}':Examiner(learner.policy,scenes,256,910001+b,native,args.cache,budget=b)
                                       for b in [1,3]}
             baseline={k:e.run() for k,e in examiners[learner.name].items()}
@@ -157,19 +161,27 @@ def main():
                         row['scores'][name]=scores
                         own_cells=scores[f'life{learner.env.budget}']['cells']
                         primary=0 if args.mode in ['aim','budget'] else (4 if args.mode=='curriculum' and args.phase=='two4' else 1)
+                        if args.mode=='curriculum' and args.phase.startswith('chasers'):primary=7
                         own=own_cells[primary]
                         metric=(own['clear_rate'],own['nohit_rate'],-own['decisions'])
                         mastered=own['clear_rate']>=.9
-                        if args.mode=='curriculum':
+                        if args.mode in ['curriculum','reward']:
                             retention=own_cells[0]['clear_rate']
-                            threshold=.85 if args.phase=='two4' else .7
-                            quality=min(retention/.8,own['clear_rate']/threshold)
+                            threshold=.85 if args.mode=='curriculum' and args.phase=='two4' else .7
+                            quality=min(1.,retention/.8,own['clear_rate']/threshold)
                             mastered=quality>=1
-                            if args.phase=='mixed':
+                            if args.mode=='curriculum' and args.phase.startswith('chasers'):
+                                pursuers=[own_cells[i] for i in [7,8,9,10]]
+                                own={key:sum(x[key] for x in pursuers)/4 for key in ['clear_rate','nohit_rate','decisions']}
+                                quality=min(1.,retention/.8,own_cells[1]['clear_rate']/.6,
+                                            min(x['clear_rate'] for x in pursuers)/.7,own['clear_rate']/.85)
+                                mastered=quality>=1
+                            if args.mode=='curriculum' and args.phase=='mixed':
                                 mixed=[own_cells[i] for i in [2,5,6]]
                                 own={key:sum(x[key] for x in mixed)/3 for key in ['clear_rate','nohit_rate','decisions']}
-                                quality=min(retention/.8,own_cells[1]['clear_rate']/.6,
-                                            min(x['clear_rate'] for x in mixed)/.5,own['clear_rate']/.7)
+                                quality=min(1.,retention/.8,own_cells[1]['clear_rate']/.6,
+                                            min(x['clear_rate'] for x in mixed)/.5,own['clear_rate']/.7,
+                                            sum(own_cells[i]['clear_rate'] for i in [7,8,9,10])/4/.7)
                                 mastered=quality>=1
                             metric=(quality,own['clear_rate'],own['nohit_rate'],-own['decisions'])
                         if metric>best[name]:best[name]=metric;save(learner,'best',metric)
@@ -186,7 +198,9 @@ def main():
             if args.mode in ['aim','curriculum'] and min(checks_passed.values())>=2:break
         for name,learner in learners.items():
             # Keep last separate; final audit loads solely the ID-selected best.
-            save(learner,'latest',best[name])
+            # The last update may not coincide with an exam: do not label it
+            # with the best checkpoint's measured score.
+            save(learner,'latest',None)
             selected=folder/f'{name}-best.pt'
             if not selected.exists():save(learner,'best',best[name])
             checkpoint=torch.load(selected,map_location='cuda',weights_only=True)
