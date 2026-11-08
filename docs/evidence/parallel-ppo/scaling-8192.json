@@ -1,0 +1,115 @@
+{
+  "complete": true,
+  "device": "NVIDIA GeForce RTX 4070",
+  "torch": "2.13.0+cu130",
+  "rollout": 32,
+  "epochs": 2,
+  "minibatch": 4096,
+  "training_seed": 104729,
+  "disposable": true,
+  "live_game": false,
+  "qualification": {
+    "8192/recommended": {
+      "max_tensor_abs": 0.0,
+      "max_parameter_abs": 3.859400749206543e-06,
+      "discrete_exact": true,
+      "rng_exact": true,
+      "seconds": 5.773038899991661,
+      "timeouts": 8192,
+      "done": 29972
+    }
+  },
+  "measurements": {
+    "8192": {
+      "recommended": {
+        "setup_seconds": 0.6745305000804365,
+        "samples": [
+          {
+            "collection_seconds": 0.09556640009395778,
+            "optimization_seconds": 0.7102810000069439,
+            "optimizer_steps": 128,
+            "max_kl": 0.008526235818862915,
+            "entropy": 3.796283420175314,
+            "clip_fraction": 0.02797698974609375
+          },
+          {
+            "collection_seconds": 0.07515950000379235,
+            "optimization_seconds": 0.6245191999478266,
+            "optimizer_steps": 128,
+            "max_kl": 0.011181378737092018,
+            "entropy": 3.7658819761127234,
+            "clip_fraction": 0.13580894470214844
+          },
+          {
+            "collection_seconds": 0.0821898999856785,
+            "optimization_seconds": 0.7211871999315917,
+            "optimizer_steps": 128,
+            "max_kl": 0.012660043314099312,
+            "entropy": 3.71292307972908,
+            "clip_fraction": 0.1443309783935547
+          },
+          {
+            "collection_seconds": 0.07581589999608696,
+            "optimization_seconds": 0.6782765999669209,
+            "optimizer_steps": 128,
+            "max_kl": 0.01256517507135868,
+            "entropy": 3.63538015820086,
+            "clip_fraction": 0.1278228759765625
+          },
+          {
+            "collection_seconds": 0.08878410002216697,
+            "optimization_seconds": 0.7625800999812782,
+            "optimizer_steps": 128,
+            "max_kl": 0.011259609833359718,
+            "entropy": 3.544156229123473,
+            "clip_fraction": 0.10555458068847656
+          },
+          {
+            "collection_seconds": 0.08316399995237589,
+            "optimization_seconds": 0.6875114000868052,
+            "optimizer_steps": 128,
+            "max_kl": 0.009820477105677128,
+            "entropy": 3.4580717366188765,
+            "clip_fraction": 0.07261466979980469
+          },
+          {
+            "collection_seconds": 0.0842992999823764,
+            "optimization_seconds": 0.6942524999612942,
+            "optimizer_steps": 128,
+            "max_kl": 0.008899800479412079,
+            "entropy": 3.3865351397544146,
+            "clip_fraction": 0.05893516540527344
+          },
+          {
+            "collection_seconds": 0.07997369999065995,
+            "optimization_seconds": 0.5932948000263423,
+            "optimizer_steps": 128,
+            "max_kl": 0.009233416989445686,
+            "entropy": 3.3332835473120213,
+            "clip_fraction": 0.052745819091796875
+          },
+          {
+            "collection_seconds": 0.07893239997792989,
+            "optimization_seconds": 0.545073900022544,
+            "optimizer_steps": 128,
+            "max_kl": 0.00846945308148861,
+            "entropy": 3.2757548857480288,
+            "clip_fraction": 0.04910087585449219
+          }
+        ],
+        "persistent_bytes": 611224064,
+        "median_update_seconds": 0.7706754000391811,
+        "median_collection_seconds": 0.0821898999856785,
+        "median_optimization_seconds": 0.6875114000868052,
+        "decisions_s": 340148.3944948452
+      }
+    }
+  },
+  "sources": {
+    "parallel_ppo.py": "ea8dc23ced1bbde9e5d826fa21529def1361c9c4b58020b356fbe672a7f3d03e",
+    "benchmark_parallel.py": "6eb165dbcf76fb8436a008522e2f44570750e0b6bec4c18f3a4727182d3639e8"
+  },
+  "peak_memory_bytes": {
+    "8192": 781501440
+  }
+}

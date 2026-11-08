@@ -32,6 +32,7 @@ VARIANTS = {
     'deferred_metrics': Options(deferred_metrics=True),
     'all': Options(True, True, True, True),
     'recommended': Options(True, True, True, False),
+    'graphs_only': Options(True, True, False, False),
 }
 
 class PreviousGraphEnv(p.AutoResetMixin, GraphReadyCombatSuiteEnv):

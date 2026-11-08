@@ -104,6 +104,6 @@ Résultats et limites : [PPO_GPU_10M_RESULTS.md](docs/PPO_GPU_10M_RESULTS.md).
 - [x] Graphe forward/backward du réseau PPO et Adam fusionné, options indépendantes.
 - [x] Contrats GPU : RNG/états préservés, timeouts, trois updates, arrêt KL et guards.
 - [x] Lanceur optionnel `research.train_parallel` ; backend original conservé.
-- [ ] Qualifier les gains complets et l'effet du nombre de salles ; aucun gain de qualité RL présumé.
+- [x] Gain collecte+PPO confirmé : ×2,70 supplémentaire, ×18,54 contre le tensoriel ; débit maximal testé à 4 096 salles, sans preuve de gain de qualité RL.
 
 Protocole : [PARALLEL_PPO_PROTOCOL.md](docs/PARALLEL_PPO_PROTOCOL.md).

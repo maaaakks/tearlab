@@ -290,7 +290,7 @@ def main(arm_factory=None, backend_config=None, extra_sources=()):
         arm=arm_factory(initial,balanced_training(args.envs),args.seed,native,'cuda',args.cache,True,use_reference)
         arm.update()
         samples=[arm.update() for _ in range(3)]
-        performance['reference_eager' if use_reference else 'native_graph']=dict(samples=samples,
+        performance['reference_eager' if use_reference else ('parallel_graph' if backend_config else 'native_graph')]=dict(samples=samples,
                  median_update_seconds=statistics.median(s['collection_seconds']+s['optimization_seconds'] for s in samples),
                  decisions_per_update=args.envs*32)
         del arm
