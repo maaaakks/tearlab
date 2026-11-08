@@ -32,7 +32,8 @@ def suites(final=False):
                 geometry=(basic,640,360))
 
 
-METRICS=['x','y','wall_distance','corner','hostile_count','nearest_bullet','closest_passage_distance','closest_passage_time','speed','hp_removed']
+METRICS=['x','y','wall_distance','corner','hostile_count','nearest_bullet','closest_passage_distance','closest_passage_time','speed','hp_removed',
+         'vx','vy','requested_action','previous_action','shot_axis_enemy_proxy','shot_axis_distance_proxy']
 
 
 @torch.no_grad()
@@ -60,10 +61,17 @@ def diagnose(policy,scenes,per_cell,seed,native,cache,width=520,height=280,histo
         min_time=(passage[:,:,0]*2).gather(1,nearest_index[:,None]).squeeze(1)
         boundaries=torch.minimum(env.pos,env.size-env.pos)
         wall=boundaries.amin(-1);corner=(boundaries<35).all(-1)
-        diagnostic=torch.stack((env.pos[:,0],env.pos[:,1],wall,corner.float(),mask.sum(-1).float(),nearest,minpass,min_time,env.vel.norm(dim=-1),1-env.hp.sum(-1)/env.initial_hp),-1)
+        action=policy(obs,previous)[0].argmax(-1)
+        axis=env.move[action%5];relative_enemy=env.targets-env.pos[:,None]
+        ahead=(relative_enemy*axis[:,None]).sum(-1)>0
+        distance=(relative_enemy[:,:,0]*axis[:,None,1]-relative_enemy[:,:,1]*axis[:,None,0]).abs()
+        distance=distance.masked_fill(~ahead|(env.hp<=0)|(action[:,None]%5==0),1e4)
+        axis_distance=distance.amin(-1);axis_enemy=distance.argmin(-1)
+        axis_enemy=torch.where(axis_distance<1e4,axis_enemy,-1)
+        diagnostic=torch.stack((env.pos[:,0],env.pos[:,1],wall,corner.float(),mask.sum(-1).float(),nearest,minpass,min_time,env.vel.norm(dim=-1),1-env.hp.sum(-1)/env.initial_hp,
+                                env.vel[:,0],env.vel[:,1],action.float(),previous.float(),axis_enemy.float(),axis_distance),-1)
         ring[step%20].copy_(diagnostic)
         exposure[:,0].add_(active);exposure[:,1].add_(active*(wall<35));exposure[:,2].add_(active*corner)
-        action=policy(obs,previous)[0].argmax(-1)
         _,_,done,info=sim.step(action)
         newly=active&done
         totals[:,0].add_(active*info['success']);totals[:,1].add_(active*info['dead']*info['projectile_damage'])

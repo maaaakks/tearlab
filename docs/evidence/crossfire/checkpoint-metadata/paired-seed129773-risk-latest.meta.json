@@ -1,0 +1,14 @@
+{
+  "sha256": "a0f9ef7923737036e738a2ca011db3e99d5d7597432b78c5ceacd3d791e5f618",
+  "variant": "risk",
+  "updates": 1600,
+  "decisions": 52428800,
+  "metric": [
+    1.0,
+    0.580078125,
+    0.1875,
+    -127.052734375
+  ],
+  "live_validated": false,
+  "wandb_artifact_reference": "offline:y99iqubb/paired-seed129773-risk-latest"
+}

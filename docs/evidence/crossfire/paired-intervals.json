@@ -1,0 +1,20 @@
+{
+  "129773": {
+    "mean_difference_pp": 41.2109375,
+    "bootstrap_95_percent_pp": [
+      38.18359375,
+      44.240722656249986
+    ],
+    "episodes": 1024,
+    "description": "Paired within fixed scene/cohort; interval covers evaluation sampling only, not training variability"
+  },
+  "242579": {
+    "mean_difference_pp": 36.9140625,
+    "bootstrap_95_percent_pp": [
+      34.07958984375,
+      39.84375
+    ],
+    "episodes": 1024,
+    "description": "Paired within fixed scene/cohort; interval covers evaluation sampling only, not training variability"
+  }
+}

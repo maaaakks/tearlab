@@ -1,0 +1,133 @@
+{
+  "passed": true,
+  "cpu_only": true,
+  "runs": [
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed129773",
+      "sources_verified": true,
+      "closed_factors_absent": true,
+      "equal_exposure": true,
+      "decisions_per_arm": 52428800
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed242579",
+      "sources_verified": true,
+      "closed_factors_absent": true,
+      "equal_exposure": true,
+      "decisions_per_arm": 52428800
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\focus-seed129773",
+      "sources_verified": true,
+      "closed_factors_absent": true,
+      "equal_exposure": true,
+      "decisions_per_arm": 39321600
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\focus-seed242579",
+      "sources_verified": true,
+      "closed_factors_absent": true,
+      "equal_exposure": true,
+      "decisions_per_arm": 39321600
+    }
+  ],
+  "checkpoints": [
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed129773\\pool-best.pt",
+      "sha256": "1488a4d563e3b6642f63445db94816af8b12f65621ef0b982b640d8c41c43915",
+      "updates": 1600,
+      "decisions": 52428800
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed129773\\pool-latest.pt",
+      "sha256": "5747f1c80a15e49674bd9b596d7552f6bfdf1c309d2913c62da78964a18e8a42",
+      "updates": 1600,
+      "decisions": 52428800
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed129773\\risk-best.pt",
+      "sha256": "a26166135d97c93a93b42511fa005d8a8740eb4552dde8ad08e3d5b4754cb400",
+      "updates": 1600,
+      "decisions": 52428800
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed129773\\risk-latest.pt",
+      "sha256": "a0f9ef7923737036e738a2ca011db3e99d5d7597432b78c5ceacd3d791e5f618",
+      "updates": 1600,
+      "decisions": 52428800
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed129773\\attention-best.pt",
+      "sha256": "f2d4cc602ae60b2f3e8f6f8c9d1355df36a09ab5b11f1c89260209d950f38e8f",
+      "updates": 1400,
+      "decisions": 45875200
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed129773\\attention-latest.pt",
+      "sha256": "61c8c45a9068547e041a3d6c1dd22961dbc5f3ae53a863041fbdd7368bb0a53e",
+      "updates": 1600,
+      "decisions": 52428800
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed242579\\pool-best.pt",
+      "sha256": "b6d682ae5e60e9d640155dc9130bd3398498ec0f25f68b61e9a5728afd985913",
+      "updates": 1600,
+      "decisions": 52428800
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed242579\\pool-latest.pt",
+      "sha256": "0d6b8781c068e4342443abf4f50dc01db4f02e32de3677478a17bacd16ca0d4d",
+      "updates": 1600,
+      "decisions": 52428800
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed242579\\risk-best.pt",
+      "sha256": "efe2d554a0c81193bde43ac01c822a5db3f289b5756d210661b47800ab0b1894",
+      "updates": 1600,
+      "decisions": 52428800
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed242579\\risk-latest.pt",
+      "sha256": "681b973a7538563842f4770c8480120b83cff76906ca4be285950a4b51a805cb",
+      "updates": 1600,
+      "decisions": 52428800
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed242579\\attention-best.pt",
+      "sha256": "0e58db924bd7849e571de04a2d5473f0015785e99532fb93020ce34da806d89c",
+      "updates": 1600,
+      "decisions": 52428800
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed242579\\attention-latest.pt",
+      "sha256": "d22f8f6a8530a4efb1560f0d15ac38c185bc7dd95aa801280a0bc896fd4973cf",
+      "updates": 1600,
+      "decisions": 52428800
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\focus-seed129773\\pool-best.pt",
+      "sha256": "8b26a12c9f6bbb0b41263db77f0f6d32dbec449f287fd1edea7443e0ba89d63f",
+      "updates": 1000,
+      "decisions": 32768000
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\focus-seed129773\\pool-latest.pt",
+      "sha256": "ad7b159d29d25b8c32e756daa9599e97c30cea2a2af1160f6e2bb35c83936e13",
+      "updates": 1200,
+      "decisions": 39321600
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\focus-seed242579\\pool-best.pt",
+      "sha256": "29a020e4ac56e8c3965bdc4a3833451c18833721177508672335cc65582c3e05",
+      "updates": 1200,
+      "decisions": 39321600
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\focus-seed242579\\pool-latest.pt",
+      "sha256": "fc71b7397958de3ab2601310b370d12ddc0eb666d137e219583de89363b3cd12",
+      "updates": 1200,
+      "decisions": 39321600
+    }
+  ],
+  "selection_and_final_hashes_verified": true
+}

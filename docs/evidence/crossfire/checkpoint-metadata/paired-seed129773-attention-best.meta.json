@@ -1,0 +1,14 @@
+{
+  "sha256": "f2d4cc602ae60b2f3e8f6f8c9d1355df36a09ab5b11f1c89260209d950f38e8f",
+  "variant": "attention",
+  "updates": 1400,
+  "decisions": 45875200,
+  "metric": [
+    1.0,
+    0.5891927083333333,
+    0.203125,
+    -120.74544270833334
+  ],
+  "live_validated": false,
+  "wandb_artifact_reference": "offline:y99iqubb/paired-seed129773-attention-best"
+}

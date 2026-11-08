@@ -48,3 +48,28 @@ le lanceur ; comparaison d'architectures inchangée, cette prolongation est
 rapportée séparément. Garder le parent si le meilleur développement prolongé
 ne l'améliore pas. Aucun changement de reward, scène réservée ni seuil pour
 obtenir artificiellement une promotion. Tests finaux encore fermés.
+
+## Poids figés, audit terminé
+
+Sur les deux graines, pooling conserve le meilleur développement moyen : 61,23 %
+contre cinématique 58,56 % et attention 58,24 %. Aucune branche ne gagne sa graine,
+donc le contrôle de capacité préparé n'est pas déclenché. Le focus progresse de
+62,6 ->67,3 % et 59,9 ->64,8 % sur les cibles de développement, rétention éligible.
+Meilleurs poids locaux du focus : update 1000 /1200, pas automatiquement les derniers.
+
+selection.json est écrit avant toute lecture du test final. Audits fixés : 4T12
+contrôlé 45,6/36,9 % contre parents 4,4/0,0 % ; anciennes compositions 74,2/62,8 %
+contre 49,1/42,7 %. Facteurs groupés et synchronisés progressent sur les deux.
+La généralisation géométrique reste instable : 54,9/11,0 % et 3,1/49,9 % de
+timeouts sur 3/4 tireurs 12 PV. Placement historique quatre tireurs : 24,2/4,7 %.
+Ces échecs sont conservés ; aucun entraînement supplémentaire après leur lecture.
+
+## Validation et incident d'isolation des tests
+
+La première suite combinée passe 26 tests puis rencontre une erreur mémoire CUDA
+sur les nouveaux tests GPU ; les neuf nouveaux tests passent isolément. Ajouter
+un nettoyage explicite des graphes/pools avant cette suite et entre variantes,
+comme le fait déjà le lanceur entre modèles, permet deux exécutions combinées
+normales de 28/28. Le journal d'échec reste archivé. Cela corrige l'isolation des
+tests, sans modifier les poids, la physique ou les audits. L'intégrité CPU vérifie
+quatre runs, 16 checkpoints et la concordance des résultats individuels/rapports.

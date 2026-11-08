@@ -1,0 +1,124 @@
+{
+  "frozen": true,
+  "selected_variant": "pool",
+  "selected_model": "focus",
+  "focus": {
+    "129773": {
+      "accepted": true,
+      "metric": [
+        1.0,
+        0.6725260416666667,
+        0.359375,
+        -131.56184895833331
+      ],
+      "parent_metric": [
+        1.0,
+        0.6256510416666667,
+        0.296875,
+        -130.40885416666666
+      ],
+      "report": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\focus-seed129773\\report.json"
+    },
+    "242579": {
+      "accepted": true,
+      "metric": [
+        1.0,
+        0.6484375,
+        0.28125,
+        -122.58463541666666
+      ],
+      "parent_metric": [
+        1.0,
+        0.5989583333333333,
+        0.25,
+        -122.10221354166666
+      ],
+      "report": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\focus-seed242579\\report.json"
+    }
+  },
+  "selection": "development only; minimum retention quality across seeds, then mean target score, then worst cell; focus retained only if development improves",
+  "ranking": {
+    "pool": [
+      1.0,
+      0.6123046875,
+      0.25
+    ],
+    "risk": [
+      1.0,
+      0.5856119791666667,
+      0.1875
+    ],
+    "attention": [
+      1.0,
+      0.5823567708333333,
+      0.203125
+    ]
+  },
+  "reports": [
+    "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed129773\\report.json",
+    "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed242579\\report.json"
+  ],
+  "models": {
+    "129773-pool": {
+      "checkpoint": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed129773\\pool-best.pt",
+      "sha256": "1488a4d563e3b6642f63445db94816af8b12f65621ef0b982b640d8c41c43915",
+      "seed": 129773,
+      "variant": "pool"
+    },
+    "129773-risk": {
+      "checkpoint": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed129773\\risk-best.pt",
+      "sha256": "a26166135d97c93a93b42511fa005d8a8740eb4552dde8ad08e3d5b4754cb400",
+      "seed": 129773,
+      "variant": "risk"
+    },
+    "129773-attention": {
+      "checkpoint": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed129773\\attention-best.pt",
+      "sha256": "f2d4cc602ae60b2f3e8f6f8c9d1355df36a09ab5b11f1c89260209d950f38e8f",
+      "seed": 129773,
+      "variant": "attention"
+    },
+    "242579-pool": {
+      "checkpoint": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed242579\\pool-best.pt",
+      "sha256": "b6d682ae5e60e9d640155dc9130bd3398498ec0f25f68b61e9a5728afd985913",
+      "seed": 242579,
+      "variant": "pool"
+    },
+    "242579-risk": {
+      "checkpoint": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed242579\\risk-best.pt",
+      "sha256": "efe2d554a0c81193bde43ac01c822a5db3f289b5756d210661b47800ab0b1894",
+      "seed": 242579,
+      "variant": "risk"
+    },
+    "242579-attention": {
+      "checkpoint": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\paired-seed242579\\attention-best.pt",
+      "sha256": "0e58db924bd7849e571de04a2d5473f0015785e99532fb93020ce34da806d89c",
+      "seed": 242579,
+      "variant": "attention"
+    },
+    "129773-focus": {
+      "checkpoint": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\focus-seed129773\\pool-best.pt",
+      "sha256": "8b26a12c9f6bbb0b41263db77f0f6d32dbec449f287fd1edea7443e0ba89d63f",
+      "seed": 129773,
+      "variant": "pool"
+    },
+    "242579-focus": {
+      "checkpoint": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\focus-seed242579\\pool-best.pt",
+      "sha256": "29a020e4ac56e8c3965bdc4a3833451c18833721177508672335cc65582c3e05",
+      "seed": 242579,
+      "variant": "pool"
+    },
+    "129773-parent": {
+      "checkpoint": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-generalization\\mixed-seed129773\\life1-sparse-best.pt",
+      "sha256": "5fc87678ba806c153d7c0e28ab77a14511a1ec72f3616b269067aa6c96b824f4",
+      "seed": 129773,
+      "variant": "parent"
+    },
+    "242579-parent": {
+      "checkpoint": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-generalization\\replication-seed242579\\mixed\\life1-sparse-best.pt",
+      "sha256": "c1545c27e393550e4c5bdf206257b6523981f9cc051ae412f8135ef84e0ed92f",
+      "seed": 242579,
+      "variant": "parent"
+    }
+  },
+  "final_test_read": false
+}

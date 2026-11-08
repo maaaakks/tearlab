@@ -1,0 +1,31 @@
+{
+  "complete": true,
+  "status": "training-finished-no-final-test-opened",
+  "steps": [
+    {
+      "name": "paired-seed242579",
+      "seconds": 634.2270498275757
+    }
+  ],
+  "capacity_control_required": false,
+  "first_seed_development": {
+    "pool": [
+      1.0,
+      0.6256510416666667,
+      0.296875,
+      -130.40885416666666
+    ],
+    "risk": [
+      1.0,
+      0.580078125,
+      0.1875,
+      -127.052734375
+    ],
+    "attention": [
+      1.0,
+      0.5891927083333333,
+      0.203125,
+      -120.74544270833334
+    ]
+  }
+}

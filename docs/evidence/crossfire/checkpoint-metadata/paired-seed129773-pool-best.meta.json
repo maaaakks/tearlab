@@ -1,0 +1,14 @@
+{
+  "sha256": "1488a4d563e3b6642f63445db94816af8b12f65621ef0b982b640d8c41c43915",
+  "variant": "pool",
+  "updates": 1600,
+  "decisions": 52428800,
+  "metric": [
+    1.0,
+    0.6256510416666667,
+    0.296875,
+    -130.40885416666666
+  ],
+  "live_validated": false,
+  "wandb_artifact_reference": "offline:y99iqubb/paired-seed129773-pool-best"
+}

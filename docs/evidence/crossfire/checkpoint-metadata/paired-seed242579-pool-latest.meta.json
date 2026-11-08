@@ -1,0 +1,14 @@
+{
+  "sha256": "0d6b8781c068e4342443abf4f50dc01db4f02e32de3677478a17bacd16ca0d4d",
+  "variant": "pool",
+  "updates": 1600,
+  "decisions": 52428800,
+  "metric": [
+    1.0,
+    0.5989583333333333,
+    0.25,
+    -122.10221354166666
+  ],
+  "live_validated": false,
+  "wandb_artifact_reference": "offline:r6qga2ti/paired-seed242579-pool-latest"
+}

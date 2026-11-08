@@ -1,0 +1,14 @@
+{
+  "sha256": "b6d682ae5e60e9d640155dc9130bd3398498ec0f25f68b61e9a5728afd985913",
+  "variant": "pool",
+  "updates": 1600,
+  "decisions": 52428800,
+  "metric": [
+    1.0,
+    0.5989583333333333,
+    0.25,
+    -122.10221354166666
+  ],
+  "live_validated": false,
+  "wandb_artifact_reference": "offline:r6qga2ti/paired-seed242579-pool-best"
+}

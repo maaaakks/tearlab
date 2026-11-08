@@ -1,4 +1,5 @@
 import os
+import gc
 from pathlib import Path
 import sys
 import unittest
@@ -99,6 +100,12 @@ class CrossContracts(unittest.TestCase):
 
 @unittest.skipUnless(os.environ.get('RUN_ISAAC_GPU_TESTS')=='1','Explicit GPU test opt-in')
 class CrossGPU(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Other suites retain cycles of captured autograd graphs. Match the
+        # production runner's explicit graph/pool cleanup before a new model.
+        torch.cuda.synchronize();gc.collect();torch.cuda.empty_cache()
+
     def test_native_tensor_and_capture_terminals(self):
         torch.set_num_threads(1)
         cache=Path(os.environ['ISAAC_NATIVE_CACHE']);native=NativePhysics.load(ROOT/'data/physics_v2/calibration_r5.json')
@@ -125,6 +132,7 @@ class CrossGPU(unittest.TestCase):
             self.assertTrue(all(torch.isfinite(p).all() for p in learner.policy.parameters()))
             learner.set_scenes(c.balance(schedule(4,12),128));learner.update(epochs=0)
             self.assertTrue((learner.env.shooters<=4).all())
+            del learner;gc.collect();torch.cuda.empty_cache()
 
 
 if __name__=='__main__':unittest.main()

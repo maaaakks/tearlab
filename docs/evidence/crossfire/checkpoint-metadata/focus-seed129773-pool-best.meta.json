@@ -1,0 +1,14 @@
+{
+  "sha256": "8b26a12c9f6bbb0b41263db77f0f6d32dbec449f287fd1edea7443e0ba89d63f",
+  "variant": "pool",
+  "updates": 1000,
+  "decisions": 32768000,
+  "metric": [
+    1.0,
+    0.6725260416666667,
+    0.359375,
+    -131.56184895833331
+  ],
+  "live_validated": false,
+  "wandb_artifact_reference": "offline:ky7x0rup/focus-seed129773-pool-best"
+}

@@ -1,0 +1,14 @@
+{
+  "sha256": "efe2d554a0c81193bde43ac01c822a5db3f289b5756d210661b47800ab0b1894",
+  "variant": "risk",
+  "updates": 1600,
+  "decisions": 52428800,
+  "metric": [
+    1.0,
+    0.5911458333333334,
+    0.203125,
+    -121.25716145833333
+  ],
+  "live_validated": false,
+  "wandb_artifact_reference": "offline:r6qga2ti/paired-seed242579-risk-best"
+}

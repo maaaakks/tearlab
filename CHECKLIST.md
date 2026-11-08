@@ -121,6 +121,6 @@ Protocole figé avant expériences : docs/GENERALIZATION_PROTOCOL.md.
 
 ## Tirs croisés — 2026-11-09
 
-- [ ] Diagnostiquer les morts et séparer difficulté des tirs / distribution des placements.
-- [ ] Comparer curriculum 3/4 tireurs et représentations pooling/cinématique/attention à exposition égale, rétention sur deux cohortes.
-- [ ] Auditer les poids figés sur nouveaux facteurs réservés, rapporter coût et limites ; aucun vrai jeu dans ce périmètre.
+- [x] Diagnostic : projectiles dominants sur quatre tireurs, exposition aux murs mesurée, générateur commun aux effectifs qualifié avec secours explicite.
+- [x] Comparaison sur deux graines à 52 428 800 transitions/bras : pooling retenu ; prolongation ciblée séparée à 39 321 600 transitions/graine, rewards inchangées.
+- [x] Poids figés puis audits de placements/tirs synchronisés/géométrie : 4T12 contrôlé 4.4/0.0 % -> 45.6/36.9 % sans dégât ; tests/intégrité et limites dans CROSSFIRE_RESULTS.md. Aucun vrai jeu.
