@@ -29,11 +29,15 @@ class PolicyView(nn.Module):
 
 
 class ParallelArm(p.Arm):
-    def __init__(self, *args, options=Options(), minibatch=4096, **kwargs):
+    def __init__(self, *args, options=Options(), minibatch=4096, reward_fn=None,
+                 bootstrap_timeouts=True, gamma=p.GAMMA, gae_lambda=p.LAMBDA, **kwargs):
         super().__init__(*args, **kwargs)
         if self.device != 'cuda':
             raise ValueError('ParallelArm explicitly requires CUDA')
         self.options = options
+        self.reward_fn = reward_fn or p.task_reward
+        self.bootstrap_timeouts = bootstrap_timeouts
+        self.gamma, self.gae_lambda = gamma, gae_lambda
         self.minibatch = minibatch
         self._policy_pointers = tuple(x.data_ptr() for x in self.policy.parameters())
         if options.fused_adam:
@@ -46,7 +50,7 @@ class ParallelArm(p.Arm):
         if options.network_graph:
             if self.t*self.n % minibatch:
                 raise ValueError('Network graph requires complete fixed-size minibatches')
-            obs = torch.zeros(minibatch, 236, device=self.device)
+            obs = torch.zeros(minibatch, self.obs.shape[-1], device=self.device)
             previous = torch.zeros(minibatch, device=self.device, dtype=torch.long)
             self._train_policy = torch.cuda.make_graphed_callables(
                 PolicyView(self.policy), (obs, previous), num_warmup_iters=3)
@@ -69,11 +73,11 @@ class ParallelArm(p.Arm):
             self.action_counts.scatter_add_(0, action, self._ones)
             obs, _, done, info = self.env.step(action)
             self.sim._bind()
-            reward, parts = p.task_reward(info, self.initial_hp, self.dense)
+            reward, parts = self.reward_fn(info, self.initial_hp, self.dense)
             for key, val in [('value', value), ('action', action),
                              ('logp', logp.gather(1, action[:, None]).squeeze(1)),
                              ('reward', reward), ('done', done),
-                             ('timeout', info['timeout']),
+                             ('timeout', info['timeout'] if self.bootstrap_timeouts else torch.zeros_like(done)),
                              ('terminal_obs', info['terminal_observation'])]:
                 b[key][t].copy_(val)
             self.totals.add_(torch.stack((done.sum(), info['success'].sum(),
@@ -144,10 +148,10 @@ class ParallelArm(p.Arm):
                     action = torch.multinomial(logp.exp(), 1, generator=self.action_rng).squeeze(-1)
                     self.action_counts.add_(torch.bincount(action, minlength=45))
                     obs, _, done, info = self.sim.step(action)
-                    reward, parts = p.task_reward(info, self.initial_hp, self.dense)
+                    reward, parts = self.reward_fn(info, self.initial_hp, self.dense)
                     for key, val in [('value', value), ('action', action),
                         ('logp', logp.gather(1, action[:, None]).squeeze(1)), ('reward', reward),
-                        ('done', done), ('timeout', info['timeout']),
+                        ('done', done), ('timeout', info['timeout'] if self.bootstrap_timeouts else torch.zeros_like(done)),
                         ('terminal_obs', info['terminal_observation'])]:
                         b[key][t].copy_(val)
                     self.totals.add_(torch.stack((done.sum(), info['success'].sum(),
@@ -163,7 +167,8 @@ class ParallelArm(p.Arm):
                                     b['action'].flatten()[index])[1]
                 timeout_values.view(-1)[index] = value
             advantage, target = p.gae(b['reward'], b['done'], b['timeout'],
-                                     b['value'], bootstrap, timeout_values)
+                                     b['value'], bootstrap, timeout_values,
+                                     gamma=self.gamma, lam=self.gae_lambda)
             advantage = (advantage-advantage.mean())/advantage.std().clamp_min(1e-8)
         torch.cuda.synchronize()
         collected = time.perf_counter()

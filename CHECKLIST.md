@@ -107,3 +107,13 @@ Résultats et limites : [PPO_GPU_10M_RESULTS.md](docs/PPO_GPU_10M_RESULTS.md).
 - [x] Gain collecte+PPO confirmé : ×2,70 supplémentaire, ×18,54 contre le tensoriel ; débit maximal testé à 4 096 salles, sans preuve de gain de qualité RL.
 
 Protocole : [PARALLEL_PPO_PROTOCOL.md](docs/PARALLEL_PPO_PROTOCOL.md).
+
+## Campagne de généralisation — 8 novembre 2026
+
+- [x] Budget expérimental 1/3 contacts, observation santé/immunité et timeouts finis explicites.
+- [x] Shaping potentiel avec annulation à tout terminal ; audit CPU et qualification GPU/tensorielle.
+- [x] Collecte/PPO capturés, curriculum par scènes dynamiques, examens et artefacts hors ligne.
+- [ ] Acquérir visée puis comparer le budget à exposition égale, apprendre deux tireurs et mélanges.
+- [ ] Auditer compositions/PV/géométrie réservés et reproduire sur une autre graine.
+
+Protocole figé avant expériences : docs/GENERALIZATION_PROTOCOL.md.

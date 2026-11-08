@@ -135,18 +135,18 @@ def gae(rewards,dones,timeouts,values,bootstrap,timeout_values,gamma=GAMMA,lam=L
 
 
 class Arm:
-    def __init__(self,initial,scenes,seed,native,device,cache,dense,reference=False,rollout=32):
+    def __init__(self,initial,scenes,seed,native,device,cache,dense,reference=False,rollout=32,env_factory=None):
         self.name='bounded_damage' if dense else 'task_only';self.dense=dense
         self.policy=copy.deepcopy(initial).to(device)
         self.optimizer=torch.optim.Adam(self.policy.parameters(),lr=3e-4,eps=1e-5)
-        self.sim,self.env,self.initial_hp=make_env(scenes,seed,native,device,cache,reference)
+        self.sim,self.env,self.initial_hp=(env_factory or make_env)(scenes,seed,native,device,cache,reference)
         self.obs=self.env.obs();self.previous=torch.full((len(scenes),),45,dtype=torch.long,device=device)
         self.action_rng=torch.Generator(device=device).manual_seed(seed+91)
         self.shuffle_rng=torch.Generator(device=device).manual_seed(seed+193)
         self.t=rollout;self.n=len(scenes);self.device=device;self.updates=0
         self.batch={
-            'obs':torch.empty(rollout,self.n,236,device=device),
-            'terminal_obs':torch.empty(rollout,self.n,236,device=device),
+            'obs':torch.empty(rollout,self.n,self.obs.shape[-1],device=device),
+            'terminal_obs':torch.empty(rollout,self.n,self.obs.shape[-1],device=device),
             **{k:torch.empty(rollout,self.n,device=device) for k in ['reward','value','logp']},
             **{k:torch.empty(rollout,self.n,device=device,dtype=torch.long) for k in ['action','previous']},
             **{k:torch.empty(rollout,self.n,device=device,dtype=torch.bool) for k in ['done','timeout']}}
