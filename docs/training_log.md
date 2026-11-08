@@ -176,3 +176,11 @@ This file captures durable lessons from training runs so we can reuse what we le
 - **Fix (S1 v2):** one-hot MultiDiscrete action concatenated to the pi features at the head input; targets changed to DELTA `summary(s_{t+1}) - summary(s_t)` (removes the trivial persistence shortcut of absolute positions); per-component losses added (`next_state_loss_player/proximity/enemies`) to localize any future plateau.
 - Confidence: high on the diagnosis (ratio pinned at exactly the chance value + information-theoretic argument), low on v2 outcome — needs a fresh 100k run.
 - Follow-up: if v2 still plateaus above ~0.7 by ~100k, suspect observation coverage (enemy velocities unobservable, frame_stack=1) before abandoning the world-model track.
+
+# 2026-11-08 — Comparaisons natives GPU préparées, mesures différées
+
+- Le protocole sépare les ajouts individuels, retraits individuels et fusions afin de ne pas attribuer à une proposition un changement d'orchestration. Le graphe existant reste la référence de débit.
+- Contrôles CPU : 34 configurations, événements discrets et état RNG identiques ; écart flottant absolu maximal 0,000152587890625. Les seuils futurs CUDA sont explicites, sans promotion automatique en cas d'échec.
+- CPU/PTX/CUBIN compilés hors ligne ; aucune exécution GPU, aucun entraînement ni changement de checkpoint. La compilation indique 64 registres pour la décision par thread, 113 par groupe ; ce n'est pas une mesure de vitesse.
+- Confiance : contrats CPU vérifiés, fonctionnement et gains CUDA encore à qualifier. Prochaine étape : court diagnostic GPU puis matrice complète autorisée, pas de long entraînement avant ces mesures.
+- Sources et preuves : `docs/GPU_ABLATION_PLAN.md`, `docs/evidence/gpu-native-v2/`, `research/gpu_ablation.py`.

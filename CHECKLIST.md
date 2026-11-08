@@ -76,3 +76,13 @@
 - [ ] Reward hacking (monitor component breakdowns)
 - [ ] Entity detection false positives (spikes, statues detected as enemies)
 - [ ] Projectile encoding — may need velocity channels, not just position
+
+## Optimisation native GPU — 8 novembre 2026
+
+- [x] Six optimisations indépendantes, fusions tick/décision et variante par groupe de threads.
+- [x] Contrôles CPU : 34 configurations, événements et RNG identiques, tolérances flottantes déclarées.
+- [x] Compilation CPU/PTX/CUBIN hors ligne, ressources statiques et banc de 18 variantes.
+- [ ] Qualification CUDA et comparaison des performances, après disponibilité du GPU.
+- [ ] Choisir les optimisations à promouvoir et mesurer la boucle d'apprentissage complète.
+
+Voir [le protocole et les commandes](docs/GPU_ABLATION_PLAN.md). Aucun test GPU lancé pendant cette passe.
