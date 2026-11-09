@@ -1,4 +1,8 @@
-# IsaacRL — GPU combat research
+# TearLab
+
+![TearLab - Isaac reinforcement learning laboratory](docs/assets/tearlab-banner.png)
+
+**Learning to fight, one tear at a time.**
 
 Experimental reinforcement learning for **The Binding of Isaac**, using an
 empirically calibrated combat simulator, batched GPU physics and PPO. A Lua mod
@@ -10,6 +14,24 @@ a full run. Simulator scores and qualitative in-game observations are reported
 separately. No game executable, assets, decompiled code or saves
 are distributed here. Only the latest trained checkpoint is included under
 `models/latest.pt`, with its SHA256 and [model card](models/README.md).
+
+## Origins and direction
+
+TearLab is a substantially evolved research fork of
+[Sepzie/Binding of AI](https://github.com/Sepzie/binding-of-ai), with the original
+Git history and author credits preserved. It is a derivative project with its
+own experimental direction, not an independent implementation from scratch.
+
+The original project provided the Lua/Python TCP environment, state encoding
+and a Stable-Baselines3 PPO curriculum. This version focuses on empirically
+calibrated combat physics, batched CPU/CUDA simulation, a custom PyTorch PPO
+loop, controlled curriculum comparisons and frozen-policy transfer to the game.
+The public tree is curated from the local IsaacRL / Alpha Isaac experiments;
+the historical names remain in technical interfaces and archived commits.
+
+The long-term goal is to learn through interaction and retain useful skills
+between runs. The current release demonstrates bounded combat research,
+not autonomous mastery of a complete Isaac run.
 
 ## Current result
 
@@ -81,13 +103,13 @@ itself, edits saves or enables the debug console automatically.
 | `docs/` | Protocols, results and limitations |
 | `artifacts/` | Ignored local outputs and native build cache |
 
-## Repository status
+## Public snapshot
 
-This is the local **`research/gpu-curriculum-public` preparation branch**, curated
-from an active research checkout. Historical experiments and raw logs are kept in
-the original checkout; `PUBLIC_SNAPSHOT.json` records source hashes and revision.
-Nothing has been pushed by this cleanup. Do not merge the branch into `main`
-until the preparation checklist is reviewed.
+This first public snapshot is based on the prepared
+`research/gpu-curriculum-public` branch. Historical experiments and raw logs stay
+in the research checkout; `PUBLIC_SNAPSHOT.json` records source hashes and
+revision. The bundled latest checkpoint comes from the subsequent consolidation
+experiment described in its [model card](models/README.md).
 
 Project-owned code, documentation and bundled weights use **CC0-1.0**, a public
 domain dedication: reuse, modification and commercial redistribution are allowed

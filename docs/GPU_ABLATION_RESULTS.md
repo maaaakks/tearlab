@@ -1,4 +1,4 @@
-# IsaacRL — résultats des optimisations natives GPU
+# IsaacRL - résultats des optimisations natives GPU
 
 Mesures du 8 novembre 2026 sur la RTX 4070. Le graphe V1 est la référence : les gains ci-dessous sont **supplémentaires** à la première optimisation.
 

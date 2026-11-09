@@ -1,4 +1,4 @@
-# IsaacRL — tirs croisés et représentations, 9 novembre 2026
+# IsaacRL - tirs croisés et représentations, 9 novembre 2026
 
 Les trois étapes autorisées sont exécutées dans le simulateur. Aucun jeu réel, collecte live ou modification du mod.
 
@@ -90,6 +90,7 @@ Le cas quatre tireurs 12 PV reste sous 70 % en développement après le budget i
 
 ## Poids retenus
 
-- Graine 129773 : [checkpoint](C:/Users/maxbr/Documents/Codex/2026-11-08/https-github-com-thecosmicskye-rocketgpu-https-2/outputs/isaac-crossfire/focus-seed129773/pool-best.pt) · [métadonnées/SHA](C:/Users/maxbr/Documents/Codex/2026-11-08/https-github-com-thecosmicskye-rocketgpu-https-2/outputs/isaac-crossfire/focus-seed129773/pool-best.meta.json).
-- Graine 242579 : [checkpoint](C:/Users/maxbr/Documents/Codex/2026-11-08/https-github-com-thecosmicskye-rocketgpu-https-2/outputs/isaac-crossfire/focus-seed242579/pool-best.pt) · [métadonnées/SHA](C:/Users/maxbr/Documents/Codex/2026-11-08/https-github-com-thecosmicskye-rocketgpu-https-2/outputs/isaac-crossfire/focus-seed242579/pool-best.meta.json).
+- Graines 129773 et 242579 : checkpoints et métadonnées conservés dans les
+  archives locales de l'expérience, non distribués dans cette publication.
+  Le modèle le plus récent est décrit dans la [fiche modèle](../models/README.md).
 Sorties complètes, checkpoints et sources capturées : `<local-artifact-path>`.

@@ -1,4 +1,4 @@
-# Latest IsaacRL checkpoint
+# Latest TearLab checkpoint
 
 Only `latest.pt` is distributed, with its SHA256 sidecar `latest.meta.json`.
 It is the final checkpoint of the most recently completed training run:

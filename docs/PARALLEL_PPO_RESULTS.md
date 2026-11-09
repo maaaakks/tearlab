@@ -1,4 +1,4 @@
-# IsaacRL — parallélisation et boucle PPO complète
+# IsaacRL - parallélisation et boucle PPO complète
 
 Mesures du 8 novembre 2026, RTX 4070, PyTorch 2.13.0+cu130.
 
@@ -105,7 +105,7 @@ Aucun training long, aucun jeu Isaac lancé, aucun modèle historique remplacé.
 
 ## Ce que nous apprend RL_training
 
-Lecture seule de `C:/Users/maxbr/Desktop/RL_training` : son PPO utilise 2 048 arènes,
+Lecture seule d'un autre projet local de comparaison (`RL_training`) : son PPO utilise 2 048 arènes,
 un horizon 128 et des minibatches 16 384. Isaac parallélisait déjà 1 024 salles :
 il ne manquait pas une architecture générale de simulation parallèle.
 La principale lacune mesurée était l'orchestration Python autour du simulateur.
