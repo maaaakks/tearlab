@@ -9,9 +9,10 @@ separate Git worktree and a curated current tree; the original state is preserve
 - Replace hard-coded personal repository paths with paths relative to the module.
 - Make the training parent checkpoint explicit and put the native cache under artifacts.
 - Use the standalone optional preview instead of the old mixed training mod entry.
-- Preserve scientific result plots, but omit raw sessions, binaries, checkpoints,
+- Preserve scientific result plots and the single latest checkpoint, but omit raw sessions, build binaries, intermediate checkpoints,
   generated evidence copies, abandoned experiments and desktop tooling.
-- Keep existing history and third-party attribution. No global license is assigned.
+- Keep existing history and third-party attribution. Apply CC0 to project-owned
+  code, documentation and latest weights as requested by the owner.
 
 Checks performed locally with the existing project environment:11 CPU tests pass,
 2 GPU tests skipped by default; training CLI help works; all22 Python modules

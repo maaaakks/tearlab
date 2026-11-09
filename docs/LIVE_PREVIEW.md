@@ -12,12 +12,13 @@ original play test used Repentance1.7.9b; other versions are unverified.
 Start the CPU policy bridge separately:
 
 ```powershell
-.\.venv\Scripts\python.exe -B python/play_frozen_live.py --checkpoint PATH_TO_PREVIEW_CHECKPOINT.pt --output artifacts/live-session --auto
+.\.venv\Scripts\python.exe -B python/play_frozen_live.py --checkpoint models/latest.pt --output artifacts/live-session --auto
 ```
 
 The bridge checks the checkpoint schema; live-compatible weights use
-`crossfire-v1` with pooling policy. Curriculum training checkpoints are not
-automatically installed or silently converted. No compatible weights are bundled.
+`crossfire-v1` with pooling policy or the bundled `mastery-v1` checkpoint.
+The bundled latest weights load directly, without converting their original bytes.
+They have not been validated in Isaac; the current game installation is unchanged.
 
 The game and bridge communicate over localhost TCP10009. After entering a run,
 the auto demo cycles11 scenarios with Horfs, Gapers and mixtures. First contact,

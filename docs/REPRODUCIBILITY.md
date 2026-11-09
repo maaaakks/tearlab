@@ -15,10 +15,11 @@ These are observed versions, not a claim that every supported platform/version
 was tested. No clean-environment package installation has been performed.
 Native CUDA/CPU build logs contain source digests. Checkpoints must have SHA256
 sidecars. Training output snapshots retain sources, parent hashes, seeds and
-offline W&B artifact references. Trained weights are external inputs and their
-absence prevents an exact reproduction of published continuation results.
+offline W&B artifact references. Only the latest weights are bundled; ancestor
+weights from the published experiments remain external inputs, so the single
+bundled checkpoint does not reproduce every historical continuation result.
 
 The full raw evidence remains in the original research checkout. This branch
-contains readable protocols/results instead of generated logs, model binaries,
+contains readable protocols/results and the latest checkpoint instead of generated logs, intermediate model binaries,
 copied source snapshots or machine-specific launchers. Old history is retained;
 cleaning the current tree does not rewrite previous commits.

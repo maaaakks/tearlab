@@ -64,7 +64,8 @@ def main():
     digest=hashlib.sha256(args.checkpoint.read_bytes()).hexdigest()
     sidecar=json.loads(args.checkpoint.with_suffix('.meta.json').read_text())
     if digest!=sidecar['sha256']:raise ValueError('SHA du checkpoint incorrect')
-    if cp.get('schema')!='crossfire-v1' or cp.get('variant')!='pool':raise ValueError('Checkpoint de preview incompatible')
+    compatible = cp.get('schema')=='mastery-v1' or (cp.get('schema')=='crossfire-v1' and cp.get('variant')=='pool')
+    if not compatible:raise ValueError('Checkpoint de preview incompatible')
     model=Policy().eval();model.load_state_dict(cp['state_dict'])
     for parameter in model.parameters():parameter.requires_grad_(False)
     meta=dict(checkpoint=str(args.checkpoint.resolve()),sha256=hashlib.sha256(args.checkpoint.read_bytes()).hexdigest(),

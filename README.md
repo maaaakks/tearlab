@@ -7,8 +7,9 @@ can run a frozen policy against vanilla enemies in an owned copy of the game.
 This is a research prototype: **two enemy archetypes, at most four enemies,
 rectangular rooms**. It is not a complete Isaac simulator or an agent that plays
 a full run. Simulator scores and qualitative in-game observations are reported
-separately. No game executable, assets, decompiled code, saves or trained weights
-are distributed here.
+separately. No game executable, assets, decompiled code or saves
+are distributed here. Only the latest trained checkpoint is included under
+`models/latest.pt`, with its SHA256 and [model card](models/README.md).
 
 ## Current result
 
@@ -53,12 +54,13 @@ GPU. Native CPU compilation on Windows also requires an MSVC developer shell.
 The native builder defaults to architecture 89 (the tested RTX 4070).
 
 ```powershell
-.\.venv\Scripts\python.exe -B research/focus_recovery.py --parent PATH_TO_COMPATIBLE_CHECKPOINT.pt --output artifacts/focus-run
+.\.venv\Scripts\python.exe -B research/focus_recovery.py --parent models/latest.pt --output artifacts/focus-run
 ```
 
 A compatible checkpoint contains `state_dict` for `CrossPolicy('pool')`.
 Published scores came from a trained lineage; random weights cannot reproduce
-them with the continuation budget above. Checkpoints are not bundled. W&B runs
+them with the continuation budget above. Only the latest checkpoint is bundled;
+ancestor weights used for the historical comparisons are not included. W&B runs
 offline; training never requires logging into a cloud account. No training is
 launched by importing the modules or running the default CPU tests.
 
@@ -87,6 +89,8 @@ the original checkout; `PUBLIC_SNAPSHOT.json` records source hashes and revision
 Nothing has been pushed by this cleanup. Do not merge the branch into `main`
 until the preparation checklist is reviewed.
 
-The project license is **not yet specified**; no license is invented for the
-existing project code. See [third-party notices](THIRD_PARTY_NOTICES.md) and the
+Project-owned code, documentation and bundled weights use **CC0-1.0**, a public
+domain dedication: reuse, modification and commercial redistribution are allowed
+without an attribution requirement. Third-party components retain their own
+terms. See [license](LICENSE), [third-party notices](THIRD_PARTY_NOTICES.md) and the
 [publication checklist](docs/PUBLICATION.md).

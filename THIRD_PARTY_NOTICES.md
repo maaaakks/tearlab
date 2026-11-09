@@ -2,12 +2,17 @@
 
 Project origin: https://github.com/Sepzie/binding-of-ai . This preparation branch
 retains the existing Git history; source hashes and the source revision are in
-`PUBLIC_SNAPSHOT.json`. No global project license has been specified yet.
+`PUBLIC_SNAPSHOT.json`. Project-owned code, documentation and the bundled latest
+checkpoint are dedicated under CC0-1.0; see `LICENSE`. This does not relicense
+third-party components or alter the rights attached to historical versions.
 
 The Lua JSON helper identifies itself as based on
 [rxi/json.lua](https://github.com/rxi/json.lua), distributed under MIT. The
 upstream notice is retained below. PyTorch, NumPy, W&B and LuaSocket are external
 dependencies with their own licenses; their binaries are not bundled here.
+
+`mod/preview_input.lua` is a new standalone CC0 adapter for this preview. The
+legacy upstream `action_injector.lua` is not distributed in the current tree.
 
 ## rxi/json.lua — MIT
 

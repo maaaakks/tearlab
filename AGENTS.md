@@ -7,4 +7,5 @@ results separately from hypotheses and live-game behavior.
 
 Run the CPU tests documented in README. Native GPU tests require explicit
 `RUN_ISAAC_GPU_TESTS=1` and a writable `ISAAC_NATIVE_CACHE`. Do not introduce
-machine-specific paths. Do not commit model binaries or generated sessions.
+machine-specific paths. Keep only the curated `models/latest.pt` checkpoint;
+do not commit intermediate weights or generated sessions.

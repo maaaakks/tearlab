@@ -4,12 +4,15 @@
 - [x] Include the current simulator dependency closure and small calibration.
 - [x] Replace machine-specific repository paths in current Python modules.
 - [x] Replace stale README with scope, commands, measured results and limits.
-- [x] Exclude weights, game files, saves, sessions and generated build artifacts.
+- [x] Keep only the latest checkpoint and its hash; exclude intermediate runs,
+  game files, saves, sessions and generated build artifacts.
 - [x] Preserve upstream attribution for the JSON helper.
-- [ ] Choose a project license with the owner; none is assigned automatically.
+- [x] Apply CC0-1.0 to project-owned code/docs/weights at the owner's request;
+  retain third-party notices and historical rights.
 - [ ] Review the prepared tree diff and the retained history before publishing.
 - [ ] Verify installation in a fresh Python environment and GPU compilation there.
-- [ ] Provide documented, downloadable weights before claiming exact experiment reproduction.
+- [x] Bundle the latest weights and loading instructions. Earlier experiment
+  parent weights are deliberately not bundled; do not claim exact lineage reproduction.
 - [ ] Review/push/merge separately. This cleanup does not publish anything.
 
 The source repository was already public when inspected. Local uncommitted

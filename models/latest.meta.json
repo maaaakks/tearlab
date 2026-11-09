@@ -1,0 +1,15 @@
+{
+  "sha256": "86e5feb3855c86754951ace4c2d6a67cb61dee8fab72de0689648246788dc2f5",
+  "updates": 200,
+  "decisions": 6553600,
+  "mode": "potential",
+  "budget": 1,
+  "metric": [
+    1.0,
+    0.1875,
+    0.24479166666666666,
+    0.4875
+  ],
+  "live_validated": false,
+  "wandb_artifact_reference": "offline:8pt7jb70/replay50-seed291773-potential-latest"
+}
