@@ -173,3 +173,10 @@ Protocole figé avant expériences : docs/GENERALIZATION_PROTOCOL.md.
 - [x] Exécuter deux bras à 9 830 400 décisions chacun et auditer les modèles latest figés sur les mêmes examens, deux cohortes ×128 épisodes/cellule, répétabilité exacte du parent.
 - [x] Distinguer esquive et récupération : strict meilleur en no-hit/rétention, trois contacts meilleur en victoires avec dégâts.
 - [ ] Répliquer sur une seed indépendante ; traiter la longue distance en grande salle puis tester récupération suivie de finition stricte à exposition égale. Aucun candidat promu en jeu.
+
+
+## Focus récupération puis discipline — 2026-11-09
+
+- [x] Préparer comparaison appariée sur deux seeds, récupération200 +no-hit400 contre strict600, parent strict commun, Adam réinitialisé dans les deux bras.
+- [x] Vérifier distribution ciblée et smoke GPU des deux phases/bras ; modèle live inchangé.
+- [ ] Mesurer les gains sur longue distance640×360 et la rétention, auditer les modèles figés et consigner les échecs.
