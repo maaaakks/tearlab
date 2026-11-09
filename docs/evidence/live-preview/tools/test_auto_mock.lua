@@ -22,8 +22,9 @@ function Isaac.Spawn(kind,variant,sub,pos,vel)
  function e:IsVulnerableEnemy()return true end;function e:Remove()self.removed=true end
  entities[#entities+1]=e;return e
 end
-local inj={enabled=false,setAction=function()end,tick=function()end,reset=function()end,onInputAction=function()end}
-function inj.setEnabled(v)inj.enabled=v end
+ButtonAction={ACTION_LEFT=0,ACTION_RIGHT=1,ACTION_UP=2,ACTION_DOWN=3,ACTION_SHOOTLEFT=4,ACTION_SHOOTRIGHT=5,ACTION_SHOOTUP=6,ACTION_SHOOTDOWN=7,ACTION_BOMB=8,ACTION_ITEM=9,ACTION_PILLCARD=10}
+InputHook={GET_ACTION_VALUE=0,IS_ACTION_PRESSED=1,IS_ACTION_TRIGGERED=2}
+local inj=dofile('installed-mod/action_injector.lua')
 package.preload.config=function()return {LIVE_PREVIEW=true}end
 package.preload.action_injector=function()return inj end
 package.preload.json=function()return {encode=function(v)sent[#sent+1]=v;return '{}'end,decode=function()return table.remove(incoming,1)end}end
@@ -34,8 +35,15 @@ assert(dofile('live_preview.lua').start());callbacks[2](mod)
 incoming[1]={command='auto_start'};callbacks[2](mod);assert(#Isaac.GetRoomEntities()==0)
 alive=true;callbacks[3](mod);callbacks[4](mod)
 local function step(to)while frame<to do frame=frame+1;callbacks[1](mod)end end
-step(6);assert(#Isaac.GetRoomEntities()==1 and Isaac.GetRoomEntities()[1].Type==12,'pending auto-start lost');assert(inj.enabled)
+step(6);assert(#Isaac.GetRoomEntities()==1 and Isaac.GetRoomEntities()[1].Type==12,'pending auto-start lost');assert(inj.isEnabled())
+local state=sent[#sent]
+incoming[1]={action={action_id=1,room_id=state.room_id,control_id=state.control_id,move=7,shoot=1}}
+callbacks[2](mod)
+assert(callbacks[6](mod,p,InputHook.GET_ACTION_VALUE,ButtonAction.ACTION_LEFT)==1,'movement action ignored')
+assert(callbacks[6](mod,p,InputHook.IS_ACTION_PRESSED,ButtonAction.ACTION_DOWN)==true,'diagonal movement ignored')
+assert(callbacks[6](mod,p,InputHook.GET_ACTION_VALUE,ButtonAction.ACTION_SHOOTUP)==1,'shooting action ignored')
+assert(callbacks[6](mod,p,InputHook.GET_ACTION_VALUE,ButtonAction.ACTION_RIGHT)==0,'opposite movement must be released')
 assert(callbacks[5](mod,p,1,0,nil)==false,'damage must count but protect hearts')
-step(53);assert(#Isaac.GetRoomEntities()==1 and Isaac.GetRoomEntities()[1].Type==10,'next scenario did not start');assert(inj.enabled)
-pressC=true;step(54);assert(not inj.enabled);local count=#entities;step(120);assert(#entities==count,'C stop restarted')
-print('PASS: queued auto-start, room/game callbacks, Horf -> contact -> Gaper, protection and C stop')
+step(53);assert(#Isaac.GetRoomEntities()==1 and Isaac.GetRoomEntities()[1].Type==10,'next scenario did not start');assert(inj.isEnabled())
+pressC=true;step(54);assert(not inj.isEnabled());assert(callbacks[6](mod,p,InputHook.GET_ACTION_VALUE,ButtonAction.ACTION_LEFT)==nil,'manual input not released');local count=#entities;step(120);assert(#entities==count,'C stop restarted')
+print('PASS: real injector movement/shooting/release, queued auto-start, scenario sequence, contact protection and C stop')

@@ -4,7 +4,7 @@
     "config.lua": "13cb5902441969721d7fb8c41f0730425b148a4caa0545287d9dd6be2076954c",
     "game_control.lua": "cc2e15bd7d508e08e483d5b33bee178db09328dc47c075ece0662f89dc23109b",
     "json.lua": "3255bd1135f0aa976f3681aac481508991ab09ce92c45744896ac3936283f6ac",
-    "live_preview.lua": "38616b47889cfb8b404e473f91e3e8495c951443cef549afce3078e2545859b8",
+    "live_preview.lua": "d8fb5aae429ac859fc382136c161a9d440c7da8bdc836c93a17ba7bd0c2e7c11",
     "main.lua": "bed5ce456e24fb11eab103a882d8f6b098ef4384d61c819882b590909cce4a5a",
     "metadata.xml": "5bcd2765a6da9e7b508fc79eb8862d0eb080d0e1bc58851cb4adfeb08cdaa758",
     "state_serializer.lua": "513c13e066e5fc83188a3894ec2e9ea315df2e422bcf5683f3b05c4ccab6230f",

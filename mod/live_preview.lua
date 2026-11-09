@@ -5,6 +5,7 @@ function M.start()
     if not Config.LIVE_PREVIEW then return false end
     local json = require("json")
     local Injector = require("action_injector")
+    Injector.init()
     local mod = RegisterMod("IsaacRL", 1)
     local socketOK, socket = pcall(require, "socket")
     local listener, client = nil, nil

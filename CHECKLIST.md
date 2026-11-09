@@ -145,3 +145,10 @@ Protocole figé avant expériences : docs/GENERALIZATION_PROTOCOL.md.
 - [x] Préparer le démarrage automatique et onze scénarios en boucle ; premier contact = échec, cœurs protégés, arrêt C/déconnexion/retard.
 - [x] Valider la syntaxe Lua et la boucle avec API simulées (attente de partie, changement de scénario, contact et arrêt).
 - [ ] Confirmer le démarrage et les combats dans le vrai jeu après rechargement par le joueur.
+
+
+## Correction injection preview — 2026-11-09
+
+- [x] Initialiser la table ButtonAction du vrai injecteur avant les callbacks : les actions étaient reçues mais ignorées.
+- [x] Reproduire le défaut puis vérifier déplacement diagonal, tir et retour manuel avec le vrai injecteur et les API de jeu simulées (logs avant/après).
+- [ ] Confirmer mouvement et tir dans le jeu après son rechargement par le joueur.
