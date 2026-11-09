@@ -1,0 +1,8 @@
+test_capacity_guards_and_tear_slot_stability (__main__.LiveContracts.test_capacity_guards_and_tear_slot_stability) ... ok
+test_frozen_checkpoint_cpu_inference (__main__.LiveContracts.test_frozen_checkpoint_cpu_inference) ... ok
+test_projection_matches_qualified_simulator_observation (__main__.LiveContracts.test_projection_matches_qualified_simulator_observation) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.761s
+
+OK

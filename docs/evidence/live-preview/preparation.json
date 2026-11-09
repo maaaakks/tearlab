@@ -1,0 +1,10 @@
+{
+  "checkpoint": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-crossfire\\focus-seed129773\\pool-best.pt",
+  "sources": {
+    "live_preview.lua": "0ed4dff2a80d05dbc5da4c536662e47f6149c4f2277198becd6d34486e8d34c1",
+    "live_agent.py": "c122ae9130a1bd8df6a10f0d071458f27d695c33869bd9a8a99528734b999864"
+  },
+  "startup": "manual, C to arm; stop on damage/disconnect/room change",
+  "gameplay_validated": false,
+  "note": "Syntax, CPU projection and checkpoint tests passed; actual gameplay remains user test"
+}

@@ -131,3 +131,10 @@ Protocole figé avant expériences : docs/GENERALIZATION_PROTOCOL.md.
 - [ ] Comparer objectif ancien / victoire non actualisée / potentiel conservatif, à exposition égale et deux parents.
 - [ ] Traiter encerclements et grandes salles avec géométries natives simultanées, rétention et score du pire groupe.
 - [ ] Auditer les modèles figés sur nouveaux facteurs réservés, documenter les plateaux et les limites.
+
+
+## Essai réel manuel — 2026-11-09
+
+- [x] Préparer meilleur checkpoint figé, projection 238 entrées et inférence CPU à vitesse normale, touche C et arrêts de contrôle.
+- [x] Remplacer les anciens liens IsaacRL cassés par une copie preview isolée, sauvegarder options/saves et fournir restauration/lanceur.
+- [ ] Validation en jeu par le joueur : contrôle réel, visée/esquive et écarts entre IA vanilla et simulateur. Aucun combat lancé automatiquement.

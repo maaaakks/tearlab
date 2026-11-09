@@ -1,0 +1,23 @@
+{
+  "backup": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-live\\backups\\20261109-090245",
+  "options": "C:\\Users\\maxbr\\Documents\\My Games\\Binding of Isaac Repentance\\options.ini",
+  "steam_saves": [
+    {
+      "backup": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-live\\backups\\20261109-090245\\steam-saves\\40779213\\250900",
+      "source": "D:\\steam\\userdata\\40779213\\250900"
+    }
+  ],
+  "profile": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-live\\installed-mod",
+  "links": [
+    {
+      "path": "D:\\steam\\steamapps\\common\\The Binding of Isaac Rebirth\\mods\\IsaacRL",
+      "old_target": "C:\\Users\\maxbr\\Desktop\\IsaacRL\\binding-of-ai\\mod",
+      "new_target": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-live\\installed-mod"
+    },
+    {
+      "path": "C:\\Users\\maxbr\\Documents\\My Games\\Binding of Isaac Repentance\\mods\\IsaacRL",
+      "old_target": "C:\\Users\\maxbr\\Desktop\\IsaacRL\\binding-of-ai\\mod",
+      "new_target": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-live\\installed-mod"
+    }
+  ]
+}
