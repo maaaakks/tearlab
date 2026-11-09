@@ -180,3 +180,11 @@ Protocole figé avant expériences : docs/GENERALIZATION_PROTOCOL.md.
 - [x] Préparer comparaison appariée sur deux seeds, récupération200 +no-hit400 contre strict600, parent strict commun, Adam réinitialisé dans les deux bras.
 - [x] Vérifier distribution ciblée et smoke GPU des deux phases/bras ; modèle live inchangé.
 - [ ] Mesurer les gains sur longue distance640×360 et la rétention, auditer les modèles figés et consigner les échecs.
+
+
+## Comparaison récupération / strict terminée — 2026-11-09
+
+- [x] Terminer quatre bras appariés : deux seeds ×deux curriculums,600 updates chacun.
+- [x] Geler la sélection de développement puis auditer sur deux nouvelles cohortes de layouts connus, budgets1et3, avec métriques par épisode et répétition parent exacte.
+- [x] Vérifier SHA/sidecars/sources et consigner gains, régressions et coûts ; aucun modèle changé en jeu.
+- [ ] Valider le transfert sur facteurs réservés et dans le vrai jeu avant toute revendication générale.

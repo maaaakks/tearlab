@@ -1,0 +1,15 @@
+{
+  "sha256": "80ac915a451db1425af684ffae0b59bd07e3f290563ac4da77c1811af46eee35",
+  "updates": 600,
+  "decisions": 19660800,
+  "strategy": "strict",
+  "seed": 129773,
+  "metric": [
+    0.9134615384615384,
+    0.03125,
+    0.041666666666666664,
+    0.525
+  ],
+  "live_validated": false,
+  "wandb_artifact_reference": "offline:x7hya0wi/strict-seed129773-phase2"
+}

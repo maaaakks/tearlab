@@ -1,0 +1,56 @@
+{
+  "strategy": "recovery",
+  "development_scores": {
+    "strict": [
+      0.9830729166666666,
+      0.015625,
+      0.041666666666666664,
+      0.421875
+    ],
+    "recovery": [
+      0.986328125,
+      0.0625,
+      0.1171875,
+      0.45208333333333334
+    ]
+  },
+  "rule": "Mean development ranking across training seeds, strict first on exact tie; no audit used",
+  "models": {
+    "parent": {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-mastery\\life-pilot\\contacts1\\potential-latest.pt",
+      "sha256": "fcd302da90aa00ab57d346f16a28910b80a6e37ef894281ca1253d3256a68e76"
+    },
+    "strict-seed129773-selected": {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-mastery\\life-pilot\\contacts1\\potential-latest.pt",
+      "sha256": "fcd302da90aa00ab57d346f16a28910b80a6e37ef894281ca1253d3256a68e76"
+    },
+    "strict-seed129773-latest": {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-mastery\\focus-paired\\strict-seed129773\\latest.pt",
+      "sha256": "401baa70de8c5f9c2efe5c189532c6d3cf66756aa0a5c7b7706abae47b2c3967"
+    },
+    "recovery-seed129773-selected": {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-mastery\\focus-paired\\recovery-seed129773\\best.pt",
+      "sha256": "e1042b060d7b21234aed1bf6330fbf6c67dc69dcaca3bfd08979790d9f213925"
+    },
+    "recovery-seed129773-latest": {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-mastery\\focus-paired\\recovery-seed129773\\latest.pt",
+      "sha256": "1c30f07ce833572139c10b70e0c72a876cdcaf95f2ea0d21cc25343ebb0264ec"
+    },
+    "strict-seed291773-selected": {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-mastery\\life-pilot\\contacts1\\potential-latest.pt",
+      "sha256": "fcd302da90aa00ab57d346f16a28910b80a6e37ef894281ca1253d3256a68e76"
+    },
+    "strict-seed291773-latest": {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-mastery\\focus-paired\\strict-seed291773\\latest.pt",
+      "sha256": "0e79e6255c1cfeac38e3c1a6045cf12aab76fe34021d23bbbe862fdf911e72ec"
+    },
+    "recovery-seed291773-selected": {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-mastery\\life-pilot\\contacts1\\potential-latest.pt",
+      "sha256": "fcd302da90aa00ab57d346f16a28910b80a6e37ef894281ca1253d3256a68e76"
+    },
+    "recovery-seed291773-latest": {
+      "path": "C:\\Users\\maxbr\\Documents\\Codex\\2026-11-08\\https-github-com-thecosmicskye-rocketgpu-https-2\\outputs\\isaac-mastery\\focus-paired\\recovery-seed291773\\latest.pt",
+      "sha256": "421288464333e67904c1f3608a6482465818e5064e884a19cd12f23676430977"
+    }
+  }
+}

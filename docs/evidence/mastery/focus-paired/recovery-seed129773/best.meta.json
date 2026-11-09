@@ -1,0 +1,15 @@
+{
+  "sha256": "e1042b060d7b21234aed1bf6330fbf6c67dc69dcaca3bfd08979790d9f213925",
+  "updates": 500,
+  "decisions": 16384000,
+  "strategy": "recovery",
+  "seed": 129773,
+  "metric": [
+    0.9895833333333333,
+    0.109375,
+    0.19270833333333334,
+    0.4822916666666667
+  ],
+  "live_validated": false,
+  "wandb_artifact_reference": "offline:x7hya0wi/recovery-seed129773-best"
+}
