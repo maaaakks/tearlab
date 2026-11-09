@@ -1,0 +1,224 @@
+{
+  "parent": {
+    "budget1/encerclement_4T": {
+      "clear_rate": 0.2669270833333333,
+      "nohit_rate": 0.2669270833333333,
+      "damage": 0.5911458333333334,
+      "timeout_rate": 0.14192708333333334,
+      "hp_removed": 0.4507106989622116,
+      "decisions": 181.53125,
+      "worst_cell_clear": 0.1875
+    },
+    "budget1/longue_distance_4T": {
+      "clear_rate": 0.08289930555555555,
+      "nohit_rate": 0.08289930555555555,
+      "damage": 0.6979166666666666,
+      "timeout_rate": 0.2191840277777778,
+      "hp_removed": 0.39593279030587936,
+      "decisions": 202.24262152777777,
+      "worst_cell_clear": 0.0
+    },
+    "budget1/difficiles_tous": {
+      "clear_rate": 0.26458333333333334,
+      "nohit_rate": 0.26458333333333334,
+      "damage": 0.575,
+      "timeout_rate": 0.16041666666666668,
+      "hp_removed": 0.4962637315193812,
+      "decisions": 206.97578125,
+      "worst_cell_clear": 0.0
+    },
+    "budget1/retention": {
+      "clear_rate": 0.8736979166666666,
+      "nohit_rate": 0.8736979166666666,
+      "damage": 0.12630208333333334,
+      "timeout_rate": 0.0,
+      "hp_removed": 0.8956137316094505,
+      "decisions": 106.22677951388889,
+      "worst_cell_clear": 0.6796875
+    },
+    "budget3/encerclement_4T": {
+      "clear_rate": 0.5963541666666666,
+      "nohit_rate": 0.2421875,
+      "damage": 0.83984375,
+      "timeout_rate": 0.37109375,
+      "hp_removed": 0.9260796209176382,
+      "decisions": 366.40625,
+      "worst_cell_clear": 0.390625
+    },
+    "budget3/longue_distance_4T": {
+      "clear_rate": 0.2183159722222222,
+      "nohit_rate": 0.06380208333333333,
+      "damage": 1.2478298611111112,
+      "timeout_rate": 0.6458333333333334,
+      "hp_removed": 0.7246817085478041,
+      "decisions": 365.35069444444446,
+      "worst_cell_clear": 0.0
+    },
+    "budget3/difficiles_tous": {
+      "clear_rate": 0.44583333333333336,
+      "nohit_rate": 0.24453125,
+      "damage": 0.9606770833333333,
+      "timeout_rate": 0.46536458333333336,
+      "hp_removed": 0.8190266827742259,
+      "decisions": 351.40546875,
+      "worst_cell_clear": 0.0
+    },
+    "budget3/retention": {
+      "clear_rate": 0.9958767361111112,
+      "nohit_rate": 0.8676215277777778,
+      "damage": 0.15104166666666666,
+      "timeout_rate": 0.0006510416666666666,
+      "hp_removed": 0.9985416150755353,
+      "decisions": 120.98741319444444,
+      "worst_cell_clear": 0.96875
+    }
+  },
+  "contacts1": {
+    "budget1/encerclement_4T": {
+      "clear_rate": 0.4622395833333333,
+      "nohit_rate": 0.4622395833333333,
+      "damage": 0.5169270833333334,
+      "timeout_rate": 0.020833333333333332,
+      "hp_removed": 0.5875379741191864,
+      "decisions": 203.984375,
+      "worst_cell_clear": 0.421875
+    },
+    "budget1/longue_distance_4T": {
+      "clear_rate": 0.2682291666666667,
+      "nohit_rate": 0.2682291666666667,
+      "damage": 0.5021701388888888,
+      "timeout_rate": 0.22960069444444445,
+      "hp_removed": 0.5920500589741601,
+      "decisions": 253.06336805555554,
+      "worst_cell_clear": 0.0078125
+    },
+    "budget1/difficiles_tous": {
+      "clear_rate": 0.42109375,
+      "nohit_rate": 0.42109375,
+      "damage": 0.43697916666666664,
+      "timeout_rate": 0.14192708333333334,
+      "hp_removed": 0.6471227606137594,
+      "decisions": 241.2875,
+      "worst_cell_clear": 0.0078125
+    },
+    "budget1/retention": {
+      "clear_rate": 0.8858506944444444,
+      "nohit_rate": 0.8858506944444444,
+      "damage": 0.11414930555555555,
+      "timeout_rate": 0.0,
+      "hp_removed": 0.9057565513584349,
+      "decisions": 122.45963541666667,
+      "worst_cell_clear": 0.7109375
+    },
+    "budget3/encerclement_4T": {
+      "clear_rate": 0.88671875,
+      "nohit_rate": 0.4375,
+      "damage": 0.7122395833333334,
+      "timeout_rate": 0.07942708333333333,
+      "hp_removed": 0.9737141927083334,
+      "decisions": 340.9752604166667,
+      "worst_cell_clear": 0.8203125
+    },
+    "budget3/longue_distance_4T": {
+      "clear_rate": 0.5021701388888888,
+      "nohit_rate": 0.26171875,
+      "damage": 0.6792534722222222,
+      "timeout_rate": 0.4644097222222222,
+      "hp_removed": 0.8790147536330752,
+      "decisions": 372.8854166666667,
+      "worst_cell_clear": 0.015625
+    },
+    "budget3/difficiles_tous": {
+      "clear_rate": 0.6783854166666666,
+      "nohit_rate": 0.41484375,
+      "damage": 0.5828125,
+      "timeout_rate": 0.29453125,
+      "hp_removed": 0.9219419101874033,
+      "decisions": 348.59583333333336,
+      "worst_cell_clear": 0.015625
+    },
+    "budget3/retention": {
+      "clear_rate": 0.9945746527777778,
+      "nohit_rate": 0.8782552083333334,
+      "damage": 0.14127604166666666,
+      "timeout_rate": 0.00043402777777777775,
+      "hp_removed": 0.9975611799293094,
+      "decisions": 139.96723090277777,
+      "worst_cell_clear": 0.96875
+    }
+  },
+  "contacts3": {
+    "budget1/encerclement_4T": {
+      "clear_rate": 0.33984375,
+      "nohit_rate": 0.33984375,
+      "damage": 0.6588541666666666,
+      "timeout_rate": 0.0013020833333333333,
+      "hp_removed": 0.4334038595358531,
+      "decisions": 139.74869791666666,
+      "worst_cell_clear": 0.28125
+    },
+    "budget1/longue_distance_4T": {
+      "clear_rate": 0.21180555555555555,
+      "nohit_rate": 0.21180555555555555,
+      "damage": 0.7322048611111112,
+      "timeout_rate": 0.055989583333333336,
+      "hp_removed": 0.4055989707509677,
+      "decisions": 157.71397569444446,
+      "worst_cell_clear": 0.0390625
+    },
+    "budget1/difficiles_tous": {
+      "clear_rate": 0.32395833333333335,
+      "nohit_rate": 0.32395833333333335,
+      "damage": 0.6421875,
+      "timeout_rate": 0.033854166666666664,
+      "hp_removed": 0.4697319899996122,
+      "decisions": 156.96640625,
+      "worst_cell_clear": 0.0390625
+    },
+    "budget1/retention": {
+      "clear_rate": 0.7330729166666666,
+      "nohit_rate": 0.7330729166666666,
+      "damage": 0.2664930555555556,
+      "timeout_rate": 0.00043402777777777775,
+      "hp_removed": 0.7772991822825538,
+      "decisions": 98.65212673611111,
+      "worst_cell_clear": 0.328125
+    },
+    "budget3/encerclement_4T": {
+      "clear_rate": 0.921875,
+      "nohit_rate": 0.3580729166666667,
+      "damage": 0.9739583333333334,
+      "timeout_rate": 0.009114583333333334,
+      "hp_removed": 0.9570854802926382,
+      "decisions": 298.1263020833333,
+      "worst_cell_clear": 0.90625
+    },
+    "budget3/longue_distance_4T": {
+      "clear_rate": 0.6167534722222222,
+      "nohit_rate": 0.21180555555555555,
+      "damage": 1.23828125,
+      "timeout_rate": 0.2421875,
+      "hp_removed": 0.8597909410794576,
+      "decisions": 327.10460069444446,
+      "worst_cell_clear": 0.140625
+    },
+    "budget3/difficiles_tous": {
+      "clear_rate": 0.7533854166666667,
+      "nohit_rate": 0.33515625,
+      "damage": 1.0109375,
+      "timeout_rate": 0.14713541666666666,
+      "hp_removed": 0.9065899848937988,
+      "decisions": 304.56666666666666,
+      "worst_cell_clear": 0.140625
+    },
+    "budget3/retention": {
+      "clear_rate": 0.9913194444444444,
+      "nohit_rate": 0.736328125,
+      "damage": 0.31640625,
+      "timeout_rate": 0.0010850694444444445,
+      "hp_removed": 0.9968203571107652,
+      "decisions": 129.06618923611111,
+      "worst_cell_clear": 0.9609375
+    }
+  }
+}

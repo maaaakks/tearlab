@@ -166,3 +166,10 @@ Protocole figé avant expériences : docs/GENERALIZATION_PROTOCOL.md.
 - [x] Préparer comparaison à exposition égale, budget 1 vs 3 contacts, objectif potentiel conservatif identique et examens sous les deux budgets.
 - [x] Valider les terminaux par contact, la collecte native et les graphes GPU : 7 tests passent.
 - [ ] Comparer les résultats sur les cas difficiles et la rétention ; confirmer toute amélioration sur une seed indépendante.
+
+
+## Résultats pilote budgets de contacts — 2026-11-09
+
+- [x] Exécuter deux bras à 9 830 400 décisions chacun et auditer les modèles latest figés sur les mêmes examens, deux cohortes ×128 épisodes/cellule, répétabilité exacte du parent.
+- [x] Distinguer esquive et récupération : strict meilleur en no-hit/rétention, trois contacts meilleur en victoires avec dégâts.
+- [ ] Répliquer sur une seed indépendante ; traiter la longue distance en grande salle puis tester récupération suivie de finition stricte à exposition égale. Aucun candidat promu en jeu.

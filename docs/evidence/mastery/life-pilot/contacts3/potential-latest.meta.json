@@ -1,0 +1,14 @@
+{
+  "sha256": "50b6bc63dfdda20b85ac93a1f70514bf3d621383b30a899c327d59247e0b150d",
+  "updates": 300,
+  "decisions": 9830400,
+  "mode": "potential",
+  "budget": 3,
+  "metric": [
+    0.3605769230769231,
+    0.03125,
+    0.31979166666666664
+  ],
+  "live_validated": false,
+  "wandb_artifact_reference": "offline:l0p581xy/contacts3-potential-latest"
+}
