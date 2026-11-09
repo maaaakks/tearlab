@@ -13,14 +13,14 @@ local mod={};function mod:AddCallback(key,fn)callbacks[key]=fn end
 function RegisterMod()return mod end
 function Font()return {Load=function()end,IsLoaded=function()return false end}end
 Keyboard={KEY_C=67};Input={IsButtonTriggered=function()local v=pressC;pressC=false;return v end}
-ModCallbacks={MC_POST_UPDATE=1,MC_POST_RENDER=2,MC_POST_NEW_ROOM=3,MC_POST_GAME_STARTED=4,MC_ENTITY_TAKE_DMG=5,MC_INPUT_ACTION=6,MC_EXECUTE_CMD=7}
+ModCallbacks={MC_POST_UPDATE=1,MC_POST_RENDER=2,MC_POST_NEW_ROOM=3,MC_POST_GAME_STARTED=4,MC_ENTITY_TAKE_DMG=5,MC_INPUT_ACTION=6,MC_EXECUTE_CMD=7,MC_POST_PICKUP_INIT=8}
 Isaac={GetPlayer=function()return alive and p or nil end,ConsoleOutput=function()end}
 function Isaac.GetRoomEntities()local out={};for _,e in ipairs(entities)do if not e.removed then out[#out+1]=e end end;return out end
 function Isaac.Spawn(kind,variant,sub,pos,vel)
  local e={Type=kind,Variant=variant,Position=pos,Velocity=vel,InitSeed=#entities+1,HitPoints=10,MaxHitPoints=10,FrameCount=0}
- function e:IsActiveEnemy()return true end;function e:IsDead()return false end
+ function e:IsActiveEnemy()return self.Type==10 or self.Type==12 end;function e:IsDead()return false end
  function e:IsVulnerableEnemy()return true end;function e:Remove()self.removed=true end
- entities[#entities+1]=e;return e
+ entities[#entities+1]=e;if kind==5 and callbacks[8] then callbacks[8](mod,e) end;return e
 end
 ButtonAction={ACTION_LEFT=0,ACTION_RIGHT=1,ACTION_UP=2,ACTION_DOWN=3,ACTION_SHOOTLEFT=4,ACTION_SHOOTRIGHT=5,ACTION_SHOOTUP=6,ACTION_SHOOTDOWN=7,ACTION_BOMB=8,ACTION_ITEM=9,ACTION_PILLCARD=10}
 InputHook={GET_ACTION_VALUE=0,IS_ACTION_PRESSED=1,IS_ACTION_TRIGGERED=2}
@@ -34,8 +34,15 @@ package.preload.socket=function()local accepted=false;return {tcp=function()retu
 assert(dofile('live_preview.lua').start());callbacks[2](mod)
 incoming[1]={command='auto_start'};callbacks[2](mod);assert(#Isaac.GetRoomEntities()==0)
 alive=true;callbacks[3](mod);callbacks[4](mod)
+local oldLoot=Isaac.Spawn(5,100,0,Vector(1,1),Vector(0,0))
+assert(not oldLoot.removed,'manual pickup should be preserved')
 local function step(to)while frame<to do frame=frame+1;callbacks[1](mod)end end
 step(6);assert(#Isaac.GetRoomEntities()==1 and Isaac.GetRoomEntities()[1].Type==12,'pending auto-start lost');assert(inj.isEnabled())
+assert(oldLoot.removed,'existing loot not cleared at round reset')
+for _,variant in ipairs({10,20,30,40,50,100,300,350}) do
+ local loot=Isaac.Spawn(5,variant,0,Vector(1,1),Vector(0,0))
+ assert(loot.removed,'new demo loot not suppressed: '..variant)
+end
 local state=sent[#sent]
 incoming[1]={action={action_id=1,room_id=state.room_id,control_id=state.control_id,move=7,shoot=1}}
 callbacks[2](mod)
@@ -46,4 +53,5 @@ assert(callbacks[6](mod,p,InputHook.GET_ACTION_VALUE,ButtonAction.ACTION_RIGHT)=
 assert(callbacks[5](mod,p,1,0,nil)==false,'damage must count but protect hearts')
 step(53);assert(#Isaac.GetRoomEntities()==1 and Isaac.GetRoomEntities()[1].Type==10,'next scenario did not start');assert(inj.isEnabled())
 pressC=true;step(54);assert(not inj.isEnabled());assert(callbacks[6](mod,p,InputHook.GET_ACTION_VALUE,ButtonAction.ACTION_LEFT)==nil,'manual input not released');local count=#entities;step(120);assert(#entities==count,'C stop restarted')
-print('PASS: real injector movement/shooting/release, queued auto-start, scenario sequence, contact protection and C stop')
+local manualLoot=Isaac.Spawn(5,100,0,Vector(1,1),Vector(0,0));assert(not manualLoot.removed,'manual pickup incorrectly suppressed')
+print('PASS: real injector, auto sequence, contact/C stop, existing loot cleanup and new demo pickup suppression; manual pickups preserved')

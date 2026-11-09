@@ -122,7 +122,7 @@ function M.start()
     end
     local function clearCombat()
         for _,e in ipairs(Isaac.GetRoomEntities()) do
-            if e:IsActiveEnemy(false) or e.Type==2 or e.Type==9 then e:Remove() end
+            if e:IsActiveEnemy(false) or e.Type==2 or e.Type==9 or e.Type==5 then e:Remove() end
         end
     end
     stopAuto=function(why)
@@ -224,6 +224,10 @@ function M.start()
         if not enabled or not client then return nil end
         return Injector.onInputAction(nil,entity,hook,button)
     end
+    function mod:onPickupInit(pickup)
+        -- Demo rounds must not accumulate rewards or change player stats.
+        if autoRunning then pickup:Remove() end
+    end
     function mod:onCommand(command,args)
         if command~="rlpreview" then return end
         if args=="auto" then autoBegin(true);return end
@@ -234,7 +238,7 @@ function M.start()
             Isaac.ConsoleOutput("rlpreview horf 1|2|3|4 ou rlpreview gaper 1|2|3|4 : remplace les ennemis de la salle courante. C active l'agent.\n");return
         end
         stopAuto("Salle de test vanilla - C pour demo")
-        for _,e in ipairs(Isaac.GetRoomEntities()) do if e:IsActiveEnemy(false) or e.Type==2 or e.Type==9 then e:Remove() end end
+        clearCombat()
         local p=player();local room=Game():GetRoom();local center=room:GetCenterPos();p.Position=center;p.Velocity=Vector(0,0)
         for i=1,count do
             local a=(i-1)*math.pi*2/count
@@ -250,6 +254,7 @@ function M.start()
     mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED,mod.onStart)
     mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG,mod.onDamage)
     mod:AddCallback(ModCallbacks.MC_INPUT_ACTION,mod.onInput)
+    mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT,mod.onPickupInit)
     mod:AddCallback(ModCallbacks.MC_EXECUTE_CMD,mod.onCommand)
     startServer()
     if not socketOK then reason="LuaSocket absent - aucun controle agent";Isaac.ConsoleOutput("IsaacRL preview: socket unavailable: "..tostring(socket).."\n") end

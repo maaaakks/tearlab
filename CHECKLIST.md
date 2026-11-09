@@ -152,3 +152,10 @@ Protocole figé avant expériences : docs/GENERALIZATION_PROTOCOL.md.
 - [x] Initialiser la table ButtonAction du vrai injecteur avant les callbacks : les actions étaient reçues mais ignorées.
 - [x] Reproduire le défaut puis vérifier déplacement diagonal, tir et retour manuel avec le vrai injecteur et les API de jeu simulées (logs avant/après).
 - [ ] Confirmer mouvement et tir dans le jeu après son rechargement par le joueur.
+
+
+## Nettoyage loot preview — 2026-11-09
+
+- [x] Nettoyer tous les pickups au reset (consommables, coffres, trinkets et piédestaux) et supprimer les nouveaux pickups pendant la démo automatique.
+- [x] Vérifier avec API simulées le nettoyage du loot existant, la suppression des drops et la préservation des pickups en mode manuel.
+- [ ] Confirmer visuellement le nettoyage après rechargement du jeu par le joueur.
