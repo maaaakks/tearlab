@@ -59,6 +59,16 @@ class ObjectiveContracts(unittest.TestCase):
         self.assertTrue(done.all());self.assertTrue(info['timeout'].all())
         self.assertTrue((info['terminal_observation'][:,7]==1).all());self.assertTrue((obs[:,7]==0).all())
 
+    def test_contact_budget_changes_terminal_but_not_physics(self):
+        for budget in (1,3):
+            env=MultiRoom([Case(HardScene(1,0))],17,NativePhysics(),None,'cpu',reference=True,budget=budget)
+            child=env.groups[0];child.targets[:,0].copy_(child.pos);child.target_vel.zero_()
+            _,_,done,info=env.step(torch.zeros(1,dtype=torch.long))
+            self.assertTrue(info['contact'].item())
+            self.assertEqual(done.item(),budget==1)
+            self.assertEqual(info['dead'].item(),budget==1)
+            if budget==3:self.assertEqual(child.health.item(),2.)
+
 
 @unittest.skipUnless(os.environ.get('RUN_ISAAC_GPU_TESTS')=='1','Explicit GPU test')
 class GPUContracts(unittest.TestCase):
@@ -80,8 +90,8 @@ class GPUContracts(unittest.TestCase):
             self.assertTrue(torch.equal(a.rng.get_state(),b.rng.get_state()))
 
     def test_captured_rollout_and_scene_change_for_all_rewards(self):
-        for mode in ('legacy','win','potential'):
-            learner=Learner(x.CrossPolicy().cuda(),training_cases(4,128),23,self.native,self.cache,mode)
+        for mode,budget in (('legacy',1),('win',1),('potential',1),('potential',3)):
+            learner=Learner(x.CrossPolicy().cuda(),training_cases(4,128),23,self.native,self.cache,mode,budget)
             for _ in range(2):self.assertGreater(learner.update()['optimizer_steps'],0)
             learner.set_cases(training_cases(12,128));learner.update(epochs=0)
             self.assertTrue(all(torch.isfinite(v).all() for v in learner.policy.parameters()))

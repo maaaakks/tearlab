@@ -159,3 +159,10 @@ Protocole figé avant expériences : docs/GENERALIZATION_PROTOCOL.md.
 - [x] Nettoyer tous les pickups au reset (consommables, coffres, trinkets et piédestaux) et supprimer les nouveaux pickups pendant la démo automatique.
 - [x] Vérifier avec API simulées le nettoyage du loot existant, la suppression des drops et la préservation des pickups en mode manuel.
 - [ ] Confirmer visuellement le nettoyage après rechargement du jeu par le joueur.
+
+
+## Pilote cas difficiles / budget de vie — 2026-11-09
+
+- [x] Préparer comparaison à exposition égale, budget 1 vs 3 contacts, objectif potentiel conservatif identique et examens sous les deux budgets.
+- [x] Valider les terminaux par contact, la collecte native et les graphes GPU : 7 tests passent.
+- [ ] Comparer les résultats sur les cas difficiles et la rétention ; confirmer toute amélioration sur une seed indépendante.

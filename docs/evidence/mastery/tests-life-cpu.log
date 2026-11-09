@@ -1,0 +1,12 @@
+test_captured_rollout_and_scene_change_for_all_rewards (__main__.GPUContracts.test_captured_rollout_and_scene_change_for_all_rewards) ... skipped 'Explicit GPU test'
+test_shared_generator_and_native_tensor_groups (__main__.GPUContracts.test_shared_generator_and_native_tensor_groups) ... skipped 'Explicit GPU test'
+test_contact_budget_changes_terminal_but_not_physics (__main__.ObjectiveContracts.test_contact_budget_changes_terminal_but_not_physics) ... ok
+test_legacy_reward_is_preserved (__main__.ObjectiveContracts.test_legacy_reward_is_preserved) ... ok
+test_partial_group_reset_and_real_terminal (__main__.ObjectiveContracts.test_partial_group_reset_and_real_terminal) ... ok
+test_scenario_validity_and_closed_factors (__main__.ObjectiveContracts.test_scenario_validity_and_closed_factors) ... ok
+test_win_objective_and_shaping_rank_complete_trajectories (__main__.ObjectiveContracts.test_win_objective_and_shaping_rank_complete_trajectories) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.858s
+
+OK (skipped=2)

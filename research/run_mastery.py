@@ -37,7 +37,9 @@ def main():
     ap.add_argument('--modes',nargs='+',default=['legacy','win','potential']);ap.add_argument('--envs',type=int,default=1024)
     ap.add_argument('--updates',nargs='+',type=int,default=[400,400,1000]);ap.add_argument('--hp',nargs='+',type=int,default=[4,8,12])
     ap.add_argument('--check-every',type=int,default=200);ap.add_argument('--per-cell',type=int,default=64)
+    ap.add_argument('--budget',type=int,choices=[1,3],default=1)
     args=ap.parse_args();args.parent=args.parent.resolve();args.output=args.output.resolve();args.cache=args.cache.resolve()
+    if len(args.hp)!=len(args.updates) or not all(v>0 for v in args.updates):raise ValueError('One positive update budget per HP stage required')
     args.output.mkdir(parents=True,exist_ok=False);torch.set_num_threads(1);torch.backends.cuda.matmul.allow_tf32=False
     native=NativePhysics.load(ROOT/'data/physics_v2/calibration_r5.json');parent=torch.load(args.parent,map_location='cpu',weights_only=True)
     report=dict(complete=False,config={k:str(v) if isinstance(v,Path) else v for k,v in vars(args).items()},
@@ -52,17 +54,18 @@ def main():
     def checkpoint(learner,mode,label,metric):
         path=args.output/f'{mode}-{label}.pt'
         torch.save(dict(schema='mastery-v1',state_dict=learner.policy.state_dict(),optimizer=learner.optimizer.state_dict(),
-                        updates=learner.updates,mode=mode,gamma=learner.gamma,metric=metric,sources=report['sources'],parent=report['parent_sha256']),path)
+                        updates=learner.updates,mode=mode,budget=args.budget,gamma=learner.gamma,metric=metric,sources=report['sources'],parent=report['parent_sha256']),path)
         write(path.with_suffix('.meta.json'),dict(sha256=hashlib.sha256(path.read_bytes()).hexdigest(),updates=learner.updates,
-              decisions=learner.updates*args.envs*32,mode=mode,metric=metric,live_validated=False,
+              decisions=learner.updates*args.envs*32,mode=mode,budget=args.budget,metric=metric,live_validated=False,
               wandb_artifact_reference=f'offline:{logger.id}/{args.output.name}-{mode}-{label}'))
     try:
         for mode in args.modes:
             torch.manual_seed(args.seed);initial=x.CrossPolicy().cuda();initial.load_state_dict(parent['state_dict'])
-            learner=Learner(initial,training_cases(args.hp[0],args.envs),args.seed,native,args.cache,mode)
-            exams=[Examiner(learner.policy,dev_cells(),args.per_cell,seed,native,args.cache) for seed in (1000101,1000201)]
+            learner=Learner(initial,training_cases(args.hp[0],args.envs),args.seed,native,args.cache,mode,args.budget)
+            exams=[Examiner(learner.policy,dev_cells(),args.per_cell,seed,native,args.cache,budget=budget) for budget in (1,3) for seed in (1000101,1000201)]
             baseline=[e.run() for e in exams]
-            arm=dict(baseline=baseline,baseline_metric=quality(baseline),checks=[],stages=[],complete=False)
+            strict_quality=lambda results:quality([r for r in results if r['budget']==1])
+            arm=dict(baseline=baseline,baseline_metric=strict_quality(baseline),checks=[],stages=[],complete=False)
             report['arms'][mode]=arm;save_report();best=(-1.,-1.,-1.);wall=time.perf_counter();train=0.
             for hp,updates in zip(args.hp,args.updates):
                 cases=training_cases(hp,args.envs);learner.set_cases(cases)
@@ -70,7 +73,7 @@ def main():
                 for step in range(updates):
                     stats=learner.update();train+=stats['collection_seconds']+stats['optimization_seconds']
                     if (step+1)%args.check_every==0 or step+1==updates:
-                        results=[e.run() for e in exams];metric=quality(results)
+                        results=[e.run() for e in exams];metric=strict_quality(results)
                         arm['checks'].append(dict(updates=learner.updates,hp=hp,metric=metric,cohorts=results,training=stats))
                         if metric>best:best=metric;checkpoint(learner,mode,'best',metric)
                         logger.log({f'{mode}/retention_quality':metric[0],f'{mode}/worst_hard':metric[1],f'{mode}/mean_hard':metric[2],f'{mode}/entropy':stats['entropy']},step=learner.updates)

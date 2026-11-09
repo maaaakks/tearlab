@@ -96,16 +96,17 @@ class MultiRoom:
     Fixed-order cases must be contiguous by geometry. A single registered CUDA
     generator drives all groups, with stable buffers for whole-rollout capture.
     """
-    def __init__(self,cases,seed,native,cache,device='cuda',mode='legacy',reference=False):
+    def __init__(self,cases,seed,native,cache,device='cuda',mode='legacy',reference=False,budget=1):
         self.cases=list(cases);self.n=len(cases);self.device=torch.device(device)
-        self.mode=mode;self.budget=1;self.rng=torch.Generator(device=device).manual_seed(seed)
+        if budget not in (1,3):raise ValueError('Life budget must be 1 or 3 contacts')
+        self.mode=mode;self.budget=budget;self.rng=torch.Generator(device=device).manual_seed(seed)
         self.groups=[];self.slices=[];seen=set();start=0
         while start<len(cases):
             geometry=(cases[start].width,cases[start].height)
             if geometry in seen:raise ValueError('Geometry groups must be contiguous')
             seen.add(geometry);end=start+1
             while end<len(cases) and (cases[end].width,cases[end].height)==geometry:end+=1
-            env=HardEnv([s.scene for s in cases[start:end]],seed,native,device,cache,budget=1,reward_mode='sparse',
+            env=HardEnv([s.scene for s in cases[start:end]],seed,native,device,cache,budget=budget,reward_mode='sparse',
                         width=geometry[0],height=geometry[1],optimizations=c.Optimizations() if reference else c.ALL)
             env.prepare();env.rng=self.rng
             self.groups.append(env);self.slices.append(slice(start,end));start=end
@@ -164,9 +165,9 @@ class MultiRoom:
 
 
 class Learner(c.ParallelArm):
-    def __init__(self,initial,cases,seed,native,cache,mode='legacy'):
+    def __init__(self,initial,cases,seed,native,cache,mode='legacy',budget=1):
         def factory(scenes,seed,native,device,cache,reference):
-            env=MultiRoom(scenes,seed,native,cache,device,mode,reference)
+            env=MultiRoom(scenes,seed,native,cache,device,mode,reference,budget)
             return env,env,env.initial_hp
         super().__init__(initial,cases,seed,native,'cuda',cache,True,env_factory=factory,rollout=32,
                          options=c.Options(True,True,True,False),reward_fn=c.reward_from_info,
@@ -198,9 +199,9 @@ def dev_cells():
 
 
 class Examiner:
-    def __init__(self,policy,cells,per_cell,seed,native,cache,controller=None):
+    def __init__(self,policy,cells,per_cell,seed,native,cache,controller=None,budget=1):
         self.policy=policy;self.controller=controller;self.cells=cells;self.per_cell=per_cell;self.seed=seed
-        self.env=MultiRoom([cell for cell in cells for _ in range(per_cell)],seed,native,cache)
+        self.env=MultiRoom([cell for cell in cells for _ in range(per_cell)],seed,native,cache,budget=budget)
         self.obs=self.env.obs().clone();self.previous=torch.full((self.env.n,),45,device='cuda',dtype=torch.long)
         self.active=torch.ones(self.env.n,device='cuda',dtype=torch.bool);self.stats=torch.zeros(self.env.n,7,device='cuda')
         self.sim=self.env
@@ -230,7 +231,7 @@ class Examiner:
         values=self.stats.cpu().reshape(len(self.cells),self.per_cell,7)
         keys=['clear_rate','nohit_rate','damage','timeout_rate','hp_removed','decisions','shots']
         rows=[dict(name=s.name,case=asdict(s),**dict(zip(keys,values[i].mean(0).tolist()))) for i,s in enumerate(self.cells)]
-        return dict(seed=self.seed,per_cell=self.per_cell,episodes=self.env.n,cells=rows)
+        return dict(seed=self.seed,budget=self.env.budget,per_cell=self.per_cell,episodes=self.env.n,cells=rows)
 
 
 def quality(results):

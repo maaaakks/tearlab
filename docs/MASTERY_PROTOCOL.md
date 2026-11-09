@@ -23,7 +23,25 @@ Comparer à même exposition depuis chaque parent figé :
 Pas de récompense pour tirer, marcher, s'aligner ou rester loin d'un ennemi. La
 comparaison legacy/win porte sur l'objectif complet, pas sur gamma seul. win vs
 potential isole le shaping. Même réseau pooling, même LR/entropie/rollout ; Adam
-neuf pour les trois. Horizon principal 400, premier dégât terminal conservé.
+neuf pour les trois. Horizon principal 400.
+
+### Priorité après démonstration en jeu : budget de contacts
+
+Avant l'ablation complète des rewards, isoler le budget de vie : même parent
+focus-seed129773, même seed, mêmes scènes et transitions, même objectif potential
+(gamma 1, victoire +3 / échec -3, potentiel terminal nul), budget 1 contre 3.
+Un contact est expérimental et ne représente pas un cœur Isaac calibré.
+L'invulnérabilité du simulateur reste inchangée. Pas de bonus de survie.
+Pilote : 100 updates à 8 PV puis 200 à 12 PV, 1024 environnements par bras,
+soit 9 830 400 décisions par bras. Environ 65% des scènes visent 3/4 tireurs
+difficiles, avec 35% de rétention. Le budget 3 apprend aussi les états après choc.
+Chaque checkpoint est examiné sous les DEUX budgets, sur les mêmes cohortes.
+La sélection conserve le classement strict sous budget 1 : finir en encaissant
+ne peut pas, à lui seul, être déclaré meilleur en esquive. Rapporter séparément
+victoires avec 3 contacts, victoires no-hit, contacts et timeouts.
+Ne pas ouvrir les facteurs finaux réservés pendant ce pilote ni changer le
+modèle actuellement présenté dans le jeu. Ce pilote à une seed guide la suite ;
+une réplication indépendante est nécessaire avant une conclusion générale.
 
 ## Scènes et apprentissage
 
