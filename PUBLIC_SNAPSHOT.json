@@ -116,7 +116,8 @@
     "research/test_focus_recovery.py": "8ffc62c120ddebdd5c20d114805270107510394f8f4919c4ea56c3c70e46da8a",
     "research/test_mastery.py": "6156029675bde97398db9460b4a8ee0f3a89aeeb4d74c835290494b435531262",
     "research/test_terminal_physics_review.py": "e5bfe36bb0ac3120ae83764415693cfeb6079b1f814f6104930132376a3d67a5",
-    "THIRD_PARTY_NOTICES.md": "73bfff2f9711a8d7515483dd54557717f44e41260dc3f6defa1aa99987da00c4"
+    "THIRD_PARTY_NOTICES.md": "73bfff2f9711a8d7515483dd54557717f44e41260dc3f6defa1aa99987da00c4",
+    ".gitattributes": "23302dd90b8bb74b44d365fafef8df20f809b61cb347023951ecf60a88a29651"
   },
   "validation": {
     "cpu_passed": 11,
