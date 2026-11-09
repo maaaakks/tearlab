@@ -11,13 +11,15 @@
   retain third-party notices and historical rights.
 - [x] Review the prepared tree diff, credit the upstream and scan retained history
   for known credential signatures before publishing.
-- [ ] Verify installation in a fresh Python environment and GPU compilation there.
+- [x] Verify installation and CPU checks in a fresh GitHub Actions environment.
+- [ ] Verify GPU compilation in a fresh environment.
 - [x] Bundle the latest weights and loading instructions. Earlier experiment
   parent weights are deliberately not bundled; do not claim exact lineage reproduction.
 - [x] Prepare the TearLab identity, README banner and upstream fork attribution.
 - [x] Replace em dashes with ordinary hyphens in the current published tree.
 
 Publication target: `maaaakks/tearlab`, a public fork of `Sepzie/binding-of-ai`.
+First push completed on 2026-11-09; the initial CPU workflow passed.
 The active research checkout remains separate from this curated release tree.
 The first release is based on the prepared snapshot and bundles the latest
 consolidation checkpoint; it does not publish every local experimental file.

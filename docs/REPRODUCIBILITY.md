@@ -12,7 +12,10 @@ Environment used for the existing results and checkout checks:
 - CPU reference tests do not compile native code or initialize CUDA.
 
 These are observed versions, not a claim that every supported platform/version
-was tested. No clean-environment package installation has been performed.
+was tested. On 2026-11-09, the [public CPU workflow](https://github.com/maaaakks/tearlab/actions/runs/42636009069)
+also installed the dependencies in a fresh GitHub Actions `ubuntu-latest`
+environment with Python 3.11: 11 CPU tests passed, 2 GPU tests were skipped,
+and training CLI help passed. Fresh-environment GPU compilation remains untested.
 Native CUDA/CPU build logs contain source digests. Checkpoints must have SHA256
 sidecars. Training output snapshots retain sources, parent hashes, seeds and
 offline W&B artifact references. Only the latest weights are bundled; ancestor

@@ -4,6 +4,8 @@
 
 **Learning to fight, one tear at a time.**
 
+[![CPU checks](https://github.com/maaaakks/tearlab/actions/workflows/cpu-checks.yml/badge.svg)](https://github.com/maaaakks/tearlab/actions/workflows/cpu-checks.yml)
+
 Experimental reinforcement learning for **The Binding of Isaac**, using an
 empirically calibrated combat simulator, batched GPU physics and PPO. A Lua mod
 can run a frozen policy against vanilla enemies in an owned copy of the game.
@@ -65,9 +67,10 @@ py -3.11 -m venv .venv
 ```
 
 The default suite uses CPU reference physics and skips GPU tests. No game,
-checkpoint, CUDA toolkit or paid service is needed for those tests. A fresh
-environment install has not yet been verified; the prepared checkout is tested
-with the existing research environment. [Environment details](docs/REPRODUCIBILITY.md).
+checkpoint, CUDA toolkit or paid service is needed for those tests. Installation,
+the CPU suite and training CLI help also pass in a fresh GitHub Actions Linux
+environment with Python 3.11. GPU builds in a fresh environment remain unverified.
+[Environment details](docs/REPRODUCIBILITY.md).
 
 ## GPU training
 
