@@ -1,9 +1,0 @@
-{
-  "sources": {
-    "live_preview.lua": "38616b47889cfb8b404e473f91e3e8495c951443cef549afce3078e2545859b8",
-    "live_agent.py": "3146b0a10ea010b4dd5fff0bf502960d7ee90c58cc192621ad05f733792eb11a"
-  },
-  "startup": "automatic after game reload and entering run; 11 scenarios; C stops/resumes",
-  "gameplay_validated": false,
-  "validation": "Lua syntax and mocked queued-start/contact/scenario/C-stop test passed; actual game reload pending"
-}

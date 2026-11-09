@@ -1,0 +1,59 @@
+{
+  "parameters": {
+    "schema": 1,
+    "idle_retention": 0.7749999668481111,
+    "parallel_retention": 0.7749999049682667,
+    "reverse_retention": 0.7142409767403988,
+    "transverse_retention": 0.6199999249728976,
+    "acceleration_half": 0.5282045454006552,
+    "wall_margin": 10.0,
+    "tear_inheritance": 1.2,
+    "fire_ticks": 11,
+    "command_delay_ticks": 1,
+    "eye_offset": 3.7506103515625,
+    "wall_update_order": 4,
+    "wall_rebound": 0.1,
+    "wall_bias": 0.1,
+    "wall_correction_max": 2.0
+  },
+  "fit_samples": {
+    "parallel": 868,
+    "transverse": 1792,
+    "idle": 1096
+  },
+  "fit_sources": {
+    "physics_audit/20260905T171207_462069Z/traces.jsonl": "6914a3ad77696e0ff99b0cd72b2800f43cc1fee575458838b88b2af8aa161c32",
+    "physics_audit/20260905T171513_275104Z/traces.jsonl": "ffd84f40f09375a575c6c6418457c0fc570b1802a197449b546e94538cc1c129",
+    "physics_audit/20260905T174910_777857Z/traces.jsonl": "50837b32ce4260b32fe502dc33da2b243e01d1f2e9f3942a35bc326f0679aa9d",
+    "physics_audit/20260905T180145_899981Z/traces.jsonl": "d6760f586e0a30d28056156fac46c3cc5ad96359e8035ae4227509dca636f53d",
+    "physics_audit/20260905T184106_236390Z/traces.jsonl": "da88f17d6351377cc41d0c6b8702621bbfc10772142a7b31c9d2f0f0d0accebd",
+    "physics_audit/20260905T185022_353517Z/traces.jsonl": "45c74be70d80e21d215587326419c13868d77207fd76b8bcb991fc351c941eda"
+  },
+  "eye_offset_measurements": {
+    "n": 32,
+    "mean": 3.738957405090332,
+    "median": 3.7506103515625,
+    "p90": 4.417572021484375,
+    "p99": 4.850341796875,
+    "min": 3.00006103515625,
+    "max": 4.850341796875
+  },
+  "policy_trained": false,
+  "fixed_measured_or_candidate": [
+    "wall_margin=10 from wall probes",
+    "fire_ticks=11 from continuous firing",
+    "tear_inheritance=1.2 is a candidate checked on emissions",
+    "command_delay_ticks=1 models request/echo phasing"
+  ],
+  "acceptance_thresholds": {
+    "interior_one_tick_p99_units": 0.05,
+    "interior_three_tick_p99_units": 0.1,
+    "all_three_tick_p95_units": 2.0,
+    "open_loop_3s_p90_units": 3.0,
+    "tear_velocity_p90_units_s": 5.0
+  },
+  "globally_certified": false,
+  "revision": 5,
+  "physics_source_sha256": "d1194577197f4ffedc911bed1aca58982b5fbc25ad943c203b654e0dd8693f5b",
+  "frozen_before_validation_seed": 202609054
+}

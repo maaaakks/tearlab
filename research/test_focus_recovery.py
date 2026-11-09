@@ -1,6 +1,6 @@
 import unittest
 from collections import Counter
-from focus_recovery import focus_cases,score
+from research.focus_recovery import focus_cases,score,RETENTION
 from research.mastery_core import c
 class FocusContracts(unittest.TestCase):
     def test_focus_and_retention_distribution(self):
@@ -12,5 +12,5 @@ class FocusContracts(unittest.TestCase):
             self.assertAlmostEqual(long/len(group),.5,delta=.005)
             self.assertTrue(all((s.scene.chasers,s.scene.shooters) not in c.HOLDOUT for s in group))
             self.assertTrue(all(s.scene.pattern!='unequal' for s in group))
-            self.assertGreaterEqual(sum(s.scene in __import__('focus_recovery').RETENTION for s in group)/len(group),.3)
+            self.assertGreaterEqual(sum(s.scene in RETENTION for s in group)/len(group),.3)
 if __name__=='__main__':unittest.main()

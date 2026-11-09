@@ -92,4 +92,4 @@ Le cas quatre tireurs 12 PV reste sous 70 % en développement après le budget i
 
 - Graine 129773 : [checkpoint](C:/Users/maxbr/Documents/Codex/2026-11-08/https-github-com-thecosmicskye-rocketgpu-https-2/outputs/isaac-crossfire/focus-seed129773/pool-best.pt) · [métadonnées/SHA](C:/Users/maxbr/Documents/Codex/2026-11-08/https-github-com-thecosmicskye-rocketgpu-https-2/outputs/isaac-crossfire/focus-seed129773/pool-best.meta.json).
 - Graine 242579 : [checkpoint](C:/Users/maxbr/Documents/Codex/2026-11-08/https-github-com-thecosmicskye-rocketgpu-https-2/outputs/isaac-crossfire/focus-seed242579/pool-best.pt) · [métadonnées/SHA](C:/Users/maxbr/Documents/Codex/2026-11-08/https-github-com-thecosmicskye-rocketgpu-https-2/outputs/isaac-crossfire/focus-seed242579/pool-best.meta.json).
-Sorties complètes, checkpoints et sources capturées : `C:\Users\maxbr\Documents\Codex\2026-11-08\https-github-com-thecosmicskye-rocketgpu-https-2\outputs\isaac-crossfire`.
+Sorties complètes, checkpoints et sources capturées : `<local-artifact-path>`.

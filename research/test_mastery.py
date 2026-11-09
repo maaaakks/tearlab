@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 import sys
 import unittest
-ROOT=Path(r'C:\Users\maxbr\Desktop\game\IsaacRL\binding-of-ai')
+ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT),str(ROOT/'python')]
 import torch
 try:from research.mastery_core import *

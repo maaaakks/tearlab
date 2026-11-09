@@ -1,9 +1,0 @@
-Lua syntax OK: C:\Users\maxbr\Documents\Codex\2026-11-08\https-github-com-thecosmicskye-rocketgpu-https-2\outputs\isaac-live\installed-mod\action_injector.lua
-Lua syntax OK: C:\Users\maxbr\Documents\Codex\2026-11-08\https-github-com-thecosmicskye-rocketgpu-https-2\outputs\isaac-live\installed-mod\config.lua
-Lua syntax OK: C:\Users\maxbr\Documents\Codex\2026-11-08\https-github-com-thecosmicskye-rocketgpu-https-2\outputs\isaac-live\installed-mod\game_control.lua
-Lua syntax OK: C:\Users\maxbr\Documents\Codex\2026-11-08\https-github-com-thecosmicskye-rocketgpu-https-2\outputs\isaac-live\installed-mod\json.lua
-Lua syntax OK: C:\Users\maxbr\Documents\Codex\2026-11-08\https-github-com-thecosmicskye-rocketgpu-https-2\outputs\isaac-live\installed-mod\live_preview.lua
-Lua syntax OK: C:\Users\maxbr\Documents\Codex\2026-11-08\https-github-com-thecosmicskye-rocketgpu-https-2\outputs\isaac-live\installed-mod\main.lua
-Lua syntax OK: C:\Users\maxbr\Documents\Codex\2026-11-08\https-github-com-thecosmicskye-rocketgpu-https-2\outputs\isaac-live\installed-mod\state_serializer.lua
-Lua syntax OK: C:\Users\maxbr\Documents\Codex\2026-11-08\https-github-com-thecosmicskye-rocketgpu-https-2\outputs\isaac-live\installed-mod\tcp_server.lua
-PASS: real injector movement/shooting/release, queued auto-start, scenario sequence, contact protection and C stop

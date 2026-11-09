@@ -10,17 +10,21 @@ local ActionInjector = {}
 --   pillcard -> ACTION_PILLCARD (Q)
 
 local currentAction = {
+    action_id = 0,
     move = 0,
     shoot = 0,
     bomb = 0,
     active = 0,
-    pillcard = 0
+    pillcard = 0,
+    move_x = nil,
+    move_y = nil
 }
 
 -- One-shot interaction state: pressed for ONE_SHOT_TICKS game ticks after
 -- the action arrives, then cleared. Prevents a latched action from placing
 -- a bomb every frame while Python is busy.
 local ONE_SHOT_TICKS = 2
+local injectionEnabled = true
 local oneShotTicksLeft = 0
 local oneShotButtons = {}
 
@@ -97,9 +101,24 @@ function ActionInjector.setDisableShooting(disableShooting)
 end
 
 function ActionInjector.setAction(action)
+    if action and action.action_id ~= nil then
+        currentAction.action_id = tonumber(action.action_id) or 0
+    end
     if action and action.move then
         currentAction.move = action.move
     end
+    if action and action.move_x ~= nil and action.move_y ~= nil then
+        currentAction.move_x = math.max(-1.0, math.min(1.0,
+            tonumber(action.move_x) or 0.0))
+        currentAction.move_y = math.max(-1.0, math.min(1.0,
+            tonumber(action.move_y) or 0.0))
+    else
+        currentAction.move_x = nil
+        currentAction.move_y = nil
+    end
+    currentAction.bomb = action and action.bomb or 0
+    currentAction.active = action and action.active or 0
+    currentAction.pillcard = action and action.pillcard or 0
     if action and action.shoot then
         if ActionInjector.DISABLE_SHOOTING then
             currentAction.shoot = 0
@@ -145,6 +164,17 @@ end
 
 function ActionInjector.getAction()
     return currentAction
+end
+
+function ActionInjector.setEnabled(enabled)
+    injectionEnabled = enabled and true or false
+    if not injectionEnabled then
+        ActionInjector.reset()
+    end
+end
+
+function ActionInjector.isEnabled()
+    return injectionEnabled
 end
 
 -- Encode four direction booleans into the 0-8 vocabulary
@@ -205,31 +235,56 @@ function ActionInjector.readHumanAction()
 end
 
 function ActionInjector.reset()
+    currentAction.action_id = 0
     currentAction.move = 0
     currentAction.shoot = 0
     currentAction.bomb = 0
     currentAction.active = 0
     currentAction.pillcard = 0
+    currentAction.move_x = nil
+    currentAction.move_y = nil
     oneShotTicksLeft = 0
     oneShotButtons = {}
 end
 
 function ActionInjector.onInputAction(_, entity, inputHook, buttonAction)
+    if not injectionEnabled then
+        -- Returning nil gives control back to the real player immediately.
+        return nil
+    end
     local key = BUTTON_TO_KEY[buttonAction]
     if not key then
         return nil
     end
 
     local isPressed
+    local analogValue = nil
     if INTERACTION_KEYS[key] then
         isPressed = oneShotTicksLeft > 0 and oneShotButtons[key] == true
     else
         local moveButtons = MOVE_MAP[currentAction.move] or {}
         local shootButtons = SHOOT_MAP[currentAction.shoot] or {}
         isPressed = moveButtons[key] or shootButtons[key] or false
+        if currentAction.move_x ~= nil and currentAction.move_y ~= nil then
+            if key == "ACTION_LEFT" then
+                analogValue = math.max(0.0, -currentAction.move_x)
+            elseif key == "ACTION_RIGHT" then
+                analogValue = math.max(0.0, currentAction.move_x)
+            elseif key == "ACTION_UP" then
+                analogValue = math.max(0.0, -currentAction.move_y)
+            elseif key == "ACTION_DOWN" then
+                analogValue = math.max(0.0, currentAction.move_y)
+            end
+            if analogValue ~= nil then
+                isPressed = analogValue > 0.05
+            end
+        end
     end
 
     if inputHook == InputHook.GET_ACTION_VALUE then
+        if analogValue ~= nil then
+            return analogValue
+        end
         if isPressed then
             return 1.0
         else

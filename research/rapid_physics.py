@@ -104,4 +104,3 @@ class StrictNativeShooterEnv(NativeShooterEnv):
 
 class StrictCombatSuiteEnv(CombatSuiteEnv, StrictNativeShooterEnv):
     """CombatSuite roles and spawn distribution with terminal-safe stepping."""
-

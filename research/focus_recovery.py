@@ -3,7 +3,7 @@ import argparse,copy,gc,hashlib,json,os,shutil,sys,tempfile,time
 from dataclasses import asdict
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent
-REPO=Path(r'C:\Users\maxbr\Desktop\game\IsaacRL\binding-of-ai')
+REPO=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(REPO),str(REPO/'python')]
 import torch
 from research.mastery_core import Case,HardScene,RETENTION,Learner,Examiner,dev_cells,quality,x
@@ -33,7 +33,7 @@ def write(path,obj):path.write_text(json.dumps(obj,indent=2),encoding='utf8')
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--output',type=Path,required=True)
-    ap.add_argument('--parent',type=Path,default=ROOT/'life-pilot/contacts1/potential-latest.pt')
+    ap.add_argument('--parent',type=Path,required=True)
     ap.add_argument('--seeds',type=int,nargs='+',default=[129773,291773]);ap.add_argument('--updates',type=int,nargs=2,default=[200,400])
     ap.add_argument('--per-cell',type=int,default=32);ap.add_argument('--envs',type=int,default=1024)
     args=ap.parse_args();out=args.output.resolve();out.mkdir(parents=True,exist_ok=False)
@@ -41,7 +41,7 @@ def main():
     torch.set_num_threads(1);torch.backends.cuda.matmul.allow_tf32=False
     parent=args.parent.resolve()
     initial_state=torch.load(parent,map_location='cpu',weights_only=True)['state_dict']
-    cache=ROOT.parent/'isaac-training-parallel/cache';native=NativePhysics.load(REPO/'data/physics_v2/calibration_r5.json')
+    cache=REPO/'artifacts/native-cache';native=NativePhysics.load(REPO/'data/physics_v2/calibration_r5.json')
     cases=focus_cases(args.envs)
     report=dict(complete=False,config={**vars(args),'output':str(out),'parent':str(parent)},parent=str(parent),parent_sha256=hashlib.sha256(parent.read_bytes()).hexdigest(),
                 native=asdict(native),cases=[asdict(s) for s in cases],arms={},live_validated=False,
@@ -52,7 +52,7 @@ def main():
         shutil.copyfile(p,source_dir/p.name);report['sources'][p.name]=hashlib.sha256(p.read_bytes()).hexdigest()
     save=lambda:write(out/'report.json',report)
     save()
-    service=Path(r'C:\Users\maxbr\Documents\Codex\.wandb-tmp')
+    service=Path(tempfile.gettempdir())/'isaacrl-wandb'
     service.mkdir(exist_ok=True);tempfile.tempdir=str(service);os.environ['TEMP']=str(service);os.environ['TMP']=str(service)
     for key in ('WANDB_CONFIG_DIR','WANDB_CACHE_DIR','WANDB_DATA_DIR'):os.environ[key]=str(out/key.lower())
     import wandb

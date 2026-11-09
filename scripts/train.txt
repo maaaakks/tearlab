@@ -1,1 +1,0 @@
-powershell -ExecutionPolicy Bypass -File .\scripts\launch_training.ps1   -Config .\configs\phase1a.yaml  -Resume latest-compatible
