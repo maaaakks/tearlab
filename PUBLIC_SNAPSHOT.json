@@ -65,35 +65,39 @@
   "origin": {
     "repository": "https://github.com/Sepzie/binding-of-ai",
     "revision": "0ed4b3a6583ddb8bf4424d748e5bd7e2c74c4ae3",
-    "note": "Curated current-working-tree files; some dependencies were previously untracked. History retained on this preparation branch; not published."
+    "note": "Curated research snapshot with original upstream history retained; published as TearLab with explicit provenance."
   },
   "prepared_sha256": {
     ".gitattributes": "23302dd90b8bb74b44d365fafef8df20f809b61cb347023951ecf60a88a29651",
+    ".github/workflows/cpu-checks.yml": "851c45f88a7ede0af3149f5a1eae4992dbb8777ee6f3d78fb60d6d3204a2049b",
     ".gitignore": "0876834dc447ed1e9ab3636517924995be1e03b62529d0a843903eaf0ae753dc",
     "AGENTS.md": "fcf82177971c531e1d803863f6921e61c9a2be9e43207bab080e73d3c15a3db4",
+    "LICENSE": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
+    "README.md": "8445d0322faa33d3c5d061c2eac0bd08a8d429bc63da59968686bcb517c61770",
+    "THIRD_PARTY_NOTICES.md": "bdcecff6f925f54b7e0208f1cf77f01f2c9ea8efd3ccbec8b998ded156d590c2",
     "data/physics_v2/calibration_r5.json": "9230c6b1211208bf8a95ae5ff3eebff5a4cacfa7de04e7b00604b18fb1401f69",
     "docs/CLEANUP_NOTES.md": "8ac29b6ce6bc4ef4f99122c58aaec393172e6ff160351a4f92383ad6061a6498",
-    "docs/CROSSFIRE_RESULTS.md": "accd9ac6229924a9a070e69d2e6f21b2cfd22395919f0169cbec457d3ac51218",
-    "docs/evidence/crossfire/crossfire.png": "43434e931574cae7318999fda7698d19202b4c65b1076ac22c5cb23fdad37f07",
-    "docs/evidence/crossfire/learning-curves.png": "5c5a1cf7ffb936d32ae7c43fdc3a9ad32ea8fdddd253bf11add0a1a5b1637e64",
+    "docs/CROSSFIRE_RESULTS.md": "100df39edaf0eb76018dba6b92b72753ec90889b259ffc8583b70c50c4c771d6",
     "docs/FOCUS_RECOVERY_PROTOCOL.md": "5a1e38b75a77d7a6653034c79bfce6fa068e6277422a2e9161bcee2f20585bb8",
     "docs/FOCUS_RECOVERY_RESULTS.md": "da5cb3f01c5cd7c67cf17099e8f8aeed6f783a5d8aa1a7a90e70b631b55a3114",
-    "docs/GPU_ABLATION_RESULTS.md": "81d0f27d69b68d98e8495200efece83d6df3777fc07741e1f9543da12f997539",
+    "docs/GPU_ABLATION_RESULTS.md": "ec090be3721b260e4f8bcc264c1c80d5cd3b6bafd8e34269214aff3942e88472",
     "docs/LIVE_PREVIEW.md": "6c9a7fa98e1cbed261084e6bca6cb64c0f3e7f467081421832c2862fb98d43c0",
     "docs/MASTERY_LIFE_RESULTS.md": "2403393d7903498b5d9a6d435fb8c3d94f9f45680d9115176575d344d0d18dea",
-    "docs/PARALLEL_PPO_RESULTS.md": "aa0e7af37f0c73d6e0b9d54f6b29284807ce28254bc87f9da15b264b467cf42a",
-    "docs/PUBLICATION.md": "e45eefacb99a05ebad53223540751f14e8602b93a15b60a3155536bfa4a8457c",
+    "docs/PARALLEL_PPO_RESULTS.md": "322219006517fec1e8b470980aafc99d81e588c70e824e58edbe82c1db148dac",
+    "docs/PUBLICATION.md": "330e8332c63b68e658fd95dccd01cb55460307bd4fff568c7e27ff984b2155d8",
     "docs/REPRODUCIBILITY.md": "bc90adda59830c5b5cc798b1e5abfa0057a5e38b8174e45c78d3004582976680",
-    "LICENSE": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
+    "docs/assets/tearlab-banner.png": "81074d4369a53d5b9fd3f01dfada755b105de4b5e1dec55c47a7034fd25ba48b",
+    "docs/evidence/crossfire/crossfire.png": "43434e931574cae7318999fda7698d19202b4c65b1076ac22c5cb23fdad37f07",
+    "docs/evidence/crossfire/learning-curves.png": "5c5a1cf7ffb936d32ae7c43fdc3a9ad32ea8fdddd253bf11add0a1a5b1637e64",
     "mod/config.lua": "02c6ea4c45d61d2e584999bf0b38b710465df89ae63f0c5c8c1edce1fd6cd1a8",
     "mod/json.lua": "3255bd1135f0aa976f3681aac481508991ab09ce92c45744896ac3936283f6ac",
     "mod/live_preview.lua": "2a052bbeab845c3044b04b9a108eb6cf4f4408e479ffd2e7ca35df21ab335fb6",
     "mod/main.lua": "3b6c086c4d2f4ddaee779392cf81bae7efca246f2c2ac309d668fea8da49a2c3",
     "mod/metadata.xml": "5bcd2765a6da9e7b508fc79eb8862d0eb080d0e1bc58851cb4adfeb08cdaa758",
     "mod/preview_input.lua": "e669b46d6e18422f3fa474fd4f1b511cb2298f921f08440071fbde08453fe0f6",
+    "models/README.md": "950d3f7543cb4ccbfb5ae1df3f5e0c234d52f3a8bc95c3922896d3f562c93f74",
     "models/latest.meta.json": "21ba83650d2d5c403e0e011dd01ce8438acde50c3036e61ac81ae22d82e09ef9",
     "models/latest.pt": "86e5feb3855c86754951ace4c2d6a67cb61dee8fab72de0689648246788dc2f5",
-    "models/README.md": "aab317778e7fbed8548bbd68b8832cdc5ea1453f8a3f02073bc425b3457039e1",
     "python/alignment_lab.py": "5c93f3950a6d9d18d8e87586847552c3c61ea93cd5c487832a4b8a403bd28539",
     "python/combat_ppo.py": "5ee5cf7b13a923ddd053e52b6495725bff8f43675064e5d2f84b1be2ffe1013a",
     "python/combat_suite.py": "d22460d816f6b1ca0dc19294b5f6930d7019385efb1238f5fe3d60aeaedaa66e",
@@ -101,7 +105,6 @@
     "python/physics_v2.py": "3eaedbaf91c64b339ba477bbb543adfac4fcdbb2e68c668035bbfc25e43c7842",
     "python/play_frozen_live.py": "1b56d0827418d371f7090202e49f2cb59783dc8366b2c0fd175772e31bf2318d",
     "python/shooter_lab.py": "05fad1add8ab0c2fcfc9218a317b506f3b013e44bae17411aef6b7879977a1f7",
-    "README.md": "d1de0e7d3e16a19955d86c85b53bc047aec1dccd49f3998a2428c1b86ee1f1c5",
     "requirements.txt": "18542e0e354edf7fcb31fda9909670b81caa18eb55a5983087c2fdf2dabcc65a",
     "research/__init__.py": "03af92bcb140fe9dd87b370d6ec796f7b3e28d6c2588785992270f5c68ace89d",
     "research/campaign_core.py": "53050149813fd871c9c4546c9f5704da2ee85b5383ae6b3c9d005730bf5b6664",
@@ -120,8 +123,7 @@
     "research/staged_simulator.py": "c20142000ed2da11979ee322feaee31727f6443d35d5698735628af82cdfd073",
     "research/test_focus_recovery.py": "56015bc5ee898a736c819ebe8acfb4d2d3f4a29d8c6b6e4246cff27f3bdf669b",
     "research/test_mastery.py": "6ad430409024c217206c88ff401f9d947866165177875ca414957305d2907cc8",
-    "research/test_terminal_physics_review.py": "aed3bb364a2f8f23341869aa4aab99ea41b77177aa477a5d2a979803f2db4f18",
-    "THIRD_PARTY_NOTICES.md": "27669bee3f9fd564ec7279a36820585428d2b55bf613c4e6c0e0f32af1adb2b5"
+    "research/test_terminal_physics_review.py": "aed3bb364a2f8f23341869aa4aab99ea41b77177aa477a5d2a979803f2db4f18"
   },
   "validation": {
     "cpu_passed": 11,
@@ -130,13 +132,14 @@
     "cli_help_passed": true,
     "known_secret_signatures_tree": 0,
     "known_secret_signatures_history": 0,
-    "local_commits_scanned": 114,
+    "local_commits_scanned": 120,
     "fresh_environment_install_tested": false,
-    "pushed": false,
     "weights_sha_verified": true,
     "cpu_inference_parity_exact": true,
     "bridge_load_passed_without_connecting": true,
-    "lua_mock_input_and_scenarios_passed": true
+    "lua_mock_input_and_scenarios_passed": true,
+    "historical_blobs_scanned": 730,
+    "scanned_revision": "4dcfa5ee09b19df1c8ca1e2aebd71d10f1b31d42"
   },
   "license": "CC0-1.0 for project-owned code, documentation and weights; third-party exceptions in THIRD_PARTY_NOTICES.md",
   "weights": {
@@ -146,5 +149,12 @@
     "source_sha256": "86e5feb3855c86754951ace4c2d6a67cb61dee8fab72de0689648246788dc2f5",
     "unchanged_original_checkpoint": true,
     "count": 1
+  },
+  "publication": {
+    "name": "TearLab",
+    "repository": "https://github.com/maaaakks/tearlab",
+    "upstream": "https://github.com/Sepzie/binding-of-ai",
+    "date": "2026-11-09",
+    "checksum_note": "SHA256 of Git-normalized file bytes, excluding this manifest itself."
   }
 }
