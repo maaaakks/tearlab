@@ -58,7 +58,8 @@ class LiveEncoder:
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--checkpoint',type=Path,required=True);ap.add_argument('--output',type=Path,required=True)
-    ap.add_argument('--port',type=int,default=10009);args=ap.parse_args();args.output.mkdir(parents=True,exist_ok=True)
+    ap.add_argument('--port',type=int,default=10009);ap.add_argument('--auto',action='store_true')
+    args=ap.parse_args();args.output.mkdir(parents=True,exist_ok=True)
     torch.set_num_threads(1);cp=torch.load(args.checkpoint,map_location='cpu',weights_only=True)
     digest=hashlib.sha256(args.checkpoint.read_bytes()).hexdigest()
     sidecar=json.loads(args.checkpoint.with_suffix('.meta.json').read_text())
@@ -67,10 +68,10 @@ def main():
     model=Policy().eval();model.load_state_dict(cp['state_dict'])
     for parameter in model.parameters():parameter.requires_grad_(False)
     meta=dict(checkpoint=str(args.checkpoint.resolve()),sha256=hashlib.sha256(args.checkpoint.read_bytes()).hexdigest(),
-              inference='CPU greedy 10 Hz, no optimizer',control='manual until C in game',unknown_attack_warning=True,
+              inference='CPU greedy 10 Hz, no optimizer',control='automatic demo requested' if args.auto else 'manual until C in game',unknown_attack_warning=True,
               live_validated=False,started=time.time())
     (args.output/'session.json').write_text(json.dumps(meta,indent=2));status_path=args.output/'status.json'
-    encoder=LiveEncoder();sock=None;buffer=bytearray();previous=45;last_room=None;last_control=None;was_enabled=False;action_id=0;stop=False
+    encoder=LiveEncoder();sock=None;buffer=bytearray();previous=45;last_room=None;last_control=None;was_enabled=False;action_id=0;stop=False;auto_sent=False
     def stopping(*_):
         nonlocal stop
         stop=True
@@ -78,7 +79,7 @@ def main():
     def status(**fields):status_path.write_text(json.dumps(dict(time=time.time(),**fields),indent=2))
     def send(message):sock.sendall((json.dumps(message,separators=(',',':'))+'\n').encode())
     status(state='waiting_game',ready=True)
-    print('Agent charge. Demarre Isaac. C active/coupe le controle; aucun reset automatique.',flush=True)
+    print('Agent charge. Demo automatique demandee.' if args.auto else 'Agent charge. C active/coupe le controle.',flush=True)
     try:
         with (args.output/'trace.jsonl').open('a',encoding='utf8',buffering=1) as trace:
             while not stop:
@@ -102,6 +103,8 @@ def main():
                         if message.get('kind')=='hello':
                             if message.get('protocol')!='isaac-live-238-v1':raise ValueError('Protocole incompatible')
                             status(state='mod_ready_manual',ready=True,hello=message)
+                            if args.auto and not auto_sent and message.get('auto_supported'):
+                                send(dict(command='auto_start'));auto_sent=True
                     if not states:continue
                     state=states[-1];enabled=bool(state.get('assistant_enabled'))
                     if state['room_id']!=last_room or state['control_id']!=last_control or enabled!=was_enabled:

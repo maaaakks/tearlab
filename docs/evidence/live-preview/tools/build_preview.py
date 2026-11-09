@@ -10,7 +10,7 @@ for name in ['main.lua','config.lua','action_injector.lua','state_serializer.lua
     shutil.copyfile(REPO/'mod'/name,target/name)
 shutil.copyfile(ROOT/'live_preview.lua',target/'live_preview.lua')
 main=(target/'main.lua').read_text(encoding='utf8')
-(target/'main.lua').write_text('if require("live_preview").start() then return end\n'+main,encoding='utf8')
+(target/'main.lua').write_text('package.loaded["live_preview"] = nil\ncollectgarbage("collect")\nif require("live_preview").start() then return end\n'+main,encoding='utf8')
 with (target/'config.lua').open('r',encoding='utf8') as f:config=f.read()
 assert config.count('return Config')==1
 config=config.replace('return Config','Config.LIVE_PREVIEW = true\nreturn Config')
